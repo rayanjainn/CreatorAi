@@ -151,3 +151,9 @@ Append one 5-line entry per task (newest last):
 - Learned: runAgent (no runId) creates its own agent_runs row, so editing work is tracked by an editing_jobs row created at request time (queued together with the pg-boss job in one transaction) that lists the run ids; agent failures copy the run's error onto the job. Fake LLM replies read the agent input back out of the prompt ("## Input" JSON).
 - Next: P6.T2 cut-decisions -> Timeline JSON builder (pure, property-tested).
 - Gate: `npx eslint . --max-warnings=0 && npx vitest run tests/phase6 tests/phase0` passed (68/68); phase-6 moments 501 row removed from phase0 http.test.js (approved pattern).
+
+## P6.T2 cut decisions -> Timeline JSON builder (2026-10-04)
+- Done: editing/builder.js buildTimelineDoc({ assetId, durationMs, keep, captions?, window?, output? }) (round, clamp to the asset / window, sort, merge overlaps, drop < 100 ms slivers, lay clips back to back from 0 on track v1; source-time captions split at cuts onto track cap, cut-away text dropped, overlaps resolved; BuildError 'empty_cut' when nothing is left); exported via service.js; tests/phase6/builder.test.js (seeded property test, 320 random cut sets, each checked with the P5 validateTimeline + contiguity + kept length; clamping, window, caption mapping, rejection).
+- Learned: the property test uses a small seeded PRNG (mulberry32) instead of a new dependency, so a failure prints a reproducible seed/case. Overlapping keep ranges are merged, so the kept length is their union, not the sum.
+- Next: P6.T3 editing agent: reels + revise endpoints and jobs, RBAC matrix.
+- Gate: `npx eslint . --max-warnings=0 && npx vitest run tests/phase6 tests/phase0` passed (82/82).

@@ -13,6 +13,7 @@ import { Moment, MomentsBody, Uuid } from './schemas.js';
 
 export { configureEditing, getEditingConfig, resetEditing } from './config.js';
 export { SCORE_KEYS, buildWindows, scoreMoment, selectCandidates } from './selection.js';
+export { BuildError, buildTimelineDoc } from './builder.js';
 
 const isUuid = (v) => Uuid.safeParse(v).success;
 const iso = (v) => new Date(v).toISOString();
