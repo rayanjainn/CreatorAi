@@ -132,6 +132,34 @@ export async function getAssetIndex(projectId, assetId) {
   };
 }
 
+const DERIVED_KINDS = new Set(['proxy', 'keyframe', 'audio', 'render']);
+
+// Contract for workers (P3 keyframes, P7 renders): records a file already uploaded to
+// derivedFolder(projectId). createDerivedAsset(projectId, { kind, parentAssetId, publicId,
+// url, durationMs?, width?, height?, meta? }) -> asset (full shape, status 'uploaded').
+// Idempotent on publicId within the project.
+export async function createDerivedAsset(projectId, input) {
+  if (!DERIVED_KINDS.has(input.kind)) throw badRequest(`kind must be one of ${[...DERIVED_KINDS].join(', ')}`);
+  const row = await repo.upsertDerived({
+    projectId,
+    kind: input.kind,
+    parentAssetId: input.parentAssetId ?? null,
+    publicId: input.publicId,
+    url: input.url ?? null,
+    durationMs: input.durationMs ?? null,
+    width: input.width ?? null,
+    height: input.height ?? null,
+    meta: input.meta ?? {},
+  });
+  return toFullAsset(row);
+}
+
+// Contract for the P3 orchestrator: setAssetStatus(assetId, status) -> asset | null.
+export async function setAssetStatus(assetId, status) {
+  const row = await repo.updateStatus(assetId, status);
+  return row ? toFullAsset(row) : null;
+}
+
 // Cloudinary webhook: verifies the signature through the storage adapter.
 export function verifyNotification({ body, timestamp, signature }) {
   return getStorage().verifyNotification({ body, timestamp, signature });

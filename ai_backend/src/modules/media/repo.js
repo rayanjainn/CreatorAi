@@ -85,6 +85,39 @@ export async function insertOriginal(client, { projectId, publicId, url, duratio
   return rows[0] ?? null;
 }
 
+// Inserts a derived asset (proxy, keyframe, audio, render). Re-uploading the same
+// public_id updates the row, so a re-run step does not duplicate assets.
+export async function upsertDerived(input, db = { query }) {
+  const { rows } = await db.query(
+    `INSERT INTO assets (project_id, kind, parent_asset_id, cloudinary_public_id, url, duration_ms, width, height, status, meta)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'uploaded', $9)
+     ON CONFLICT (project_id, cloudinary_public_id) DO UPDATE SET
+       url = EXCLUDED.url, duration_ms = EXCLUDED.duration_ms, width = EXCLUDED.width,
+       height = EXCLUDED.height, meta = EXCLUDED.meta, updated_at = now()
+     RETURNING ${COLUMNS}`,
+    [
+      input.projectId,
+      input.kind,
+      input.parentAssetId,
+      input.publicId,
+      input.url,
+      input.durationMs,
+      input.width,
+      input.height,
+      input.meta,
+    ],
+  );
+  return rows[0];
+}
+
+export async function updateStatus(assetId, status) {
+  const { rows } = await query(`UPDATE assets SET status = $2, updated_at = now() WHERE id = $1 RETURNING ${COLUMNS}`, [
+    assetId,
+    status,
+  ]);
+  return rows[0] ?? null;
+}
+
 // Children cascade through parent_asset_id ON DELETE CASCADE.
 export async function deleteOne(projectId, assetId) {
   const { rowCount } = await query('DELETE FROM assets WHERE project_id = $1 AND id = $2', [projectId, assetId]);
