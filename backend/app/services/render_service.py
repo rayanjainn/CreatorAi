@@ -28,6 +28,7 @@ from app.db import session_scope
 from app.errors import AppError, not_found
 from app.media import render_graph
 from app.media.captions_ass import build_ass
+from app.media.captions_png import write_track
 from app.media.cards import render_card
 from app.media.ffmpeg import FFmpegCanceled, FFmpegError, probe, run
 from app.media.fonts import stage_fonts
@@ -233,9 +234,13 @@ def _run(ctx: JobContext, render_id: str, workdir: Path) -> dict[str, Any]:
         render_card(
             card.kind, card.text, target.width, target.height, workdir / card.filename, faces
         )
-    (workdir / "captions.ass").write_text(
-        build_ass(target, faces, time_map=plan.time_map, duration=plan.duration), encoding="utf-8"
-    )
+    if plan.caption_track is not None:  # no libass: Pillow PNG states + concat lists
+        write_track(plan.caption_track, target.width, target.height, faces, workdir)
+    else:
+        (workdir / "captions.ass").write_text(
+            build_ass(target, faces, time_map=plan.time_map, duration=plan.duration),
+            encoding="utf-8",
+        )
     ctx.progress(10, "build graph")
 
     last = {"pct": 10}

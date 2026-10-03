@@ -14,6 +14,7 @@ from app import __version__
 from app.config import get_settings
 from app.db import session_scope
 from app.llm.gateway import get_gateway
+from app.media.caption_support import caption_features
 from app.media.ffmpeg import ffmpeg_available, ffmpeg_version
 from app.ml.embedder import embedder_info
 from app.models import User
@@ -51,6 +52,7 @@ def health() -> dict[str, Any]:
             },
             "embedder": embedder_info(),
             "ffmpeg": {"present": ffmpeg_available(), "version": ffmpeg_version()},
+            "captions": caption_features(),
             "youtube": {"configured": settings.google_configured},
         },
     }
