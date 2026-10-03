@@ -145,3 +145,9 @@ Append one 5-line entry per task (newest last):
 - Learned: contract-first (030/031 tables, media createDerivedAsset/setAssetStatus/getAssetIndex, workers/steps/*.js stubs) let the two tracks merge with no code conflicts. The fake LLM default reply fails the analysis schema, so pipeline tests must queue analysisReply.
 - Next: live smoke (real 2-3 min clip: transcript, scenes, three searches; Cloudinary detectFaces is untested live), then P6 + P7 in parallel.
 - Gate: per human rule (current phase only, plus at-risk earlier phases): eslint clean, vitest tests/phase0 + phase2 + phase3 passed (212/212).
+
+## P7.T1 render args builder (2026-10-04)
+- Done: src/modules/render/ffmpeg-args.js, pure buildFfmpegArgs(doc, inputs, { kind, outputPath }) -> { args, durationMs, width, height } plus renderSize/renderClips: first video track with clips in startMs order, one -ss/-t input per clip, one filter_complex (trim, setpts, scale+crop to the render size, setsar, fps, yuv420p; atrim, asetpts, volume, 48 kHz stereo), black/silence for gaps, concat v+a, libx264/aac; preview 480 wide (even height, never upscaled) veryfast crf 30, final output size medium crf 20; tests/phase7/args.test.js (4 snapshots: 1 clip, 3 clips, 2 assets, preview; plus structure tests).
+- Learned: per-clip inputs with input seeking avoid split/asplit (an input pad feeds one filter only) and let FFmpeg seek remote Cloudinary URLs by HTTP range instead of decoding from 0. Inputs may be { url, hasAudio: false } for silent sources. Captions are not burned in (MVP cut); extra video tracks are ignored.
+- Next: P7.T2 renders table + render worker running real FFmpeg on the fixture.
+- Gate: `npx eslint . --max-warnings=0 && npx vitest run tests/phase7` passed (14/14).
