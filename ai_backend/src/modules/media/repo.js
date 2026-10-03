@@ -13,6 +13,24 @@ export async function findByIds(projectId, ids) {
   return rows;
 }
 
+export async function findSegments(assetId) {
+  const { rows } = await query(
+    `SELECT start_ms, end_ms, text, speaker FROM transcript_segments
+     WHERE asset_id = $1 ORDER BY start_ms, end_ms`,
+    [assetId],
+  );
+  return rows;
+}
+
+export async function findScenes(assetId) {
+  const { rows } = await query(
+    `SELECT idx, start_ms, end_ms, keyframe_asset_id, caption FROM scenes
+     WHERE asset_id = $1 ORDER BY idx`,
+    [assetId],
+  );
+  return rows;
+}
+
 export async function findOne(projectId, assetId) {
   const { rows } = await query(`SELECT ${COLUMNS} FROM assets WHERE project_id = $1 AND id = $2`, [
     projectId,

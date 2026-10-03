@@ -112,6 +112,26 @@ export async function registerUpload(projectId, input, { createdBy = null } = {}
   }
 }
 
+// Contract used by moments / the editing agent (P6), filled by the P3 workers:
+// getAssetIndex(projectId, assetId) -> { asset, segments: [{ startMs, endMs, text, speaker }],
+// scenes: [{ idx, startMs, endMs, keyframeAssetId, caption }] }, both ordered by time.
+// Malformed id, missing or other project -> 404. Callers check asset.status === 'indexed'.
+export async function getAssetIndex(projectId, assetId) {
+  const asset = await getAsset(projectId, assetId);
+  const [segments, scenes] = await Promise.all([repo.findSegments(asset.id), repo.findScenes(asset.id)]);
+  return {
+    asset,
+    segments: segments.map((s) => ({ startMs: s.start_ms, endMs: s.end_ms, text: s.text, speaker: s.speaker ?? null })),
+    scenes: scenes.map((s) => ({
+      idx: s.idx,
+      startMs: s.start_ms,
+      endMs: s.end_ms,
+      keyframeAssetId: s.keyframe_asset_id ?? null,
+      caption: s.caption ?? null,
+    })),
+  };
+}
+
 // Cloudinary webhook: verifies the signature through the storage adapter.
 export function verifyNotification({ body, timestamp, signature }) {
   return getStorage().verifyNotification({ body, timestamp, signature });
