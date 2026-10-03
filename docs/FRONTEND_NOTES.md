@@ -43,3 +43,11 @@ Backend gaps and oddities hit while wiring the frontend. Each is worked around i
     `data-seek-target`; real playback needs Chrome/Edge/Safari.
 23. **Job SSE only starts after the 4 s poll finds the job**, so an upload's pipeline checklist can lag one poll behind the real stage; the
     asset query (`stages_done`, polled every 2.5 s while processing) keeps it correct.
+24. **Editor playback is only verified through the clock-driven fallback**: Playwright's Chromium cannot decode H.264, so real
+    picture/audio playback, gapless swaps and audio layers are covered by unit tests with fake media elements, not in a real decoder.
+25. **Preview ignores transitions** (hard cut); renders overlap clips for fade/dissolve. Preview audio gain is capped at 0 dB.
+26. **Cut for time**: loop-selection playback, multi-item drag, Audio/Color/Structure modes (no backend), keyframe-accurate thumbnails
+    (one keyframe per shot is used), per-track lock/mute are per-viewer UI state (not persisted).
+27. **Twin chat** is an honest "not available" card; the left panel only shows real layers, activity and revisions.
+28. `rebuild_captions` uses local words when they cover the edited ranges, else the server op (the edit payload only carries words for the ranges used at load).
+

@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "gen:api": "openapi-typescript openapi.json -o src/lib/api/schema.d.ts --default-non-nullable false",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "test:unit": "vitest run",
+    "test": "npm run test:unit"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -43,7 +45,8 @@
     "postcss": "^8.5",
     "prettier": "^3.9.9",
     "tailwindcss": "^4.3.3",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "vitest": "^3.2.7"
   },
   "engines": {
     "node": ">=20"

@@ -84,6 +84,10 @@ export const qk = {
   match: (id: string) => ['match', id] as const,
   clips: (id: string, f?: object) => ['clips', 'item', id, f ?? {}] as const,
   clipsAll: ['clips'] as const,
+  clip: (id: string) => ['clips', 'one', id] as const,
+  clipRenders: (id: string) => ['renders', 'clip', id] as const,
+  revisions: (id: string) => ['edit', id, 'revisions'] as const,
+  edit: (id: string) => ['edit', id, 'payload'] as const,
   allClips: (f?: object) => ['clips', 'all', f ?? {}] as const,
   renders: (id: string) => ['renders', 'item', id] as const,
   rendersAll: ['renders'] as const,
@@ -803,6 +807,26 @@ export function useClips(id: string, filters: { status?: ClipStatus; kind?: 'sho
   return useQuery({
     queryKey: qk.clips(id, filters),
     queryFn: () => unwrap(api.GET('/api/v1/content/{item_id}/clips', { params: { path: { item_id: id }, query: filters } })) as Promise<Clip[]>,
+  })
+}
+
+/** One clip (the editor header and Export dialog). */
+export function useClip(id: string | undefined) {
+  return useQuery({
+    queryKey: qk.clip(id ?? ''),
+    queryFn: () => unwrap(api.GET('/api/v1/clips/{clip_id}', { params: { path: { clip_id: id! } } })) as Promise<Clip>,
+    enabled: !!id,
+    retry: false,
+  })
+}
+
+/** Renders of one clip, newest first (the editor's stale-render hint). */
+export function useClipRenders(id: string | undefined) {
+  return useQuery({
+    queryKey: qk.clipRenders(id ?? ''),
+    queryFn: () => unwrap(api.GET('/api/v1/clips/{clip_id}/renders', { params: { path: { clip_id: id! } } })) as Promise<Render[]>,
+    enabled: !!id,
+    refetchInterval: (q) => (q.state.data?.some((r) => r.status === 'queued' || r.status === 'rendering') ? 3000 : false),
   })
 }
 
