@@ -7,6 +7,7 @@
 // head the save is refused with 409 { headVersion } and nothing is written. The check
 // runs under SELECT ... FOR UPDATE on the timeline row, so of two parallel saves on the
 // same base exactly one wins; the (timeline_id, version) PK is the backstop.
+import { isDeepStrictEqual } from 'node:util';
 import { withTransaction } from '../../db/pool.js';
 import { HttpError, conflict, notFound } from '../../lib/errors.js';
 import { getAssetsByIds } from '../media/service.js';
@@ -14,6 +15,7 @@ import * as repo from './repo.js';
 import {
   CreateTimelineInput,
   CreateVersionInput,
+  RevertInput,
   Timeline,
   TimelineId,
   TimelineVersion,
@@ -200,4 +202,102 @@ export async function listTimelines(projectId) {
 export async function listVersions(projectId, timelineId) {
   const row = await loadTimeline(projectId, timelineId);
   return (await repo.listVersions(row.id)).map(toVersionMeta);
+}
+
+const VERSION_PARAM = /^[1-9]\d{0,8}$/;
+
+// The version row, or 404 for a malformed number or a version that does not exist.
+// `version` may be a number or the raw URL segment.
+async function loadVersion(timelineId, version) {
+  const text = String(version);
+  const row = VERSION_PARAM.test(text) ? await repo.findVersion(timelineId, Number(text)) : null;
+  if (!row) throw notFound('Version not found');
+  return row;
+}
+
+// getVersion(projectId, timelineId, version) -> version (with doc). 404 when missing.
+export async function getVersion(projectId, timelineId, version) {
+  const timeline = await loadTimeline(projectId, timelineId);
+  return toVersion(await loadVersion(timeline.id, version));
+}
+
+// revertTimeline(projectId, timelineId, { toVersion, baseVersion?, summary?, authorType,
+//   authorId?, agentRunId? }) -> the new version.
+// Appends a new version whose doc is a copy of toVersion's doc (history is never
+// rewritten). With baseVersion it follows the usual rule (409 { headVersion } if stale);
+// without it the revert applies on whatever the head is when the row lock is taken.
+// The copied doc is re-validated against today's assets, so a revert to a doc whose
+// asset has since been deleted is a 400. Missing toVersion -> 404.
+export async function revertTimeline(projectId, timelineId, input) {
+  const timeline = await loadTimeline(projectId, timelineId);
+  const data = parseInput(RevertInput, input);
+  const target = await loadVersion(timeline.id, data.toVersion);
+  const doc = await assertTimelineDoc(projectId, target.doc, ['doc']);
+  const { version } = await appendOnBase(projectId, timelineId, data.baseVersion ?? null, {
+    authorType: data.authorType,
+    authorId: data.authorId,
+    agentRunId: data.agentRunId,
+    summary: data.summary ?? `Revert to v${data.toVersion}`,
+    doc,
+  });
+  return toVersion(version);
+}
+
+const clipIndex = (doc) => {
+  const index = new Map();
+  for (const track of doc.tracks) {
+    for (const clip of track.clips) index.set(clip.id, { trackId: track.id, clip });
+  }
+  return index;
+};
+
+const byId = (a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+// Key order does not matter (jsonb reorders keys).
+const same = (a, b) => isDeepStrictEqual(a, b);
+
+// diffTimelines(fromDoc, toDoc) -> { added, removed, changed, outputChanged, tracksAdded,
+// tracksRemoved }. Pure. Clips are matched by id (unique across the doc):
+// - added / removed: [{ id, trackId, clip }]
+// - changed: [{ id, fromTrackId, trackId, fields, before, after }] where fields lists the
+//   clip keys that differ (plus 'trackId' first when the clip moved track).
+// Every list is sorted by id.
+export function diffTimelines(fromDoc, toDoc) {
+  const before = clipIndex(fromDoc);
+  const after = clipIndex(toDoc);
+  const added = [];
+  const removed = [];
+  const changed = [];
+  for (const [id, b] of after) {
+    const a = before.get(id);
+    if (!a) {
+      added.push({ id, trackId: b.trackId, clip: b.clip });
+      continue;
+    }
+    const keys = [...new Set([...Object.keys(a.clip), ...Object.keys(b.clip)])].filter((k) => k !== 'id').sort();
+    const fields = keys.filter((k) => !same(a.clip[k], b.clip[k]));
+    if (a.trackId !== b.trackId) fields.unshift('trackId');
+    if (fields.length) changed.push({ id, fromTrackId: a.trackId, trackId: b.trackId, fields, before: a.clip, after: b.clip });
+  }
+  for (const [id, a] of before) {
+    if (!after.has(id)) removed.push({ id, trackId: a.trackId, clip: a.clip });
+  }
+  const fromTracks = new Set(fromDoc.tracks.map((t) => t.id));
+  const toTracks = new Set(toDoc.tracks.map((t) => t.id));
+  return {
+    added: added.sort(byId),
+    removed: removed.sort(byId),
+    changed: changed.sort(byId),
+    outputChanged: !same(fromDoc.output, toDoc.output),
+    tracksAdded: [...toTracks].filter((t) => !fromTracks.has(t)).sort(),
+    tracksRemoved: [...fromTracks].filter((t) => !toTracks.has(t)).sort(),
+  };
+}
+
+// diffVersions(projectId, timelineId, from, to) -> { from, to, ...diffTimelines }.
+// 404 when the timeline or either version is missing.
+export async function diffVersions(projectId, timelineId, from, to) {
+  const timeline = await loadTimeline(projectId, timelineId);
+  const a = await loadVersion(timeline.id, from);
+  const b = await loadVersion(timeline.id, to);
+  return { from: a.version, to: b.version, ...diffTimelines(a.doc, b.doc) };
 }
