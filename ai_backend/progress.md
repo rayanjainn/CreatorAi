@@ -109,3 +109,9 @@ Append one 5-line entry per task (newest last):
 - Learned: pg-boss fetch()/work() as used here do not expose retryCount, so the orchestrator counts attempts itself and sends step jobs with retryLimit 0. Locking all of an asset's step rows in step order before scheduling avoids double scheduling and deadlocks when transcription and scenes finish together.
 - Next: P3.T4 embeddings step + search endpoint.
 - Gate: `eslint . --max-warnings=0 && vitest run tests/phase3 tests/phase2` green except tests/phase2/media.test.js "Phase 3 routes stay 501" (2 rows; not on the approved list, needs a human decision) and the Track-B-dependent real-steps test.
+
+## P3.T4 embeddings step + search endpoint (2026-10-04)
+- Done: steps/embeddings.js (segment text; scene keyframe image when supportsImages(), caption text otherwise or on code 'unsupported'; dimension-checked; written via search service storeEmbeddings); search/repo.js setEmbeddings (jsonb_to_recordset, one UPDATE per table) + searchProject (UNION of transcript/scene hits, project-scoped JOIN on assets, kinds/assetIds filters, cosine order); POST /projects/:projectId/search (viewer+) -> { hits: [{ kind, assetId, startMs, endMs, text | caption + keyframeAssetId, score }] }; real Gemini batchEmbedContents adapter (outputDimensionality = EMBED_DIM, L2-normalised, inline images, 429 backoff); fake gained supportsImages/setImageSupport/failNext/calls; tests/phase3/search.test.js. Removed the approved phase0 rows (search 501 stub, embeddings/transcription "not implemented" + imports).
+- Learned: unnest() flattens float8[][] so a 2D array param cannot write one vector per row; a jsonb recordset converted per backend (::text::vector or ARRAY(... WITH ORDINALITY)) keeps it one statement and inside search/repo.js.
+- Next: P3.T5 index endpoint tests + Track A RBAC matrix.
+- Gate: eslint + vitest tests/phase3 tests/phase2 green apart from the two items noted under P3.T1.
