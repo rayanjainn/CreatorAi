@@ -1,5 +1,6 @@
 // media service: the module's public API. Other modules import this file and nothing
 // else from here.
+import { randomUUID } from 'node:crypto';
 import { getStorage } from '../../adapters/storage/index.js';
 import { withTransaction } from '../../db/pool.js';
 import { badRequest, notFound } from '../../lib/errors.js';
@@ -130,6 +131,54 @@ export async function getAssetIndex(projectId, assetId) {
       caption: s.caption ?? null,
     })),
   };
+}
+
+// processing_jobs rows -> { [step]: { status, error, attempts, updatedAt } }.
+const toSteps = (rows) =>
+  Object.fromEntries(
+    rows.map((r) => [
+      r.step,
+      { status: r.status, error: r.error ?? null, attempts: r.attempts, updatedAt: new Date(r.updated_at).toISOString() },
+    ]),
+  );
+
+// GET /media/:assetId/index: getIndexView(projectId, assetId) -> { asset, transcript:
+// [{ startMs, endMs, text, speaker }], scenes: [{ idx, startMs, endMs, keyframeAssetId,
+// caption }], faces: [{ sceneIdx, atMs, bbox }], analysis: { summary, topics, updatedAt } |
+// null, steps: { [step]: { status, error, attempts, updatedAt } } }. 404 like getAsset.
+export async function getIndexView(projectId, assetId) {
+  const { asset, segments, scenes } = await getAssetIndex(projectId, assetId);
+  const [faces, analysis, steps] = await Promise.all([
+    repo.findFaces(asset.id),
+    repo.findAnalysis(asset.id),
+    repo.findSteps(asset.id),
+  ]);
+  return {
+    asset,
+    transcript: segments,
+    scenes,
+    faces: faces.map((f) => ({ sceneIdx: f.scene_idx ?? null, atMs: f.at_ms, bbox: f.bbox })),
+    analysis: analysis
+      ? { summary: analysis.summary, topics: analysis.topics, updatedAt: new Date(analysis.updated_at).toISOString() }
+      : null,
+    steps: toSteps(steps),
+  };
+}
+
+// POST /media/:assetId/reprocess: reprocessAsset(projectId, assetId) -> { asset, steps }.
+// Resets every step to queued under a new run (pending jobs of the old run are skipped),
+// sets the asset processing and enqueues media.process, all in one transaction. Only
+// originals are processed (else 400); missing / other project -> 404.
+export async function reprocessAsset(projectId, assetId) {
+  const asset = await getAsset(projectId, assetId);
+  if (asset.kind !== 'original') throw badRequest('Only original assets can be reprocessed');
+  return withTransaction(async (client) => {
+    const row = await repo.resetProcessing(client, asset.id, randomUUID());
+    if (!row) throw notFound('Asset not found');
+    const db = { executeSql: (text, values) => client.query(text, values) };
+    await enqueue(JOBS.MEDIA_PROCESS, { assetId: asset.id, projectId }, { db });
+    return { asset: toFullAsset(row), steps: toSteps(await repo.findSteps(asset.id, client)) };
+  });
 }
 
 const DERIVED_KINDS = new Set(['proxy', 'keyframe', 'audio', 'render']);

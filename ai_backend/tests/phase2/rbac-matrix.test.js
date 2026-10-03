@@ -47,16 +47,16 @@ export const MATRIX = [
     path: '/projects/:projectId/media/:assetId',
     expect: { owner: 204, editor: 204, viewer: 403, nonMember: 404, anonymous: 401 },
   },
-  // Phase-3 routes, still 501 stubs for everyone; phase 3 replaces these expectations.
+  // Phase-3 routes (index: viewer+, reprocess: editor+).
   {
     method: 'get',
     path: '/projects/:projectId/media/:assetId/index',
-    expect: { owner: 501, editor: 501, viewer: 501, nonMember: 501, anonymous: 501 },
+    expect: { owner: 200, editor: 200, viewer: 200, nonMember: 404, anonymous: 401 },
   },
   {
     method: 'post',
     path: '/projects/:projectId/media/:assetId/reprocess',
-    expect: { owner: 501, editor: 501, viewer: 501, nonMember: 501, anonymous: 501 },
+    expect: { owner: 202, editor: 202, viewer: 403, nonMember: 404, anonymous: 401 },
   },
   // Not project-scoped: a user token is not a Cloudinary signature.
   {
