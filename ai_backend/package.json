@@ -1,0 +1,33 @@
+{
+  "name": "ai-video-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "worker": "node src/worker.js",
+    "migrate": "node src/db/migrate.js",
+    "preflight": "node scripts/preflight.js",
+    "fixture": "node tests/fixtures/make-fixture.js",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "gate": "node scripts/gate.js"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.5",
+    "express": "^5.2.1",
+    "pg": "^8.23.1",
+    "pg-boss": "^12.36.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0",
+    "supertest": "^7.3.1",
+    "vitest": "^5.0.3"
+  }
+}
