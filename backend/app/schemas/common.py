@@ -12,6 +12,7 @@ object so the UI can badge it. ``source`` is one of:
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel
@@ -58,3 +59,15 @@ class WithProvenance(BaseModel):
 def attach_provenance(payload: dict[str, Any], provenance: Provenance) -> dict[str, Any]:
     """Return ``payload`` plus a serialised ``provenance`` key (for dict-shaped responses)."""
     return {**payload, "provenance": provenance.model_dump()}
+
+
+# Weakest first: a result that mixes sources reports the weakest one.
+_STRENGTH: dict[str, int] = {"mock": 0, "heuristic": 1, "demo": 2, "ai": 3, "user": 4}
+
+
+def weakest(provenances: Iterable[Provenance | None]) -> Provenance | None:
+    """Weakest of several provenances (mock < heuristic < demo < ai < user); ``None`` if none."""
+    items = [p for p in provenances if p is not None]
+    if not items:
+        return None
+    return min(items, key=lambda p: _STRENGTH.get(p.source, 0))

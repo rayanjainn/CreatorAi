@@ -91,3 +91,11 @@ def auth(client: TestClient) -> dict[str, str]:
 @pytest.fixture
 def workspace_id(client: TestClient, auth: dict[str, str]) -> str:
     return str(client.get("/api/v1/me", headers=auth).json()["workspace_id"])
+
+
+@pytest.fixture
+def no_processing() -> Iterator[None]:
+    """Run without the ``asset.process`` handler: uploads stay ``uploaded`` (junk bytes are fine)."""
+    JOB_HANDLERS.pop("asset.process", None)
+    JOB_QUEUES.pop("asset.process", None)
+    yield
