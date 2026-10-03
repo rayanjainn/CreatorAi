@@ -7,6 +7,7 @@ helpers (``update_analysis`` and friends) with its own sessions.
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import logging
 import os
 import shutil
@@ -16,6 +17,7 @@ from typing import Any
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.errors import AppError, not_found
 from app.media.kinds import detect_kind, extension, guess_mime, safe_filename
 from app.ml.transcripts import SidecarFormat, parse_sidecar
@@ -297,6 +299,62 @@ def register_file(
         store_sidecar(asset, sidecar[0], sidecar[1], source=sidecar_source)
     db.flush()
     return asset, False
+
+
+def find_sidecar(path: Path) -> Path | None:
+    """A transcript sitting next to ``path``: ``<name>.words.json``, ``<stem>.words.json``,
+    then ``.srt`` and ``.vtt`` (``clip.mp4`` -> ``clip.mp4.words.json`` or ``clip.words.json``)."""
+    for base in (path.name, path.stem):
+        for suffix in (".words.json", ".srt", ".vtt"):
+            candidate = path.with_name(base + suffix)
+            if candidate.is_file() and candidate != path:
+                return candidate
+    return None
+
+
+def ingest_local_file(
+    db: Session,
+    workspace_id: str,
+    path: Path,
+    *,
+    content_item_id: str | None = None,
+    mime: str | None = None,
+    sidecar: Path | None = None,
+    sidecar_source: str | None = None,
+    process: bool = True,
+) -> tuple[Asset, bool, str | None]:
+    """Register a file from disk (copied, the original is untouched), picking up a neighbouring
+    transcript sidecar automatically. For seeding and scripts; the API uses ``register_file``.
+
+    Returns ``(asset, duplicate, job_id)``.
+    """
+    sidecar = sidecar or find_sidecar(path)
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        while block := fh.read(1024 * 1024):
+            digest.update(block)
+    tmp_dir = get_settings().tmp_dir / "uploads" / workspace_id
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    tmp = tmp_dir / f"{new_id()}.bin"
+    shutil.copyfile(path, tmp)
+    asset, duplicate = register_file(
+        db,
+        workspace_id,
+        tmp_path=tmp,
+        filename=path.name,
+        mime=mime,
+        sha256=digest.hexdigest(),
+        size_bytes=path.stat().st_size,
+        content_item_id=content_item_id,
+        sidecar=(sidecar.read_text(encoding="utf-8-sig"), sidecar.name) if sidecar else None,
+        sidecar_source=sidecar_source,
+    )
+    job_id = None
+    if process and (not duplicate or sidecar is not None):
+        job_id = start_processing(
+            db, workspace_id, asset, **({"reprocess": True} if duplicate else {})
+        )
+    return asset, duplicate, job_id
 
 
 # ── processing ────────────────────────────────────────────────────────────────────────────────

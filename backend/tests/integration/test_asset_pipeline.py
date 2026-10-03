@@ -424,3 +424,31 @@ def test_video_without_audio_track_skips_asr(client: TestClient, auth: Hdr, tmp_
         "embed",
         "finalize",
     ]
+
+
+def test_ingest_local_file_picks_up_neighbouring_sidecar(
+    client: TestClient, auth: Hdr, workspace_id: str, tiny_media: Any, tmp_path: Path
+) -> None:
+    import shutil
+
+    from app.services.assets import find_sidecar, ingest_local_file
+
+    shutil.copy(tiny_media.video, tmp_path / "clip.mp4")
+    shutil.copy(tiny_media.sidecar, tmp_path / "clip.words.json")
+    assert find_sidecar(tmp_path / "clip.mp4") == tmp_path / "clip.words.json"
+    assert find_sidecar(tmp_path / "clip.words.json") is None
+    with session_scope() as db:
+        asset, duplicate, job_id = ingest_local_file(
+            db, workspace_id, tmp_path / "clip.mp4", sidecar_source="demo"
+        )
+        asset_id = asset.id
+    assert not duplicate and job_id
+    ready = get_asset(client, auth, asset_id)
+    assert (
+        ready["status"] == "ready"
+        and ready["provenance_by_stage"]["transcribe"]["source"] == "demo"
+    )
+    assert (tmp_path / "clip.mp4").exists()  # the source file is copied, not moved
+    with session_scope() as db:
+        again, duplicate, job_id = ingest_local_file(db, workspace_id, tmp_path / "clip.mp4")
+        assert duplicate and again.id == asset_id
