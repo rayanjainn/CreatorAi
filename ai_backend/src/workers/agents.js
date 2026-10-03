@@ -4,6 +4,7 @@
 import { executeRun } from '../modules/agents/service.js';
 import { directorAgent } from '../modules/agents/director/service.js';
 import { researchAgent } from '../modules/agents/research/service.js';
+import { scriptAgent } from '../modules/agents/script/service.js';
 
 // Agent name -> definition, resolved per call (the definitions live in modules that
 // import the queue, so they are not read while this module is being evaluated).
@@ -11,6 +12,7 @@ function agents() {
   return {
     director: directorAgent,
     research: researchAgent,
+    script: scriptAgent,
   };
 }
 

@@ -10,16 +10,17 @@ import { getLlm } from '../../src/adapters/llm/index.js';
 import { runAgent } from '../../src/modules/agents/service.js';
 import { directorAgent } from '../../src/modules/agents/director/service.js';
 import { researchAgent } from '../../src/modules/agents/research/service.js';
+import { scriptAgent } from '../../src/modules/agents/script/service.js';
 import { authHeader, createUser } from '../helpers/auth.js';
 import { closeAll, resetDb } from '../helpers/db.js';
 import { clearQueues } from '../helpers/queue.js';
-import { briefReply, directorBody, planReply } from './fixtures.js';
+import { briefReply, directorBody, planReply, scriptReply } from './fixtures.js';
 
 export const ACTORS = ['owner', 'editor', 'viewer', 'nonMember', 'anonymous'];
 
 // ---- MATRIX ----------------------------------------------------------------------
 // method, path: the route as registered under /projects/:projectId. Placeholders are
-// filled per cell from that project's fixture rows. body(ctx): request body.
+// filled per cell from that project's fixture rows. body(ctx, params): request body.
 export const MATRIX = [
   {
     method: 'get',
@@ -57,6 +58,28 @@ export const MATRIX = [
     method: 'get',
     path: '/projects/:projectId/briefs/:briefId',
     expect: { owner: 200, editor: 200, viewer: 200, nonMember: 404, anonymous: 401 },
+  },
+  {
+    method: 'post',
+    path: '/projects/:projectId/agents/script',
+    body: (_ctx, params) => ({ briefId: params.briefId }),
+    expect: { owner: 202, editor: 202, viewer: 403, nonMember: 404, anonymous: 401 },
+  },
+  {
+    method: 'get',
+    path: '/projects/:projectId/scripts',
+    expect: { owner: 200, editor: 200, viewer: 200, nonMember: 404, anonymous: 401 },
+  },
+  {
+    method: 'get',
+    path: '/projects/:projectId/scripts/:scriptId',
+    expect: { owner: 200, editor: 200, viewer: 200, nonMember: 404, anonymous: 401 },
+  },
+  {
+    method: 'patch',
+    path: '/projects/:projectId/scripts/:scriptId',
+    body: () => ({ cta: 'Edited by a human' }),
+    expect: { owner: 200, editor: 200, viewer: 403, nonMember: 404, anonymous: 401 },
   },
 ];
 // ---- end MATRIX ------------------------------------------------------------------
@@ -105,9 +128,23 @@ async function freshProject() {
   const researched = await run(researchAgent, 'research', { topic: 'espresso grind size' });
   expect(researched.run.status).toBe('succeeded');
 
+  llm.queueResponse(scriptReply());
+  const scripted = await run(scriptAgent, 'script', {
+    briefId: researched.artifact.id,
+    topic: 'espresso grind size',
+    idea: { title: 'espresso grind size' },
+    brief: researched.output,
+  });
+  expect(scripted.run.status).toBe('succeeded');
+
   return {
     project,
-    params: { runId: planned.run.id, planId: planned.artifact.id, briefId: researched.artifact.id },
+    params: {
+      runId: planned.run.id,
+      planId: planned.artifact.id,
+      briefId: researched.artifact.id,
+      scriptId: scripted.artifact.id,
+    },
   };
 }
 
@@ -125,7 +162,7 @@ describe('phase 4 role matrix', () => {
       .replace(/:(\w+)/g, (_m, name) => params[name] ?? `missing-${name}`);
     let req = request(app)[row.method](url);
     if (actor !== 'anonymous') req = req.set(authHeader(ctx.users[actor].token));
-    if (row.body) req = req.send(row.body(ctx));
+    if (row.body) req = req.send(row.body(ctx, params));
     const res = await req;
     expect(res.status, JSON.stringify(res.body)).toBe(row.expect[actor]);
   });
