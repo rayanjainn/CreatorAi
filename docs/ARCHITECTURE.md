@@ -41,7 +41,7 @@ CreatorAi runs as **two processes** on one machine: a FastAPI API on :8000 and t
 | `workers/` | `runner.py` (pools, registry, `enqueue`), `pubsub.py`, `events.py`, `scheduler.py` |
 | `llm/` | `gateway.py`, `tasks.py` (routes), `schemas.py`, `prompts/*.md`, `providers/`, `ratelimit.py`, `cache.py`, `context.py` |
 | `ml/` | `embedder.py` (auto backend), `vectors.py` (pack/unpack/top-k), `asr/` (providers), `transcripts.py` (sidecars), `segments.py`, `shots.py`, `silence.py`, `energy.py` |
-| `media/` | `ffmpeg.py` (`run()`, `probe()`), `audio.py` (extract, chunk planning), `frames.py` (proxy, thumb, keyframes), `kinds.py` (kind detection) |
+| `media/` | `ffmpeg.py` (`run()` with progress + cancel, `probe()`), `audio.py` (extract, chunk planning), `frames.py` (proxy, thumb, keyframes), `kinds.py` (kind detection); render: `presets.py`, `captions_ass.py`, `cards.py`, `fonts.py`, `render_graph.py` |
 | `services/` | `assets.py`, `uploads.py`, `search_service.py`, `hooks.py`, `ingest/` (the `asset.process` stages) |
 | `storage/` | `StorageBackend` interface and `LocalStorage` rooted at `DATA_DIR` |
 
@@ -189,6 +189,48 @@ Deviations from Plan.md made here: `beat_matches.provenance` (migration 003); `s
 `out_of_order`; clip generation lowers the 20 s minimum for very short footage (flagged); the OpenCV pin is
 `<5` because OpenCV 5 ships neither `CascadeClassifier` nor the Haar XML files.
 
+## Rendering (`media/render_graph.py`, `services/render_service.py`, job `render.run`)
+
+**Pipeline.** `POST /clips/{id}/renders` validates (preset cap, assets ready), inserts a `renders` row
+(`edit_revision`, `caption_style`, `job_id`; migration 004) and enqueues `render.run` on the media pool. The job
+reads the stored `edit_revisions` snapshot, probes the ORIGINAL files, copies the timeline for the preset
+(`retarget_timeline`), builds the graph (progress 10), runs ffmpeg with `-progress pipe:1` in a temp work
+directory (`data/tmp/renders/{id}`, removed afterwards; progress 10..95), grabs a poster frame (1 s) and stores
+`renders/{id}.mp4` + `.jpg` via the StorageBackend (100). Cancel: `ffmpeg.run(should_cancel=...)` polls the job's
+cancel flag every 200 ms and kills the process.
+
+**Graph (`build_plan`, pure strings, unit-tested).** Per non-rejected video item: input seeked to
+`src_in - 1 s` (keyframe margin, then an exact `trim`), `setpts`, for 9:16 a face-centred
+`crop=w=ih*9/16:...x='max(0,min(iw-out_w,crop_x*iw-out_w/2))'` when the source is wider, `scale=...:increase`,
+`crop=W:H`, `setsar=1`, `fps=30`, `format=yuv420p`; audio `atrim`, `aresample=48000` to stereo fltp (or
+`anullsrc` when the file has no audio). A sponsor placeholder is `color=c=#111111` plus a Pillow card PNG with
+silent audio. Joining: one `concat` when every transition is a cut; otherwise a left fold where a fade/dissolve is
+`xfade` + `acrossfade` with `offset = running - d` (`running += dur - d`) and a cut is a two-input `concat`
+followed by `fps=30` (concat leaves a 1/1000000 timebase that `xfade` rejects). `d` is clamped to half of both
+neighbours. Overlays are card PNGs with `overlay=enable='between(t,s,e)'`, captions the `subtitles` filter on an
+ASS file in the work dir with `fontsdir=fonts` (relative, so no path escaping), music/sfx/voiceover are
+`atrim, volume, adelay, apad` into one `amix`.
+
+* **Transitions shift time.** Clips overlap during a fade, so everything after one plays earlier than its timeline
+  time. `RenderPlan.time_map` converts timeline to output seconds and is applied to captions, overlays and audio
+  items; the output is `timeline.duration - sum(overlaps)` long.
+* **amix without `normalize`.** FFmpeg < 7 has no `normalize=0`; `amix_supports_normalize()` inspects
+  `ffmpeg -h filter=amix`. Without it the graph appends `volume=<inputs>` after the mix, which equals
+  `normalize=0` because every stream is padded (`apad`) so no input ends early and rescales the others. (The
+  plan suggested boosting the voice instead, which would attenuate music; this keeps all levels as specified.)
+
+**Captions (`media/captions_ass.py`).** Captions already live in the timeline (`rebuild_captions` rules); this
+only styles them: PlayRes = output size, sizes scaled by height (x0.6 for 16:9), `bold_center` Montserrat Bold 84
+uppercase / outline 6 / alignment 5, `minimal_bottom` Inter 52 with a semi-transparent `BorderStyle=3` box
+(MarginV 160 or 60), `karaoke` Montserrat Bold 80, alignment 2, MarginV 420, `{\kf}` per word (yellow fill over
+white; `\kf` sweeps SecondaryColour to PrimaryColour, so Primary = yellow). `media/cards.py` draws the sponsor,
+lower-third and text cards with Pillow at output size.
+
+**Fonts (`media/fonts.py`, `backend/assets/fonts`).** Montserrat-Bold.ttf and Inter-Regular.otf are vendored (SIL
+OFL, licences alongside). If a file is missing the resolver falls back to a system font via fontconfig/DejaVu/
+Liberation and logs one WARNING naming the file to drop in; renders still work but look different. The resolved
+faces are copied into the work dir's `fonts/`.
+
 ## Data layout
 
 ```
@@ -198,7 +240,8 @@ data/
   media/{workspace_id}/{asset_id}/original.<ext>, proxy.mp4, thumb.jpg, audio/full.mp3 (+chunk_NNN.mp3),
                                   keyframes/shot_NNN.jpg, transcript.json, sidecar.(words.json|srt|vtt)
   tmp/uploads/{workspace}/{upload}/NNNNNN.part   chunks of unfinished uploads
-  renders/{render_id}.mp4 / .jpg
+  renders/{render_id}.mp4 / .jpg   (key renders/{id}.mp4; work files in tmp/renders/{id}, deleted after)
+  demo/hero_demo.mp4 + .words.json   generated by make_demo_media for `make seed`
   tmp/                    uploads in progress, scratch files
 ```
 
@@ -211,7 +254,8 @@ route serves with full HTTP Range support.
 - Schema lives in `backend/migrations/*.sql` (SQLite dialect) and is applied at startup by `app.db.migrate()`
   or manually with `make migrate`. Deviations from Plan.md section 5: `jobs.payload` and `jobs.attempts`
   columns (needed for retries); `users` table and `workspaces.owner_id -> users(id)`;
-  `idea_suggestions.provenance` (migration `002_idea_provenance.sql`, provenance of generated ideas).
+  `idea_suggestions.provenance` (migration `002_idea_provenance.sql`, provenance of generated ideas);
+  `renders.caption_style` and `renders.job_id` (migration `004_render_meta.sql`).
 - Embeddings are little-endian float32 BLOBs; search is brute-force cosine in numpy (`ml/vectors.py`).
 - `asset_segments_fts` is an external-content FTS5 table kept in sync by triggers. After a `VACUUM`, run
   `insert into asset_segments_fts(asset_segments_fts) values('rebuild');`.

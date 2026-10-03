@@ -347,3 +347,60 @@ kind, item_ids, count, sources[ai|user], revision}`. A `suggested` birth is not 
 `layer_rejected`.
 
 Error codes added: `REVISION_CONFLICT` 409, `NO_CLIP_CANDIDATES` 409.
+
+## Renders and export (`api/v1/renders.py`, job `render.run`)
+
+| Method and path | Purpose |
+|---|---|
+| `POST /clips/{id}/renders` | `{preset: yt_short|reels|tiktok|yt_long, caption_style?}` -> `202 {render, job_id}` (`render.status = "queued"`). `422 DURATION_EXCEEDS_PRESET` with `details {preset, max_duration, duration, over_by}`; `409 ASSET_NOT_READY` (a source file is missing or still processing); `422 VALIDATION_ERROR` (unknown preset, or a clip with no video) |
+| `GET /clips/{id}/renders` | Renders of one clip, newest first |
+| `GET /content/{id}/renders` | Every render of every clip of the item, newest first: the **Renders** list of the export section |
+| `GET /renders/{id}` | One render with signed URLs once `done` |
+| `DELETE /renders/{id}` | `204`; removes the files. `409 CONFLICT` while queued/rendering (cancel `job_id` first) or when a publish job used it |
+
+Render object: `{id, clip_id, clip_title, clip_kind, content_item_id, preset, caption_style, edit_revision,
+status: queued|rendering|done|failed, job_id, duration_sec, size_bytes, error, publishable, created_at,
+finished_at, preview_url, download_url, thumbnail_url, stale}`.
+
+* Track progress with `GET /jobs/{job_id}` or the SSE stream (stages `build graph` 10 -> `ffmpeg` 10..95 ->
+  `thumbnail` 100). `POST /jobs/{job_id}/cancel` kills ffmpeg; the render becomes `failed` with
+  `error: "Canceled"`. A failed render keeps the reason in `error`. Renders left running by a crash or restart
+  are marked `failed` ("interrupted by restart") on boot.
+* `preview_url` plays inline; `download_url` is the same signed file with `&dl=<name>.mp4`, which makes `/media`
+  answer with `Content-Disposition: attachment`. Both are `null` until `done`, valid for one hour (re-fetch
+  the render for fresh ones).
+* `edit_revision` is the timeline revision that was rendered (read from `edit_revisions`, so edits made while
+  a render runs do not leak in). `stale: true` means the clip has been edited since.
+* `caption_style` defaults to the preset's (table below). The request does not change the clip: the timeline
+  is copied, sized for the preset, and the style applied (items with `style_override` keep theirs). Captions
+  are re-grouped for the new style (3 words vs 7 per line) only when all of them are still AI-made, none was
+  rejected and none has an override; otherwise the stored captions are used as they are.
+* `publishable` is true for `yt_short` and `yt_long`; `reels` and `tiktok` are download only.
+* Activity: `render_done` (`entity_type: "render"`, `meta {clip_id, content_item_id, preset, caption_style,
+  edit_revision, duration_sec, size_bytes, clip_title}`).
+
+| Preset | Aspect | Size | Max duration | Default captions |
+|---|---|---|---|---|
+| `yt_short` | 9:16 | 1080x1920 | 60 s | `bold_center` |
+| `reels` | 9:16 | 1080x1920 | 90 s | `bold_center` |
+| `tiktok` | 9:16 | 1080x1920 | 60 s | `karaoke` |
+| `yt_long` | 16:9 | 1920x1080 | none | `minimal_bottom` |
+
+The caps are conservative defaults (confirm the platforms' current limits). Duration = sum of non-rejected
+video items; transitions shorten the output by their overlap (`duration_sec` is the real file length).
+
+`GET /media/{key}?exp=&sig=[&dl=name]`: `dl` (max 120 chars, sanitised) is cosmetic and not part of the
+signature; it only switches the response to an attachment.
+
+## Demo data (`make seed`)
+
+`make seed` (`ARGS="--reset --render --skip-hero"`, see `backend/scripts/seed_demo.py`) is idempotent. Login:
+`demo@creatorai.local` / `demo1234` (when a user already exists the demo data is attached to that workspace
+instead). Seeded: 9 `[DEMO]` board cards (3 idea, 2 script, 1 shoot, 1 edit = the hero, 1 review, 1 published),
+6 idea suggestions (`source: "twin"`, provenance `demo`), a starter style profile, 24 synthetic YouTube videos
+(`is_seed = true`, 90 days of daily metrics from a fixed RNG seed: not real analytics), 10 twin memories
+(`source_id = "demo:seed"`, text prefixed `[DEMO]`) and the hero project: generated footage with a `demo`
+sidecar through the real `asset.process`, a hand-written script and Director plan (provenance `demo`), then
+the real `project.match` and `clips.generate` with no LLM (clip copy provenance `heuristic`, titles prefixed
+`[DEMO]`). `--reset` deletes only rows it created. `--render` also renders the best clip with `yt_short`.
+
