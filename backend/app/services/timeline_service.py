@@ -170,8 +170,12 @@ def validate(
             add("SRC_RANGE", "src_out must be greater than src_in", f"tracks.audio[{n}]", audio.id)
         limit = (asset_durations or {}).get(audio.asset_id)
         if limit is not None and audio.src_out > limit + EPS:
-            add("SRC_BEYOND_ASSET", f"src_out is past the end of the asset ({limit:g} s)",
-                f"tracks.audio[{n}]", audio.id)  # fmt: skip
+            add(
+                "SRC_BEYOND_ASSET",
+                f"src_out is past the end of the asset ({limit:g} s)",
+                f"tracks.audio[{n}]",
+                audio.id,
+            )
     return out
 
 
@@ -256,9 +260,10 @@ def _place(anchor: _Anchor, new_items: Sequence[VideoItem]) -> tuple[float, floa
     owner = anchor.owner
     candidates = [i for i in new_items if i.id == owner.id]
     candidates += [
-        i for i in sorted(new_items, key=lambda i: i.tl_start)
+        i
+        for i in sorted(new_items, key=lambda i: i.tl_start)
         if i.id != owner.id and _source_key(i) == _source_key(owner)
-    ]  # fmt: skip
+    ]
     for item in candidates:
         a, b = max(anchor.s0, item.src_in), min(anchor.s1, item.src_out)
         if b - a >= MIN_LAYER_SEC:
@@ -580,8 +585,13 @@ def _norm_words(raw: Sequence[Mapping[str, Any]]) -> list[tuple[str, float, floa
     for w in raw:
         text = str(w.get("word", w.get("w", ""))).strip()
         if text:
-            out.append((text, float(w.get("start", w.get("t0", 0.0))),
-                        float(w.get("end", w.get("t1", 0.0)))))  # fmt: skip
+            out.append(
+                (
+                    text,
+                    float(w.get("start", w.get("t0", 0.0))),
+                    float(w.get("end", w.get("t1", 0.0))),
+                )
+            )
     return sorted(out, key=lambda w: (w[1], w[2]))
 
 

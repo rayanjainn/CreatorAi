@@ -291,7 +291,7 @@ def _llm_available() -> bool:
         return False
 
 
-def _ensure_beat_embeddings(
+def ensure_beat_embeddings(
     db: Session, workspace_id: str, script: Script, notes: list[str]
 ) -> tuple[list[ScriptBeat], bool]:
     """Beats of ``script`` embedded with the *current* embedder (re-embedding if they are not)."""
@@ -374,7 +374,7 @@ def run_match(ctx: JobContext) -> dict[str, Any]:
         script = ScriptRepository(db).current(ws, item_id)
         if script is None:
             raise AppError("NO_SCRIPT", "Write a script before matching footage.", retryable=False)
-        beats, reembedded = _ensure_beat_embeddings(db, ws, script, notes)
+        beats, reembedded = ensure_beat_embeddings(db, ws, script, notes)
         if not beats:
             raise AppError("NO_SCRIPT", "The current script has no beats.", retryable=False)
         footage = load_footage(db, ws, item_id)
@@ -530,10 +530,18 @@ def run_match(ctx: JobContext) -> dict[str, Any]:
             saved += 1
         counts = Counter(o.status for o in outcomes)
         log_activity(
-            db, ws, "match_completed", "content_item", item_id,
-            script_id=script_id, matched=counts["matched"], weak=counts["weak"],
-            missing=counts["missing"], preserved=preserved, embedder=info["backend"],
-        )  # fmt: skip
+            db,
+            ws,
+            "match_completed",
+            "content_item",
+            item_id,
+            script_id=script_id,
+            matched=counts["matched"],
+            weak=counts["weak"],
+            missing=counts["missing"],
+            preserved=preserved,
+            embedder=info["backend"],
+        )
         db.commit()
     ctx.progress(100, "save")
     ctx.result.update({"notes": notes})
@@ -850,8 +858,15 @@ def swap(db: Session, workspace_id: str, match_id: str, body: dict[str, Any]) ->
     row.status = "confirmed"
     row.provenance = Provenance.user().model_dump()
     db.flush()
-    log_activity(db, workspace_id, "beat_match_swapped", "beat_match", row.id,
-                 content_item_id=row.content_item_id, script_beat_id=beat.id)  # fmt: skip
+    log_activity(
+        db,
+        workspace_id,
+        "beat_match_swapped",
+        "beat_match",
+        row.id,
+        content_item_id=row.content_item_id,
+        script_beat_id=beat.id,
+    )
     return _view(db, workspace_id, row, beat)
 
 
@@ -878,8 +893,15 @@ def confirm(db: Session, workspace_id: str, match_id: str) -> dict[str, Any]:
     row.status = "confirmed"
     row.provenance = Provenance.user().model_dump()
     db.flush()
-    log_activity(db, workspace_id, "beat_match_confirmed", "beat_match", row.id,
-                 content_item_id=row.content_item_id, script_beat_id=beat.id)  # fmt: skip
+    log_activity(
+        db,
+        workspace_id,
+        "beat_match_confirmed",
+        "beat_match",
+        row.id,
+        content_item_id=row.content_item_id,
+        script_beat_id=beat.id,
+    )
     return _view(db, workspace_id, row, beat)
 
 
@@ -888,6 +910,13 @@ def reject(db: Session, workspace_id: str, match_id: str) -> dict[str, Any]:
     row.status = "rejected"
     row.provenance = Provenance.user().model_dump()
     db.flush()
-    log_activity(db, workspace_id, "beat_match_rejected", "beat_match", row.id,
-                 content_item_id=row.content_item_id, script_beat_id=beat.id)  # fmt: skip
+    log_activity(
+        db,
+        workspace_id,
+        "beat_match_rejected",
+        "beat_match",
+        row.id,
+        content_item_id=row.content_item_id,
+        script_beat_id=beat.id,
+    )
     return _view(db, workspace_id, row, beat)
