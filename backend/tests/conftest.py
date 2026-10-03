@@ -18,8 +18,12 @@ os.environ.update(
         "EMBED_BACKEND": "hashing",
         "GEMINI_API_KEY": "",
         "GROQ_API_KEY": "",
+        "OLLAMA_API_KEY": "",
+        "OLLAMA_BASE_URL": "https://ollama.com",
+        "LLM_PROVIDER_ORDER": "gemini,groq,ollama",
         "APP_SECRET": "",
         "MEDIA_SIGNING_SECRET": "",
+        # Tests only: mock is NEVER the default (config default is false); opt in explicitly here.
         "LLM_ALLOW_MOCK": "true",
         "LOG_LEVEL": "WARNING",
     }

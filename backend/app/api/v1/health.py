@@ -23,7 +23,7 @@ router = APIRouter(tags=["health"])
 @router.get("/health")
 def health() -> dict[str, Any]:
     settings = get_settings()
-    providers = get_gateway().providers
+    gateway = get_gateway()
     with session_scope() as db:
         db.execute(text("select 1"))
     return {
@@ -32,10 +32,12 @@ def health() -> dict[str, Any]:
         "time": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "python": ".".join(map(str, sys.version_info[:3])),
         "auth_mode": settings.auth_mode,
+        "data_mode": gateway.data_mode(),
         "features": {
             "llm": {
-                "gemini": providers["gemini"].configured(),
-                "groq": providers["groq"].configured(),
+                "data_mode": gateway.data_mode(),
+                "order": list(settings.provider_order),
+                "providers": gateway.provider_flags(),
                 "mock": settings.llm_allow_mock,
             },
             "asr": {

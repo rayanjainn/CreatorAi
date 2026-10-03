@@ -5,7 +5,14 @@ from __future__ import annotations
 import httpx
 
 from app.config import Settings
-from app.llm.providers.base import LLMRequest, LLMResult, Provider, ProviderError, http_error
+from app.llm.providers.base import (
+    LLMRequest,
+    LLMResult,
+    Provider,
+    ProviderError,
+    http_error,
+    json_body,
+)
 
 URL = "https://api.groq.com/openai/v1/chat/completions"
 SYSTEM = "You are CreatorAi. Reply with a single valid JSON object only."
@@ -46,7 +53,7 @@ class GroqProvider(Provider):
             raise ProviderError(f"groq network error: {exc}", retryable=True) from exc
         if response.status_code != 200:
             raise http_error("groq", response)
-        data = response.json()
+        data = json_body("groq", response)
         try:
             text = data["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:

@@ -14,6 +14,7 @@ from app.llm.providers.base import (
     Provider,
     ProviderError,
     http_error,
+    json_body,
 )
 
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
@@ -90,7 +91,7 @@ class GeminiProvider(Provider):
             response = self._post(request.model, body)
         if response.status_code != 200:
             raise http_error("gemini", response)
-        data = response.json()
+        data = json_body("gemini", response)
         try:
             text = "".join(p.get("text", "") for p in data["candidates"][0]["content"]["parts"])
         except (KeyError, IndexError, TypeError) as exc:

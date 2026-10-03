@@ -1,6 +1,6 @@
 """LLM Gateway (Plan.md section 7.1): one synchronous entry point for every model call.
 
-``run`` builds the prompt, checks the cache, walks the provider chain with rate limiting,
+``run_with_meta`` builds the prompt, checks the cache, walks the provider chain with rate limiting,
 JSON validation + one repair retry, backoff and circuit breakers, then caches and logs usage.
 """
 
@@ -19,7 +19,7 @@ from typing import Any, TypeVar
 from pydantic import BaseModel, ValidationError
 from sqlalchemy import func, select
 
-from app.config import Settings, get_settings
+from app.config import REAL_PROVIDERS, Settings, get_settings
 from app.db import session_scope
 from app.errors import AppError, llm_busy
 from app.llm.cache import CachedResponse, LlmResponseCache, cache_key, schema_version
@@ -32,9 +32,11 @@ from app.llm.providers.base import (
     ProviderError,
     estimate_tokens,
 )
+from app.llm.providers.mock import MockProvider
 from app.llm.ratelimit import SlidingWindowLimiter
 from app.llm.render import render_prompt
-from app.llm.tasks import TASK_ROUTES, Target, chain_for
+from app.llm.tasks import Target, chain_for, route_for
+from app.llm.types import LLMMeta
 from app.models import LlmUsage
 
 log = logging.getLogger(__name__)
@@ -89,8 +91,25 @@ class Gateway:
         images: list[bytes] | None = None,
         cache: bool = True,
     ) -> T:
-        """Run ``task``; returns a validated ``schema`` instance or raises ``LLM_BUSY``."""
-        route = TASK_ROUTES[task]
+        """Like :meth:`run_with_meta` but returns only the output."""
+        return self.run_with_meta(task, variables, schema, workspace_id, images, cache)[0]
+
+    def run_with_meta(
+        self,
+        task: str,
+        variables: dict[str, Any],
+        schema: type[T],
+        workspace_id: str | None,
+        images: list[bytes] | None = None,
+        cache: bool = True,
+    ) -> tuple[T, LLMMeta]:
+        """Run ``task``; returns ``(validated schema instance, LLMMeta)`` or raises.
+
+        Raises ``LLM_NOT_CONFIGURED`` when no real provider is set up (and mock is off) and
+        ``LLM_BUSY`` when every configured provider failed. It never falls back to mock unless
+        ``LLM_ALLOW_MOCK=true``.
+        """
+        route = route_for(task, self.settings)
         images = images or []
         query = str(
             variables.get("topic") or variables.get("idea") or variables.get("message") or ""
@@ -115,7 +134,8 @@ class Gateway:
             hit = self._cache_lookup(key, schema)
             if hit is not None:
                 self._log_usage(workspace_id, task, hit.provider, hit.model, 0, 0, 0, True, "ok")
-                return schema.model_validate(hit.response)
+                meta = LLMMeta(hit.provider, hit.model, is_mock=False, cache_hit=True)
+                return schema.model_validate(hit.response), meta
 
         est_tokens = estimate_tokens(prompt) + route.max_tokens // 2
         retry_after = 1.0
@@ -131,12 +151,13 @@ class Gateway:
             if wait > 0:
                 retry_after = max(retry_after, wait)
                 continue
+            tier = "vision" if images and provider.name == "ollama" else target.tier
             request = LLMRequest(
                 task=task,
                 prompt=prompt,
                 schema_json=schema.model_json_schema(),
                 max_tokens=route.max_tokens,
-                model=provider.model_for(target.tier),
+                model=provider.model_for(tier),
                 images=images,
                 variables=variables,
             )
@@ -156,18 +177,82 @@ class Gateway:
                             attempt.result.tokens_out,
                         ),
                     )
-                return attempt.value  # type: ignore[return-value]
+                meta = LLMMeta(
+                    provider.name,
+                    attempt.result.model,
+                    is_mock=provider.name == "mock",
+                    cache_hit=False,
+                    latency_ms=attempt.latency_ms,
+                )
+                return attempt.value, meta  # type: ignore[return-value]
             retry_after = max(retry_after, attempt.retry_after)
         if not any(
             (p := self.providers.get(t.provider)) and p.configured()
             for t in chain_for(task, self.settings)
         ):
-            raise AppError(
-                "LLM_NOT_CONFIGURED",
-                "No LLM provider is configured. Set GEMINI_API_KEY or GROQ_API_KEY, "
-                "or enable LLM_ALLOW_MOCK.",
-            )
+            raise not_configured(self.settings)
         raise llm_busy(retry_after)
+
+    def data_mode(self) -> str:
+        """``real`` (>=1 real provider configured), ``mock`` (mock only) or ``unconfigured``."""
+        if any(self.providers[n].configured() for n in REAL_PROVIDERS if n in self.providers):
+            return "real"
+        return "mock" if self.settings.llm_allow_mock else "unconfigured"
+
+    def provider_flags(self) -> dict[str, dict[str, bool]]:
+        """Per real provider: ``configured`` and ``healthy`` (configured with a closed circuit)."""
+        return {
+            name: {
+                "configured": (cfg := self.providers[name].configured()),
+                "healthy": cfg and self._circuit_remaining(name) <= 0,
+            }
+            for name in REAL_PROVIDERS
+            if name in self.providers
+        }
+
+    def test_providers(self) -> dict[str, dict[str, Any]]:
+        """One tiny real round-trip per configured provider (``POST /llm/test``)."""
+        results: dict[str, dict[str, Any]] = {}
+        for name in self.settings.provider_order:
+            provider = self.providers.get(name)
+            if provider is None or not provider.configured():
+                results[name] = {"configured": False, "ok": False, "latency_ms": None,
+                                 "model": None, "error": "not configured"}  # fmt: skip
+                continue
+            model = provider.model_for("lite" if name == "gemini" else "main")
+            request = LLMRequest(
+                task="llm.test",
+                prompt='Reply with exactly this JSON object: {"ok": true}',
+                schema_json={"type": "object", "properties": {"ok": {"type": "boolean"}}},
+                max_tokens=32,
+                model=model,
+            )
+            started = self.clock()
+            try:
+                provider.generate(request)
+                error = ""
+            except ProviderError as exc:
+                error = self._redact(str(exc))
+            except Exception as exc:  # never let one provider break the report
+                error = self._redact(f"{type(exc).__name__}: {exc}")
+            results[name] = {
+                "configured": True,
+                "ok": not error,
+                "latency_ms": int((self.clock() - started) * 1000),
+                "model": model,
+                "error": error or None,
+            }
+        if self.settings.llm_allow_mock:
+            results["mock"] = {"configured": True, "ok": True, "latency_ms": 0,
+                               "model": MockProvider.MODEL, "error": None}  # fmt: skip
+        return results
+
+    def _redact(self, text: str) -> str:
+        s = self.settings
+        for secret in (s.gemini_api_key, s.groq_api_key, s.ollama_api_key):
+            if secret:
+                text = text.replace(secret, "***")
+        return text
 
     def status(self) -> dict[str, Any]:
         """Providers configured, circuit state and today's usage counts."""
@@ -183,6 +268,7 @@ class Gateway:
             "providers": {
                 name: {
                     "configured": prov.configured(),
+                    "healthy": prov.configured() and self._circuit_remaining(name) <= 0,
                     "circuit_open_sec": round(self._circuit_remaining(name), 1),
                     "usage_today": usage.get(name, {"calls": 0, "cache_hits": 0}),
                 }
@@ -190,10 +276,14 @@ class Gateway:
             },
             "cache_hits_today": sum(u["cache_hits"] for u in usage.values()),
             "allow_mock": self.settings.llm_allow_mock,
+            "data_mode": self.data_mode(),
+            "provider_order": list(self.settings.provider_order),
             "models": {
                 "gemini_main": self.settings.gemini_model_main,
                 "gemini_lite": self.settings.gemini_model_lite,
                 "groq_chat": self.settings.groq_chat_model,
+                "ollama": self.settings.ollama_model,
+                "ollama_vision": self.settings.ollama_vision_model,
             },
         }
 
@@ -236,6 +326,9 @@ class Gateway:
         if provider.name == "gemini":
             ok = self.limiter.acquire("gemini:rpm", s.gemini_rpm, timeout=timeout)
             return 0.0 if ok else self.limiter.retry_after("gemini:rpm", s.gemini_rpm)
+        if provider.name == "ollama":
+            ok = self.limiter.acquire("ollama:rpm", s.ollama_rpm, timeout=timeout)
+            return 0.0 if ok else self.limiter.retry_after("ollama:rpm", s.ollama_rpm)
         if provider.name == "groq":
             if not self.limiter.acquire("groq:rpm", s.groq_rpm, timeout=timeout):
                 return self.limiter.retry_after("groq:rpm", s.groq_rpm)
@@ -362,6 +455,22 @@ class Gateway:
             log.exception("failed to record llm usage")
 
 
+def not_configured(settings: Settings) -> AppError:
+    """``LLM_NOT_CONFIGURED`` (503) with the env vars to set."""
+    return AppError(
+        "LLM_NOT_CONFIGURED",
+        "No AI provider is configured, so nothing was generated. Set at least one of: "
+        "GEMINI_API_KEY (Google AI Studio), GROQ_API_KEY (console.groq.com), "
+        "OLLAMA_API_KEY (ollama.com/settings/keys) or OLLAMA_BASE_URL=http://localhost:11434 "
+        "for a local Ollama server, then restart the API. For offline development only, "
+        "set LLM_ALLOW_MOCK=true (output is then clearly marked as mock).",
+        details={
+            "env": ["GEMINI_API_KEY", "GROQ_API_KEY", "OLLAMA_API_KEY", "OLLAMA_BASE_URL"],
+            "allow_mock": settings.llm_allow_mock,
+        },
+    )
+
+
 def _parse(text: str, schema: type[T]) -> tuple[T | None, str]:
     """Parse model output (tolerating code fences) into ``schema``; returns ``(value, error)``."""
     cleaned = text.strip()
@@ -402,3 +511,15 @@ def run(
 ) -> T:
     """Shortcut for ``get_gateway().run(...)``; use ``from app.llm import gateway as llm``."""
     return get_gateway().run(task, variables, schema, workspace_id, images, cache)
+
+
+def run_with_meta(
+    task: str,
+    variables: dict[str, Any],
+    schema: type[T],
+    workspace_id: str | None,
+    images: list[bytes] | None = None,
+    cache: bool = True,
+) -> tuple[T, LLMMeta]:
+    """``(output, LLMMeta)``: use ``meta.provenance`` to attach provenance to API responses."""
+    return get_gateway().run_with_meta(task, variables, schema, workspace_id, images, cache)

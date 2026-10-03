@@ -15,7 +15,10 @@ def test_health_is_public_and_reports_features(client: TestClient) -> None:
     body = client.get("/api/v1/health").json()
     assert body["status"] == "ok" and body["version"]
     feats = body["features"]
-    assert feats["llm"] == {"gemini": False, "groq": False, "mock": True}
+    assert feats["llm"]["data_mode"] == "mock" and body["data_mode"] == "mock"
+    assert feats["llm"]["providers"]["gemini"] == {"configured": False, "healthy": False}
+    assert feats["llm"]["order"] == ["gemini", "groq", "ollama"] and feats["llm"]["mock"] is True
+    assert feats["embedder"]["backend"] == "hashing" and feats["embedder"]["real"] is False
     assert feats["embedder"]["backend"] == "hashing"
     assert isinstance(feats["ffmpeg"]["present"], bool)
     assert feats["asr"]["sidecar"] is True
