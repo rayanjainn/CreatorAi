@@ -35,3 +35,20 @@ export const Project = z.object({
   updatedAt: z.string(),
   role: Role,
 });
+
+export const UserId = z.uuid();
+
+const email = z.string().trim().toLowerCase().pipe(z.email()).pipe(z.string().max(254));
+
+export const AddMemberBody = z.strictObject({ email, role: Role });
+
+export const UpdateMemberBody = z.strictObject({ role: Role });
+
+// What a response contains about a project member.
+export const Member = z.object({
+  userId: z.uuid(),
+  email: z.string(),
+  name: z.string().nullable(),
+  role: Role,
+  createdAt: z.string(),
+});

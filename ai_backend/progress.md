@@ -25,3 +25,9 @@ Append one 5-line entry per task (newest last):
 - Learned: the projects router runs before the /projects/:projectId module routers, so no path-less middleware on it; a malformed :projectId is 404 (projectIdParam), non-member 404, member below role 403. Body validation runs before the membership check, so a bad body is 400 for anyone (independent of whether the project exists).
 - Next: P1.T3 requireRole(minRole) middleware built on getMembership/hasRole (assertRole already throws the right 404/403), members endpoints replacing the 501 stubs, last-owner protection, role matrix test.
 - Gate: `npm run gate -- 1` passed (lint + 129/129 tests).
+
+## P1.T3 requireRole, members, role matrix (2026-10-04)
+- Done: service.js exports requireRole(minRole) (runs requireAuth itself if req.user is unset; 401/404/403; sets req.project = { id, role } and req.role), listMembers, addMember, changeMemberRole, removeMember; T2 routes now authorize only via requireRole (projectIdParam removed; updateProject(project, input), deleteProject(projectId) no longer re-check); members GET/POST/PATCH/DELETE (self-leave allowed); last-owner rule in a transaction that locks owner rows FOR UPDATE; tests/phase1/members.test.js (39) and rbac-matrix.test.js (exported MATRIX + ACTORS, 46 cells). No migration needed.
+- Learned: requireRole runs before body validation, so non-members get 404 whatever the body (T2 used to validate first). Under READ COMMITTED, FOR UPDATE re-checks role = 'owner' after the blocking tx commits, so concurrent mutual demotion leaves exactly one owner (409 or 403 for the loser).
+- Next: Phase 1 done. Launch Track A (P2 media), B (P4 agents), C (P5 timeline) in parallel; every project-scoped route uses requireRole from projects/service.js and adds rows to the role MATRIX. (The three members rows were dropped from projects.test.js's stub table, as the phase-1 stub rows were from phase0.)
+- Gate: `npm run gate -- 1` passed (lint + 211/211 tests).

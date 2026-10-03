@@ -1,25 +1,25 @@
-// projects routes: projects CRUD. Members and activity are still 501 stubs (P1.T3+).
+// projects routes: projects CRUD and members. Activity is still a 501 stub.
 // This router is mounted at /projects BEFORE the routers that share /projects/:projectId,
-// so it must not have path-less middleware: requireAuth and role checks go per route.
+// so it must not have path-less middleware: requireAuth and requireRole go per route.
+// requireRole runs before body validation, so a non-member gets 404 whatever the body.
 import { Router } from 'express';
-import { notFound } from '../../lib/errors.js';
 import { stubRouter, validate } from '../../lib/http.js';
 import { requireAuth } from '../auth/service.js';
-import { CreateProjectBody, ProjectId, UpdateProjectBody } from './schemas.js';
-import { createProject, deleteProject, getProject, listProjects, updateProject } from './service.js';
+import { AddMemberBody, CreateProjectBody, UpdateMemberBody, UpdateProjectBody } from './schemas.js';
+import {
+  addMember,
+  changeMemberRole,
+  createProject,
+  deleteProject,
+  getProject,
+  listMembers,
+  listProjects,
+  removeMember,
+  requireRole,
+  updateProject,
+} from './service.js';
 
 export const router = Router({ mergeParams: true });
-
-// Validates :projectId as a uuid. A malformed id is a 404 (like a missing project),
-// never a 400, so the response does not depend on whether the id could exist.
-function projectIdParam() {
-  return (req, res, next) => {
-    const result = ProjectId.safeParse(req.params.projectId);
-    if (!result.success) return next(notFound('Project not found'));
-    req.params.projectId = result.data;
-    next();
-  };
-}
 
 router.post('/', requireAuth(), validate(CreateProjectBody), async (req, res) => {
   res.status(201).json({ project: await createProject(req.user.id, req.body) });
@@ -29,25 +29,42 @@ router.get('/', requireAuth(), async (req, res) => {
   res.json({ projects: await listProjects(req.user.id) });
 });
 
-router.get('/:projectId', requireAuth(), projectIdParam(), async (req, res) => {
-  res.json({ project: await getProject(req.params.projectId, req.user.id) });
+router.get('/:projectId', requireAuth(), requireRole('viewer'), async (req, res) => {
+  res.json({ project: await getProject(req.project.id, req.user.id) });
 });
 
-router.patch('/:projectId', requireAuth(), projectIdParam(), validate(UpdateProjectBody), async (req, res) => {
-  res.json({ project: await updateProject(req.params.projectId, req.user.id, req.body) });
+router.patch('/:projectId', requireAuth(), requireRole('editor'), validate(UpdateProjectBody), async (req, res) => {
+  res.json({ project: await updateProject(req.project, req.body) });
 });
 
-router.delete('/:projectId', requireAuth(), projectIdParam(), async (req, res) => {
-  await deleteProject(req.params.projectId, req.user.id);
+router.delete('/:projectId', requireAuth(), requireRole('owner'), async (req, res) => {
+  await deleteProject(req.project.id);
   res.status(204).end();
 });
 
-// Planned endpoints, 501 until their task lands (members: P1.T3).
-router.use(
-  stubRouter(1, [
-    ['post', '/:projectId/members'],
-    ['patch', '/:projectId/members/:userId'],
-    ['delete', '/:projectId/members/:userId'],
-    ['get', '/:projectId/activity'],
-  ]),
+router.get('/:projectId/members', requireAuth(), requireRole('viewer'), async (req, res) => {
+  res.json({ members: await listMembers(req.project.id) });
+});
+
+router.post('/:projectId/members', requireAuth(), requireRole('owner'), validate(AddMemberBody), async (req, res) => {
+  res.status(201).json({ member: await addMember(req.project.id, req.body) });
+});
+
+router.patch(
+  '/:projectId/members/:userId',
+  requireAuth(),
+  requireRole('owner'),
+  validate(UpdateMemberBody),
+  async (req, res) => {
+    res.json({ member: await changeMemberRole(req.project.id, req.params.userId, req.body) });
+  },
 );
+
+// Owners remove anyone; any member may remove themselves (leave). Checked in the service.
+router.delete('/:projectId/members/:userId', requireAuth(), requireRole('viewer'), async (req, res) => {
+  await removeMember(req.project, req.user.id, req.params.userId);
+  res.status(204).end();
+});
+
+// Planned endpoints, 501 until their task lands.
+router.use(stubRouter(1, [['get', '/:projectId/activity']]));

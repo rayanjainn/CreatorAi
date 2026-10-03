@@ -295,9 +295,6 @@ describe('DELETE /projects/:projectId', () => {
 
 describe('routes not yet implemented', () => {
   it.each([
-    ['post', '/projects/p1/members'],
-    ['patch', '/projects/p1/members/u1'],
-    ['delete', '/projects/p1/members/u1'],
     ['get', '/projects/p1/activity'],
   ])('%s %s is still a 501 stub', async (method, path) => {
     const res = await request(app)[method](path).send({});
