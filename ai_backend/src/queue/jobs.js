@@ -19,6 +19,8 @@ export const JOBS = Object.freeze({
 
 export const PAYLOADS = {
   [JOBS.NOOP]: z.object({ message: z.string().max(200).optional() }).strict(),
+  // P2: enqueued once per registered original; the P3 orchestrator fans it out.
+  [JOBS.MEDIA_PROCESS]: z.object({ assetId: z.uuid(), projectId: z.uuid() }).strict(),
 };
 
 export function parsePayload(name, data) {
