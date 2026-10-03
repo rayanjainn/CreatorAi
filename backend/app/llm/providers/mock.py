@@ -133,7 +133,9 @@ _REVIEW_FIXES = {
 
 
 def _director_review(v: dict[str, Any]) -> dict[str, Any]:
-    scores = {k: float(x) for k, x in (v.get("scores") or {}).items() if k != "overall"}
+    scores = {
+        k: float(x) for k, x in (v.get("scores") or {}).items() if k != "overall" and x is not None
+    }
     ranked = sorted(scores.items(), key=lambda kv: -kv[1])
     strengths = [f"Strong {name} ({score:.0f}/100)" for name, score in ranked[:2] if score >= 60]
     issues = []
@@ -293,6 +295,92 @@ def _script_meta_task(v: dict[str, Any]) -> dict[str, Any]:
     text = str(v.get("script_text") or v.get("script") or "")
     topic = str(v.get("topic") or " ".join(_keywords(text, 3)) or "this idea")
     return _script_meta(topic, text)
+
+
+def _scene_beats(lines: list[str], intent: str) -> list[dict[str, Any]]:
+    return [
+        {
+            "idx": b,
+            "text": line,
+            "intent": f"{intent} beat {b + 1}",
+            "est_sec": round(len(line.split()) / 2.5, 1),
+        }
+        for b, line in enumerate(lines)
+    ]
+
+
+def _regenerate_scene(v: dict[str, Any]) -> dict[str, Any]:
+    scene = v.get("scene") or {}
+    topic = _topic(v)
+    title = str(scene.get("title") or "Scene")
+    if v.get("is_opening"):
+        lines = [str(v.get("hook") or f"What if {topic} took half the time?")]
+    else:
+        pool = [line.format(t=topic) for line in _SCENE_LINES[_scene_key(title)]]
+        # a different ordering than the generator so the rewrite visibly differs
+        lines = [*pool[1:], pool[0]]
+        budget = int(v.get("target_words") or 0)
+        if budget:
+            kept, count = [], 0
+            for line in lines:
+                kept.append(line)
+                count += len(line.split())
+                if count >= budget:
+                    break
+            lines = kept
+    return {
+        "title": title,
+        "intent": str(scene.get("intent") or title),
+        "beats": _scene_beats(lines, title.lower()),
+    }
+
+
+def _tighten(v: dict[str, Any]) -> dict[str, Any]:
+    scene = v.get("scene") or {}
+    title = str(scene.get("title") or "Scene")
+    budget = max(1, int(v.get("target_words") or 1))
+    beats = [str(b.get("text") or "") for b in scene.get("beats") or [] if b.get("text")]
+    kept: list[str] = []
+    count = 0
+    for line in beats:
+        words = line.split()
+        if kept and count + len(words) > budget:
+            break
+        kept.append(" ".join(words[: max(1, budget - count)]) if not kept else line)
+        count += len(kept[-1].split())
+    if v.get("is_opening") and beats:
+        kept = [beats[0], *kept[1:]]
+    return {
+        "title": title,
+        "intent": str(scene.get("intent") or title),
+        "beats": _scene_beats(kept or [title], title.lower()),
+    }
+
+
+def _ideas(v: dict[str, Any]) -> dict[str, Any]:
+    topic = _clip_words(_topic(v), 6)
+    existing = {
+        str(t).lower().replace(MOCK_MARK.lower(), "").strip() for t in v.get("recent_titles") or []
+    }
+    stems = [
+        f"{topic}: the beginner mistakes nobody warns you about",
+        f"I tried {topic} for 7 days, here is what happened",
+        f"The 5 minute version of {topic}",
+        f"{topic} myths that waste your time",
+        f"What I would do differently if I started {topic} today",
+        f"{topic} on a budget: what actually matters",
+        f"Stop overthinking {topic}: a simple checklist",
+        f"{topic} explained to my past self",
+    ]
+    count = max(1, min(int(v.get("count") or 5), 10))
+    ideas = []
+    for stem in stems + [f"{topic}: idea number {i}" for i in range(2, 12)]:
+        if stem.lower() in existing:
+            continue
+        ideas.append({"title": stem, "rationale": f"A fresh angle on {topic} for your audience"})
+        if len(ideas) == count:
+            break
+    return {"ideas": ideas}
 
 
 # ── assets / matching / clips ────────────────────────────────────────────────────────────────
@@ -511,6 +599,9 @@ _HANDLERS: dict[str, HookFn] = {
     "script.hooks": _hooks,
     "script.generate": _script_generate,
     "script.meta": _script_meta_task,
+    "script.regenerate_scene": _regenerate_scene,
+    "script.tighten": _tighten,
+    "content.ideas": _ideas,
     "assets.caption_keyframes": _caption_keyframes,
     "match.disambiguate": _disambiguate,
     "clips.rerank_copy": _rerank,
@@ -529,6 +620,9 @@ _MARKED: dict[str, list[tuple[str, int | None, int | None]]] = {
     "script.hooks": [("hooks.*.text", 18, None)],
     "script.generate": [("meta.titles.*", None, 70), ("meta.description", None, None)],
     "script.meta": [("titles.*", None, 70), ("description", None, None)],
+    "script.regenerate_scene": [("title", None, 60)],
+    "script.tighten": [("title", None, 60)],
+    "content.ideas": [("ideas.*.title", None, 80)],
     "assets.caption_keyframes": [("description", None, None)],
     "clips.rerank_copy": [("clips.*.title", None, 70), ("clips.*.hook", 15, None)],
     "sponsors.integration": [("slots.*.integration_script", None, None)],

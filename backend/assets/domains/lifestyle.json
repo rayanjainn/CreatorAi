@@ -1,0 +1,201 @@
+{
+  "domain": "lifestyle",
+  "summary": "Routines, travel, food, fitness, home and personal growth. Viewers want warmth, relatability and a result they can copy; visual texture and an honest voice carry it.",
+  "archetypes": [
+    {
+      "name": "Routine walkthrough",
+      "when_to_use": "Day-in-the-life, morning routine, weekly reset.",
+      "structure": [
+        {
+          "section": "Hook",
+          "goal": "Name the outcome the routine gave you",
+          "share": 0.1,
+          "notes": "Show the best visual first"
+        },
+        {
+          "section": "Why it matters",
+          "goal": "One honest sentence about the problem",
+          "share": 0.12,
+          "notes": ""
+        },
+        {
+          "section": "The routine",
+          "goal": "Walk through 3 to 5 steps with b-roll",
+          "share": 0.55,
+          "notes": "One shot sequence per step"
+        },
+        {
+          "section": "Results",
+          "goal": "Show the change after a week or month",
+          "share": 0.13,
+          "notes": ""
+        },
+        {
+          "section": "CTA",
+          "goal": "Invite them to try step one",
+          "share": 0.1,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "name": "Recipe or how-to",
+      "when_to_use": "Food, DIY and craft.",
+      "structure": [
+        {
+          "section": "Hook",
+          "goal": "The finished dish or object in motion",
+          "share": 0.1,
+          "notes": ""
+        },
+        {
+          "section": "Ingredients or materials",
+          "goal": "Quick list over b-roll",
+          "share": 0.15,
+          "notes": ""
+        },
+        {
+          "section": "Method",
+          "goal": "Steps in real time, sped up where slow",
+          "share": 0.55,
+          "notes": ""
+        },
+        {
+          "section": "Final reveal",
+          "goal": "Taste test or finished piece",
+          "share": 0.12,
+          "notes": ""
+        },
+        {
+          "section": "CTA",
+          "goal": "Save for later and ask for variations",
+          "share": 0.08,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "name": "Honest review or haul",
+      "when_to_use": "Products, trips and purchases.",
+      "structure": [
+        {
+          "section": "Hook",
+          "goal": "Say what you loved and what you regret",
+          "share": 0.12,
+          "notes": ""
+        },
+        {
+          "section": "Top pick",
+          "goal": "Best item with a close-up",
+          "share": 0.3,
+          "notes": ""
+        },
+        {
+          "section": "Honest miss",
+          "goal": "Item you would not repeat",
+          "share": 0.25,
+          "notes": ""
+        },
+        {
+          "section": "Who it suits",
+          "goal": "Who should buy or go",
+          "share": 0.18,
+          "notes": ""
+        },
+        {
+          "section": "CTA",
+          "goal": "Where to find details and what to comment",
+          "share": 0.15,
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "hook_styles": [
+    {
+      "type": "number",
+      "pattern": "[N] habits / things that changed my [area]",
+      "example": "5 tiny habits that fixed my mornings"
+    },
+    {
+      "type": "story",
+      "pattern": "I tried [routine] for [N days] and [result]",
+      "example": "I tried waking up at 5 for 30 days and here is the truth"
+    },
+    {
+      "type": "question",
+      "pattern": "Why does nobody tell you [fact]?",
+      "example": "Why does nobody tell you how cheap this trip really is?"
+    },
+    {
+      "type": "bold_claim",
+      "pattern": "This is the only [thing] you need for [goal]",
+      "example": "This is the only workout you need at home"
+    }
+  ],
+  "pacing": {
+    "wpm": [
+      135,
+      160
+    ],
+    "max_intro_sec": 6,
+    "scene_sec": [
+      5,
+      15
+    ],
+    "cut_every_sec": [
+      3,
+      6
+    ],
+    "pause_max_sec": 0.8,
+    "notes": "Calmer voice; let b-roll breathe but never hold a shot past 6 seconds; natural light and ambient sound."
+  },
+  "shot_conventions": [
+    {
+      "section": "Hook",
+      "shot_type": "close-up",
+      "framing": "hands or subject in action, natural light",
+      "b_roll": "the most beautiful shot of the result",
+      "note": "Lead with texture or motion"
+    },
+    {
+      "section": "Why it matters",
+      "shot_type": "medium",
+      "framing": "face, soft background",
+      "b_roll": "before state: messy desk, empty fridge, packed bag",
+      "note": ""
+    },
+    {
+      "section": "The routine",
+      "shot_type": "b-roll sequence",
+      "framing": "overhead and side angles",
+      "b_roll": "each step in 2 to 4 short shots",
+      "note": "Voice-over over b-roll is fine"
+    },
+    {
+      "section": "Results",
+      "shot_type": "medium",
+      "framing": "face, same spot as the hook",
+      "b_roll": "after state, progress photos or numbers",
+      "note": ""
+    },
+    {
+      "section": "CTA",
+      "shot_type": "close-up",
+      "framing": "face, warm and direct",
+      "b_roll": "on-screen step one reminder",
+      "note": ""
+    }
+  ],
+  "cta_patterns": [
+    "Try step one tomorrow and tell me how it goes",
+    "Save this for your next reset",
+    "Follow for the full week"
+  ],
+  "common_risks": [
+    "Overlong intro before any visual",
+    "Product shots with poor light",
+    "Claims about health or money without a caveat",
+    "Voice-over out of sync with the b-roll"
+  ]
+}

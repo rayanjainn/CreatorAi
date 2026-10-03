@@ -1,0 +1,195 @@
+{
+  "domain": "business",
+  "summary": "Marketing, finance, startups, career and productivity. Viewers want credible, actionable advice; specifics (numbers, examples, frameworks) separate signal from guru noise.",
+  "archetypes": [
+    {
+      "name": "Framework walkthrough",
+      "when_to_use": "Teaching a repeatable method.",
+      "structure": [
+        {
+          "section": "Hook",
+          "goal": "State the result with a number",
+          "share": 0.1,
+          "notes": "Specific beats vague"
+        },
+        {
+          "section": "The problem",
+          "goal": "Cost of doing it the usual way",
+          "share": 0.15,
+          "notes": ""
+        },
+        {
+          "section": "The framework",
+          "goal": "Name it and list the 3 parts",
+          "share": 0.35,
+          "notes": "On-screen list that builds"
+        },
+        {
+          "section": "Example",
+          "goal": "Apply it to a real company or your own numbers",
+          "share": 0.3,
+          "notes": ""
+        },
+        {
+          "section": "CTA",
+          "goal": "Offer the template or next step",
+          "share": 0.1,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "name": "Case study",
+      "when_to_use": "Explaining why something worked or failed.",
+      "structure": [
+        {
+          "section": "Hook",
+          "goal": "The surprising outcome",
+          "share": 0.1,
+          "notes": ""
+        },
+        {
+          "section": "Background",
+          "goal": "Who and what in two sentences",
+          "share": 0.15,
+          "notes": ""
+        },
+        {
+          "section": "What they did",
+          "goal": "The three decisions that mattered",
+          "share": 0.4,
+          "notes": ""
+        },
+        {
+          "section": "Lessons",
+          "goal": "What you can copy",
+          "share": 0.25,
+          "notes": ""
+        },
+        {
+          "section": "CTA",
+          "goal": "Ask for the next case to analyse",
+          "share": 0.1,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "name": "Contrarian take",
+      "when_to_use": "Short opinion videos (under 60 s).",
+      "structure": [
+        {
+          "section": "Hook",
+          "goal": "The contrarian claim",
+          "share": 0.15,
+          "notes": ""
+        },
+        {
+          "section": "Why the standard advice fails",
+          "goal": "Evidence in one example",
+          "share": 0.3,
+          "notes": ""
+        },
+        {
+          "section": "Better approach",
+          "goal": "The alternative in three steps",
+          "share": 0.4,
+          "notes": ""
+        },
+        {
+          "section": "CTA",
+          "goal": "Invite a challenge in the comments",
+          "share": 0.15,
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "hook_styles": [
+    {
+      "type": "number",
+      "pattern": "How I [achieved result] in [N] [days / dollars]",
+      "example": "How I got my first 100 customers with zero ad spend"
+    },
+    {
+      "type": "bold_claim",
+      "pattern": "[Common advice] is the biggest mistake in [field]",
+      "example": "Cold emailing is the biggest mistake new founders make"
+    },
+    {
+      "type": "question",
+      "pattern": "Are you still [doing outdated thing]?",
+      "example": "Are you still pricing by the hour?"
+    },
+    {
+      "type": "contrast",
+      "pattern": "[Amateurs] do [A]. [Pros] do [B].",
+      "example": "Beginners chase followers. Pros chase email addresses"
+    }
+  ],
+  "pacing": {
+    "wpm": [
+      150,
+      175
+    ],
+    "max_intro_sec": 6,
+    "scene_sec": [
+      6,
+      18
+    ],
+    "cut_every_sec": [
+      4,
+      7
+    ],
+    "pause_max_sec": 0.6,
+    "notes": "Confident, even delivery; show numbers on screen the moment you say them."
+  },
+  "shot_conventions": [
+    {
+      "section": "Hook",
+      "shot_type": "close-up",
+      "framing": "face, eye-level, desk or office background",
+      "b_roll": "number or result as large on-screen text",
+      "note": "Say the number in the first sentence"
+    },
+    {
+      "section": "The problem",
+      "shot_type": "medium",
+      "framing": "face with lower-third stat",
+      "b_roll": "chart or screenshot of the pain point",
+      "note": ""
+    },
+    {
+      "section": "The framework",
+      "shot_type": "motion graphic",
+      "framing": "full screen list that builds point by point",
+      "b_roll": "icons for each part",
+      "note": "Reveal each point as you say it"
+    },
+    {
+      "section": "Example",
+      "shot_type": "screen recording",
+      "framing": "dashboard or spreadsheet, zoomed",
+      "b_roll": "real numbers with sensitive data blurred",
+      "note": "Blur private data"
+    },
+    {
+      "section": "CTA",
+      "shot_type": "close-up",
+      "framing": "face, eye-level",
+      "b_roll": "template link on screen",
+      "note": "One ask only"
+    }
+  ],
+  "cta_patterns": [
+    "Download the free template in the description",
+    "Comment FRAMEWORK and I will send it",
+    "Follow for a new case study every week"
+  ],
+  "common_risks": [
+    "Income or growth claims without proof",
+    "Vague advice with no example",
+    "Too many frameworks in one video",
+    "Ending with three different asks"
+  ]
+}

@@ -78,7 +78,7 @@ class DirectorReviewPayload(DirectorReviewOutput):
     """Stored review (section 6.5): deterministic scores merged with the LLM text."""
 
     overall_score: float
-    scores: dict[str, float]
+    scores: dict[str, float | None]  # coverage is null while no beat matches exist
     missing_scenes: list[MissingScene] = Field(default_factory=list)
 
 
@@ -123,6 +123,14 @@ class ScriptMeta(BaseModel):
     captions: list[str] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
     supporting: ScriptSupporting = Field(default_factory=ScriptSupporting)
+
+
+class SceneRewriteOutput(BaseModel):
+    """``script.regenerate_scene`` / ``script.tighten`` output: the new beats of one scene."""
+
+    title: str = ""
+    intent: str = ""
+    beats: list[ScriptBeatOut] = Field(min_length=1)
 
 
 class ScriptGenerateOutput(BaseModel):
@@ -231,12 +239,21 @@ class InsightsNarrateOutput(BaseModel):
     ideas: list[NextIdea] = Field(default_factory=list)
 
 
+class ContentIdeasOutput(BaseModel):
+    """``content.ideas`` output: fresh video ideas for the board (stored as source ``twin``)."""
+
+    ideas: list[NextIdea] = Field(min_length=1)
+
+
 TASK_SCHEMAS: dict[str, type[BaseModel]] = {
     "director.plan": DirectorPlan,
     "director.review": DirectorReviewOutput,
     "script.hooks": HooksOutput,
     "script.generate": ScriptGenerateOutput,
     "script.meta": ScriptMeta,
+    "script.regenerate_scene": SceneRewriteOutput,
+    "script.tighten": SceneRewriteOutput,
+    "content.ideas": ContentIdeasOutput,
     "assets.caption_keyframes": CaptionKeyframesOutput,
     "match.disambiguate": MatchDisambiguateOutput,
     "clips.rerank_copy": ClipRerankOutput,

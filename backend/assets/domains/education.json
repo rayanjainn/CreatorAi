@@ -1,0 +1,201 @@
+{
+  "domain": "education",
+  "summary": "Explainers, tutorials and how-things-work videos. Viewers come to learn one thing; retention depends on a clear promise, one idea per scene and visible progress.",
+  "archetypes": [
+    {
+      "name": "Problem, insight, steps, recap",
+      "when_to_use": "Teaching a skill or concept in 30 to 180 seconds.",
+      "structure": [
+        {
+          "section": "Hook",
+          "goal": "State the surprising fact or the outcome the viewer will have",
+          "share": 0.1,
+          "notes": "First sentence names the payoff"
+        },
+        {
+          "section": "Problem",
+          "goal": "Show the common misconception or pain",
+          "share": 0.15,
+          "notes": "One concrete example, no theory yet"
+        },
+        {
+          "section": "Core idea",
+          "goal": "Teach the key idea in plain words",
+          "share": 0.3,
+          "notes": "One analogy, one definition"
+        },
+        {
+          "section": "Worked example",
+          "goal": "Apply it live on a real case",
+          "share": 0.3,
+          "notes": "Show the steps on screen"
+        },
+        {
+          "section": "Recap and CTA",
+          "goal": "Repeat the one takeaway and say what to do next",
+          "share": 0.15,
+          "notes": "Single call to action"
+        }
+      ]
+    },
+    {
+      "name": "Myth busting",
+      "when_to_use": "Correcting something most people get wrong.",
+      "structure": [
+        {
+          "section": "Hook",
+          "goal": "Name the myth as a bold claim",
+          "share": 0.1,
+          "notes": ""
+        },
+        {
+          "section": "Why people believe it",
+          "goal": "Explain where the myth comes from",
+          "share": 0.2,
+          "notes": ""
+        },
+        {
+          "section": "What is actually true",
+          "goal": "Give the evidence in two beats",
+          "share": 0.4,
+          "notes": ""
+        },
+        {
+          "section": "What to do instead",
+          "goal": "Give the practical rule",
+          "share": 0.2,
+          "notes": ""
+        },
+        {
+          "section": "CTA",
+          "goal": "Invite a comment with the next myth",
+          "share": 0.1,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "name": "Question and answer ladder",
+      "when_to_use": "Short vertical explainers (under 60 s).",
+      "structure": [
+        {
+          "section": "Hook question",
+          "goal": "Ask the question the viewer already has",
+          "share": 0.15,
+          "notes": ""
+        },
+        {
+          "section": "Short answer",
+          "goal": "Answer in one sentence",
+          "share": 0.15,
+          "notes": ""
+        },
+        {
+          "section": "Because",
+          "goal": "Give the two reasons that make it true",
+          "share": 0.45,
+          "notes": ""
+        },
+        {
+          "section": "So what",
+          "goal": "Tell them how to use it",
+          "share": 0.15,
+          "notes": ""
+        },
+        {
+          "section": "CTA",
+          "goal": "Follow for the next question",
+          "share": 0.1,
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "hook_styles": [
+    {
+      "type": "question",
+      "pattern": "Why does [familiar thing] [surprising behaviour]?",
+      "example": "Why does ice float when almost every solid sinks?"
+    },
+    {
+      "type": "number",
+      "pattern": "[N] things / seconds / steps to [outcome]",
+      "example": "3 steps to read any chart in 10 seconds"
+    },
+    {
+      "type": "bold_claim",
+      "pattern": "Everything you were taught about [topic] is [wrong or incomplete]",
+      "example": "Your note-taking method is costing you half of what you read"
+    },
+    {
+      "type": "contrast",
+      "pattern": "Most people [common way]. Experts [better way].",
+      "example": "Most students re-read. Top students do this instead"
+    }
+  ],
+  "pacing": {
+    "wpm": [
+      140,
+      165
+    ],
+    "max_intro_sec": 8,
+    "scene_sec": [
+      6,
+      20
+    ],
+    "cut_every_sec": [
+      4,
+      8
+    ],
+    "pause_max_sec": 0.6,
+    "notes": "Slightly slower than entertainment so terms land; never more than one new term per scene."
+  },
+  "shot_conventions": [
+    {
+      "section": "Hook",
+      "shot_type": "close-up",
+      "framing": "face, eye-level, centred",
+      "b_roll": "the finished result or the surprising object",
+      "note": "Look at the lens, no preamble"
+    },
+    {
+      "section": "Problem",
+      "shot_type": "medium",
+      "framing": "face, rule-of-thirds",
+      "b_roll": "screen recording or photo of the common mistake",
+      "note": ""
+    },
+    {
+      "section": "Core idea",
+      "shot_type": "screen recording",
+      "framing": "over-the-shoulder or full screen",
+      "b_roll": "diagram or whiteboard drawing built step by step",
+      "note": "Label every element as you draw it"
+    },
+    {
+      "section": "Worked example",
+      "shot_type": "screen recording",
+      "framing": "screen with small face cam",
+      "b_roll": "the real example, zoomed on the active area",
+      "note": "Zoom in on what changes"
+    },
+    {
+      "section": "Recap and CTA",
+      "shot_type": "close-up",
+      "framing": "face, eye-level",
+      "b_roll": "on-screen one-line takeaway",
+      "note": "End on the takeaway text"
+    }
+  ],
+  "cta_patterns": [
+    "Follow for the next lesson in this series",
+    "Comment the topic you want explained next",
+    "Save this so you can practise later"
+  ],
+  "common_risks": [
+    "Teaching two ideas in one scene",
+    "Jargon before the plain-language version",
+    "No worked example, only theory",
+    "Intro longer than 8 seconds"
+  ]
+}
