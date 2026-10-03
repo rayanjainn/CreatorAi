@@ -10,7 +10,7 @@ import { useAuth } from '@/components/auth-provider'
 import { useContentItem } from '@/lib/api/hooks'
 import { initials } from '@/lib/format'
 import { useUi } from '@/stores/ui'
-import { useActiveJobs, useJobs } from '@/stores/jobs'
+import { useActiveJobs } from '@/stores/jobs'
 import { ROUTE_TITLES } from './nav'
 import { Button } from '@/components/ui/button'
 

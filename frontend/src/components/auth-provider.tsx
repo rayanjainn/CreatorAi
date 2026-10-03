@@ -7,7 +7,7 @@ import { api, setUnauthorizedHandler, unwrap } from '@/lib/api/client'
 import { qk, useMe } from '@/lib/api/hooks'
 import type { Me, Profile, TokenOut } from '@/lib/api/types'
 import type { ApiError } from '@/lib/api/errors'
-import { clearToken, getToken, setToken, subscribeToken } from '@/lib/auth'
+import { clearToken, getToken, markSignedOut, setToken, subscribeToken } from '@/lib/auth'
 
 type AuthStatus = 'loading' | 'authed' | 'anon' | 'error'
 
@@ -41,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const meQuery = useMe(!!token)
 
   const logout = useCallback(() => {
+    markSignedOut()
     clearToken()
     qc.clear()
     router.replace('/login')

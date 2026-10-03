@@ -84,7 +84,9 @@ def main() -> int:
     procs["api"] = spawn("api", api_cmd, BACKEND, env)
     has_web = (FRONTEND / "package.json").exists()
     if has_web:
-        procs["web"] = spawn("web", ["npm", "run", "dev"], FRONTEND, {**env, "PORT": WEB_PORT})
+        web_env = {**env, "PORT": WEB_PORT}
+        web_env.setdefault("NEXT_PUBLIC_API_URL", f"http://localhost:{API_PORT}")
+        procs["web"] = spawn("web", ["npm", "run", "dev", "--", "-p", WEB_PORT], FRONTEND, web_env)
 
     print(f"\n  API   http://localhost:{API_PORT}   (docs: /docs, health: /api/v1/health)")
     if has_web:

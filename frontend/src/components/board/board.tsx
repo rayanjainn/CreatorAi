@@ -41,15 +41,18 @@ export function Board({ board }: { board: BoardData }) {
   const [dragId, setDragId] = useState<string | null>(null)
   const [drop, setDrop] = useState<DropTarget>(null)
   const [toDelete, setToDelete] = useState<Card | null>(null)
+  const dragRef = useRef<string | null>(null) // synchronous source of truth for the native DnD handlers
   const colRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   const onDragStart = useCallback((e: DragEvent, card: Card) => {
     e.dataTransfer.setData('text/plain', card.id)
     e.dataTransfer.effectAllowed = 'move'
-    // Defer: changing the DOM inside dragstart can cancel the native drag in Chromium.
+    dragRef.current = card.id
+    // Defer the visual change: mutating the DOM inside dragstart can cancel the native drag in Chromium.
     setTimeout(() => setDragId(card.id), 0)
   }, [])
   const onDragEnd = useCallback(() => {
+    dragRef.current = null
     setDragId(null)
     setDrop(null)
   }, [])
@@ -59,7 +62,7 @@ export function Board({ board }: { board: BoardData }) {
   const indexFromPointer = (stage: Stage, clientY: number) => {
     const el = colRefs.current[stage]
     if (!el) return 0
-    const cards = Array.from(el.querySelectorAll<HTMLElement>('[data-card-id]')).filter((c) => c.dataset.cardId !== dragId)
+    const cards = Array.from(el.querySelectorAll<HTMLElement>('[data-card-id]')).filter((c) => c.dataset.cardId !== dragRef.current)
     let idx = 0
     for (const c of cards) {
       const r = c.getBoundingClientRect()
@@ -84,7 +87,7 @@ export function Board({ board }: { board: BoardData }) {
               data-testid={`column-${col.stage}`}
               aria-label={`${stageMeta.label} column, ${col.count} item${col.count === 1 ? '' : 's'}`}
               onDragOver={(e) => {
-                if (!dragId) return
+                if (!dragRef.current) return
                 e.preventDefault()
                 e.dataTransfer.dropEffect = 'move'
                 const index = indexFromPointer(col.stage, e.clientY)
@@ -95,7 +98,8 @@ export function Board({ board }: { board: BoardData }) {
               }}
               onDrop={(e) => {
                 e.preventDefault()
-                const id = e.dataTransfer.getData('text/plain') || dragId
+                const id = e.dataTransfer.getData('text/plain') || dragRef.current
+                dragRef.current = null
                 const card = col.cards.find((c) => c.id === id) ?? board.columns.flatMap((c) => c.cards).find((c) => c.id === id)
                 const index = drop?.stage === col.stage ? drop.index : indexFromPointer(col.stage, e.clientY)
                 setDragId(null)

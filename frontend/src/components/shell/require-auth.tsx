@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/components/auth-provider'
 import { Splash } from '@/components/common/splash'
 import { ErrorState } from '@/components/common/error-state'
-import { homeFor } from '@/lib/auth'
+import { getPostOnboardingTarget, homeFor, justSignedOut } from '@/lib/auth'
 
 /**
  * Redirect rules (single source of truth):
@@ -23,11 +23,13 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
   const target =
     status === 'anon'
-      ? `/login?next=${encodeURIComponent(pathname)}`
+      ? justSignedOut()
+        ? '/login'
+        : `/login?next=${encodeURIComponent(pathname)}`
       : status === 'authed' && profile && !profile.onboarding_done && !onOnboarding
         ? '/onboarding'
         : status === 'authed' && profile?.onboarding_done && onOnboarding && !redo
-          ? homeFor(profile)
+          ? (getPostOnboardingTarget() ?? homeFor(profile))
           : null
 
   useEffect(() => {

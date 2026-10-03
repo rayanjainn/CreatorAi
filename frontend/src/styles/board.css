@@ -19,7 +19,6 @@
   scrollbar-color: #3a3a44 transparent;
 }
 .kanban {
-  --c: var(--cyan);
   background: #16161b;
   border: 1px solid #202027;
   padding: 10px;

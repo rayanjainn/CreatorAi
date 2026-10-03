@@ -972,3 +972,11 @@ a.stat:hover {
     max-width: none;
   }
 }
+
+.caption-option {
+  display: flex;
+  flex-direction: column;
+}
+.caption-option .caption-demo {
+  width: 100%;
+}

@@ -803,7 +803,7 @@
 .status-row:last-child {
   border: 0;
 }
-.status-row > span:first-child {
+.status-row > .status-main {
   flex: 1;
   min-width: 0;
 }

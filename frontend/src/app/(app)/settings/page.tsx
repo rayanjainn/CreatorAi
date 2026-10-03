@@ -111,7 +111,7 @@ function LlmCard() {
             {Object.entries(providers ?? {}).map(([name, p]) => (
               <div className="status-row" key={name} data-testid={`provider-${name}`}>
                 <span className={p.configured ? (p.healthy ? 'ok-dot' : 'warn-dot') : 'bad-dot'} aria-hidden />
-                <span>
+                <span className="status-main">
                   <b style={{ textTransform: 'capitalize' }}>{name}</b>
                   <small>
                     {p.configured ? (p.healthy ? 'Configured' : `Circuit open for ${Math.ceil(p.circuit_open_sec)}s after repeated failures`) : name === 'mock' ? 'Offline stand-in' : 'Not configured'}
@@ -200,7 +200,7 @@ function Row({ ok, warn, title, detail, right }: { ok?: boolean; warn?: boolean;
   return (
     <div className="status-row">
       <span className={ok ? 'ok-dot' : warn ? 'warn-dot' : 'bad-dot'} aria-hidden />
-      <span>
+      <span className="status-main">
         <b>{title}</b>
         <small>{detail}</small>
       </span>

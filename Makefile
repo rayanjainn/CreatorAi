@@ -5,7 +5,7 @@ PY := $(VENV)/bin/python
 HAS_WEB := $(wildcard frontend/package.json)
 
 .DEFAULT_GOAL := help
-.PHONY: help setup models models-asr dev seed demo-media migrate test lint reset clean gen-api
+.PHONY: help setup models models-asr dev seed demo-media migrate test lint reset clean gen-api e2e
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-9s %s\n", $$1, $$2}'
@@ -57,3 +57,6 @@ clean: ## Remove caches and build output
 gen-api: ## Dump OpenAPI and regenerate the frontend types
 	$(PY) backend/scripts/dump_openapi.py frontend/openapi.json
 	@if [ -n "$(HAS_WEB)" ]; then cd frontend && npm run gen:api; fi
+
+e2e: ## Playwright end-to-end tests against the real stack (throwaway data dir, seeded)
+	$(PY) scripts/e2e.py $(ARGS)

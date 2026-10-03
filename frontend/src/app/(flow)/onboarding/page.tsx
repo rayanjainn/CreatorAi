@@ -12,6 +12,7 @@ import { CAPTION_STYLES, CaptionPreview, type CaptionStyleId } from '@/component
 import { NotAvailableInline } from '@/components/common/not-available'
 import { useAuth } from '@/components/auth-provider'
 import { useOnboarding } from '@/lib/api/hooks'
+import { setPostOnboardingTarget } from '@/lib/auth'
 import type { Domain } from '@/lib/api/types'
 import { errorMessage } from '@/lib/api/errors'
 import { toast } from '@/stores/toasts'
@@ -52,6 +53,7 @@ export default function OnboardingPage() {
 
   const finish = (e?: FormEvent) => {
     e?.preventDefault()
+    setPostOnboardingTarget('/calendar')
     save.mutate(
       {
         display_name: name.trim() || 'Creator',

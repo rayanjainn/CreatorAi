@@ -55,3 +55,17 @@ export function homeFor(profile: { onboarding_done: boolean } | undefined, next?
   if (next && next.startsWith('/') && !next.startsWith('//')) return next
   return '/dashboard'
 }
+
+/** Set by sign-out so the guard does not append `?next=` to the /login redirect it also performs. */
+let signedOutAt = 0
+export const markSignedOut = () => {
+  signedOutAt = Date.now()
+}
+export const justSignedOut = () => Date.now() - signedOutAt < 3000
+
+/** Where the onboarding wizard sends you when it finishes (read by the guard so both agree). */
+let postOnboarding: string | null = null
+export const setPostOnboardingTarget = (path: string | null) => {
+  postOnboarding = path
+}
+export const getPostOnboardingTarget = () => postOnboarding

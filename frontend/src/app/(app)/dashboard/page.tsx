@@ -14,7 +14,7 @@ import { useActivity, useBoard, useCreateContent } from '@/lib/api/hooks'
 import { flattenBoard } from '@/lib/board'
 import { actionLabel } from '@/lib/format'
 import { greeting, relativeTime } from '@/lib/time'
-import { useActiveJobs, useJobs } from '@/stores/jobs'
+import { useActiveJobs } from '@/stores/jobs'
 import { useUi } from '@/stores/ui'
 
 function splitPrompt(text: string): { title: string; notes?: string } {
