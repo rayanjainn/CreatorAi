@@ -61,9 +61,20 @@ def test_full_pipeline_with_mock_llm_edits_and_music(
 ) -> None:
     item, asset_id = ready_item(client, auth, demo_media)
     with session_scope() as db:  # a library track tagged "music" (the file itself is not needed)
-        db.add(Asset(workspace_id=workspace_id, kind="audio", filename="calm.mp3", mime="audio/mpeg",
-                     storage_key="x", size_bytes=1, sha256="m" * 64, duration_sec=120.0,
-                     status="ready", tags=["Music", "calm"]))  # fmt: skip
+        db.add(
+            Asset(
+                workspace_id=workspace_id,
+                kind="audio",
+                filename="calm.mp3",
+                mime="audio/mpeg",
+                storage_key="x",
+                size_bytes=1,
+                sha256="m" * 64,
+                duration_sec=120.0,
+                status="ready",
+                tags=["Music", "calm"],
+            )
+        )
         db.flush()
         music_id = db.query(Asset).filter(Asset.kind == "audio").one().id
     result = generate(client, auth, item, count=2, include_full_cut=True)

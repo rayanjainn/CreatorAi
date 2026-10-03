@@ -65,16 +65,28 @@ def test_minmax_and_constant_series() -> None:
 def window(start: float, end: float, text: str = "words here.", **raw: float | None) -> Window:
     w = Window(0, 0, start, end, text)
     base: dict[str, float | None] = {
-        "beat_similarity": 0.0, "hook_signals": 0.0, "speech_rate": 0.0,
-        "audio_energy": -30.0, "emphasis": 0.0, "visual_change": 0.0,
-    }  # fmt: skip
+        "beat_similarity": 0.0,
+        "hook_signals": 0.0,
+        "speech_rate": 0.0,
+        "audio_energy": -30.0,
+        "emphasis": 0.0,
+        "visual_change": 0.0,
+    }
     w.raw = {**base, **raw}
     return w
 
 
 def test_weights_and_score_with_all_features() -> None:
-    a = window(0, 25, beat_similarity=1.0, hook_signals=1.0, speech_rate=1.0,
-               audio_energy=-10.0, emphasis=1.0, visual_change=1.0)  # fmt: skip
+    a = window(
+        0,
+        25,
+        beat_similarity=1.0,
+        hook_signals=1.0,
+        speech_rate=1.0,
+        audio_energy=-10.0,
+        emphasis=1.0,
+        visual_change=1.0,
+    )
     b = window(30, 55)
     weights = scoring.score_windows([a, b])
     assert weights == pytest.approx(scoring.WEIGHTS) and sum(weights.values()) == pytest.approx(1.0)
@@ -150,7 +162,7 @@ def test_crop_x_uses_the_median_of_detected_face_centres(
         def empty(self) -> bool:
             return False
 
-        def detectMultiScale(self, gray, **kwargs):  # type: ignore[no-untyped-def]  # noqa: N802
+        def detectMultiScale(self, gray, **kwargs):  # type: ignore[no-untyped-def]
             FakeCascade.calls += 1
             width = gray.shape[1]
             assert kwargs["scaleFactor"] == 1.1 and kwargs["minNeighbors"] == 5
