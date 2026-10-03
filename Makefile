@@ -29,9 +29,8 @@ models-asr: ## Download embedding + faster-whisper models (needs internet once)
 dev: ## Start API (:8000) and web (:3000) together
 	$(PY) scripts/dev.py
 
-seed: ## Load the demo user, profile, board and hero project
-	@if [ -f backend/scripts/seed_demo.py ]; then cd backend && .venv/bin/python scripts/seed_demo.py; \
-	else echo "backend/scripts/seed_demo.py not found yet"; exit 1; fi
+seed: ## Load demo data: user, board, analytics, hero project (ARGS="--reset --render")
+	cd backend && .venv/bin/python scripts/seed_demo.py $(ARGS)
 
 demo-media: ## Generate synthetic DEMO footage + words.json sidecar in data/demo (needs ffmpeg)
 	$(PY) backend/scripts/make_demo_media.py --out data/demo
