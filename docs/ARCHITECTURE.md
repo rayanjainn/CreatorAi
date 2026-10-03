@@ -259,3 +259,20 @@ route serves with full HTTP Range support.
 - Embeddings are little-endian float32 BLOBs; search is brute-force cosine in numpy (`ml/vectors.py`).
 - `asset_segments_fts` is an external-content FTS5 table kept in sync by triggers. After a `VACUUM`, run
   `insert into asset_segments_fts(asset_segments_fts) values('rebuild');`.
+
+## Frontend (`frontend/`)
+
+Next.js (App Router) + TypeScript strict + TanStack Query + Zustand. Full conventions, the component
+inventory and "how to add a page / hook" are in `frontend/README.md`. In short:
+
+- **Route groups**: `(public)` landing, login, signup · `(flow)/onboarding` (auth only) · `(app)` = auth-guarded
+  shell (Sidebar, Topbar with breadcrumb, global search and job indicator, DataModeBanner, TwinDrawer slot,
+  JobToasts, NewContentDialog).
+- **API layer** (`src/lib/api`): `schema.d.ts` is generated from the backend OpenAPI (`make gen-api`, committed);
+  `client.ts` wraps `openapi-fetch` (Bearer token, `ApiError` from `{error:{code,message,details}}`, media URL
+  helper); `hooks.ts` holds every query/mutation and the query keys; `error-toasts.ts` maps `LLM_BUSY`,
+  `LLM_NOT_CONFIGURED`, `QUOTA_EXCEEDED`, `NO_YOUTUBE_CONNECTION`, `REVISION_CONFLICT` to toasts.
+- **Jobs**: `stores/jobs.ts` + `components/shell/jobs-provider.tsx` poll `GET /jobs` and follow each active job
+  over SSE (`lib/sse.ts`, `?access_token=`), driving JobToasts and the topbar indicator.
+- **Honesty rules**: generated content carries a `ProvenanceBadge`; `DataModeBanner` reflects
+  `GET /health` `data_mode`; features without a backend render `NotAvailablePage`, never sample data.

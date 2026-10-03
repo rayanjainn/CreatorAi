@@ -9,6 +9,8 @@ sections below: endpoint table, then notes).
 
 - **Auth**: `Authorization: Bearer <jwt>` on everything except `/health`, `/auth/signup`, `/auth/login`.
   `GET` requests may use `?access_token=` (EventSource cannot set headers).
+- **Health**: `GET /health` (public) reports `data_mode`, `signup_open` (true while `POST /auth/signup` would
+  succeed) and the `features` block (llm providers, asr, embedder, ffmpeg, youtube).
 - **Errors**: `{ "error": { "code", "message", "details" } }`. Codes used by ingest and search:
   `VALIDATION_ERROR` 422, `NOT_FOUND` 404, `CONFLICT` 409, `UPLOAD_TOO_LARGE` 413,
   `INSUFFICIENT_STORAGE` 507, `UPLOAD_INCOMPLETE` 409 (`details.missing` lists chunk indexes),

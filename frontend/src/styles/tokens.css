@@ -1,0 +1,45 @@
+/* Design tokens. The look is the teammate's cinematic dark theme; only extend, never rename. */
+:root {
+  --background: #0b0b0e;
+  --foreground: #f4f4f5;
+  --surface: #1e1e24;
+  --surface-2: #25252d;
+  --surface-3: #2b2b33;
+  --sidebar: #141418;
+  --border: #34343a;
+  --line: #25252b;
+  --primary: #8b5cf6;
+  --primary-hover: #a78bfa;
+  --primary-foreground: #ffffff;
+  --muted-foreground: #a1a1aa;
+  --amber: #f5b84b;
+  --cyan: #7bd0ff;
+  --green: #22c55e;
+  --red: #ef4444;
+  --pink: #f5a3c7;
+  --teal: #4fd1c5;
+  --muted: #a1a1aa;
+  --dim: #8a8a94; /* lifted from #71717a for WCAG AA on #1e1e24 */
+  --radius: 14px;
+  --font-display: "Instrument Serif", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+
+  /* stage colours (board columns, badges) */
+  --stage-idea: var(--cyan);
+  --stage-script: var(--primary);
+  --stage-shoot: var(--amber);
+  --stage-edit: var(--pink);
+  --stage-review: var(--teal);
+  --stage-published: var(--green);
+
+  /* provenance colours */
+  --prov-ai: #a78bfa;
+  --prov-mock: #f97316;
+  --prov-heuristic: #fbbf24;
+  --prov-demo: #7bd0ff;
+  --prov-user: #86efac;
+
+  --sidebar-w: 248px;
+  --sidebar-w-collapsed: 72px;
+  --topbar-h: 64px;
+  --ring: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);
+}

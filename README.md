@@ -4,7 +4,7 @@
 ```bash
 make setup   # venv, dependencies, .env, migrations, model download (no Docker, no cloud accounts)
 # edit .env: add at least ONE free AI key (see below), then:
-make dev     # API on :8000 and web on :3000 (web starts once frontend/ exists)
+make dev     # API on :8000 and web on :3000 (frontend/README.md has the web app docs)
 make test    # backend test suite (uses the mock provider explicitly; no keys or network)
 ```
 
