@@ -23,8 +23,8 @@ from __future__ import annotations
 import math
 import re
 from collections import defaultdict
-from itertools import pairwise
 from collections.abc import Iterable, Sequence
+from itertools import pairwise
 from typing import Any
 
 from app.ml.hooks import hook_signals
