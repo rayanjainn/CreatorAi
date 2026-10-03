@@ -115,3 +115,9 @@ Append one 5-line entry per task (newest last):
 - Learned: unnest() flattens float8[][] so a 2D array param cannot write one vector per row; a jsonb recordset converted per backend (::text::vector or ARRAY(... WITH ORDINALITY)) keeps it one statement and inside search/repo.js.
 - Next: P3.T5 index endpoint tests + Track A RBAC matrix.
 - Gate: eslint + vitest tests/phase3 tests/phase2 green apart from the two items noted under P3.T1.
+
+## P3.T5 index endpoint, Track A RBAC matrix, real-steps pipeline test (2026-10-04)
+- Done: GET /media/:assetId/index (viewer+) -> { asset, transcript, scenes, faces [{ sceneIdx, atMs, bbox }], analysis | null, steps { [step]: { status, error, attempts, updatedAt } } } via media getIndexView (built on getAssetIndex); tests/phase3/index-endpoint.test.js (content, failed-step errors, cross-project/unknown/malformed -> 404, reprocess 202/400/404), rbac-matrix-a.test.js (index, reprocess, search x 5 actors), pipeline-real-steps.test.js (no injected steps; needs Track B). phase2 rbac-matrix index/reprocess rows moved from 501 to 200/202 (approved).
+- Learned: the index response never exposes vectors; step status is keyed by step name so clients can poll one field.
+- Next: merge feat/ai-backend-phase0 (Track B) and run the real-steps test against the real step modules.
+- Gate: see the merge entry below.
