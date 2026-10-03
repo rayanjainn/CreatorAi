@@ -1,11 +1,15 @@
 // In-memory Cloudinary. putResource() seeds what a client "uploaded" directly.
+// destroyed records every destroy() call; reset() clears both.
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { hash32 } from '../pick.js';
+import { notificationSignature, signParams, verifyNotificationWith } from './contract.js';
 
 const BASE = 'https://res.fake-cloudinary.test/demo';
 const resources = new Map();
 export const destroyed = [];
+
+// Deterministic secret: tests sign notifications with signNotification().
+export const FAKE_API_SECRET = 'fake-api-secret';
 
 export function reset() {
   resources.clear();
@@ -24,7 +28,7 @@ export async function signUpload({ folder, resourceType = 'video' }) {
     cloudName: 'demo',
     apiKey: 'fake-api-key',
     timestamp,
-    signature: hash32(`${folder}:${timestamp}`).toString(16).padStart(8, '0'),
+    signature: signParams({ folder, timestamp }, FAKE_API_SECRET),
     folder,
     resourceType,
     uploadUrl: `https://api.fake-cloudinary.test/v1_1/demo/${resourceType}/upload`,
@@ -55,7 +59,15 @@ export async function uploadFile(filePath, { folder, resourceType = 'video' } = 
   });
 }
 
-export async function destroy(publicId) {
+export async function destroy(publicId, _options = {}) {
   destroyed.push(publicId);
   return { result: resources.delete(publicId) ? 'ok' : 'not found' };
+}
+
+export function signNotification(body, timestamp) {
+  return notificationSignature(body, timestamp, FAKE_API_SECRET);
+}
+
+export function verifyNotification(input) {
+  return verifyNotificationWith(FAKE_API_SECRET, input);
 }

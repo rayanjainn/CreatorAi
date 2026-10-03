@@ -31,3 +31,9 @@ Append one 5-line entry per task (newest last):
 - Learned: requireRole runs before body validation, so non-members get 404 whatever the body (T2 used to validate first). Under READ COMMITTED, FOR UPDATE re-checks role = 'owner' after the blocking tx commits, so concurrent mutual demotion leaves exactly one owner (409 or 403 for the loser).
 - Next: Phase 1 done. Launch Track A (P2 media), B (P4 agents), C (P5 timeline) in parallel; every project-scoped route uses requireRole from projects/service.js and adds rows to the role MATRIX. (The three members rows were dropped from projects.test.js's stub table, as the phase-1 stub rows were from phase0.)
 - Gate: `npm run gate -- 1` passed (lint + 211/211 tests).
+
+## P2.T1 storage adapter, real + fake (2026-10-04)
+- Done: real Cloudinary adapter over fetch + node:crypto (signUpload, getResource via Admin API basic auth, signed multipart uploadFile, signed destroy, proxyUrl/audioUrl, verifyNotification); fake gains verifyNotification/signNotification with FAKE_API_SECRET and destroy(publicId, { resourceType }); shared signParams / verifyNotificationWith in contract.js; tests/phase2/storage.test.js (fetch stubbed, no network).
+- Learned: notification check is sha1(body + timestamp + secret) with a 2 h freshness window, compared in constant time. With orchestrator approval the 'storage.signUpload' row (and its now-unused import) was removed from phase0 adapters.test.js "real adapters are stubs".
+- Next: P2.T2 media routes + repo.
+- Gate: `npm run gate -- 2` passed (lint + 219/219 tests).
