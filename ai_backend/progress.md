@@ -97,3 +97,9 @@ Append one 5-line entry per task (newest last):
 - Learned: parallel tracks need separate test databases (aivideo_p2_test / _p4_test / _p5_test) since resetDb truncates; the assets table + media getAssetsByIds were committed first as the P2/P5 contract. Webhook signature is checked against re-serialized JSON (app.js is frozen; raw-body capture needs approval).
 - Next: P3 processing workers + index (Track A). HITL live smokes: Cloudinary sign -> upload -> register; one real plan -> research -> script.
 - Gate: `npm run gate -- 5` needs tests/phase3; `eslint . --max-warnings=0` + `vitest run tests/phase0,1,2,4,5` passed twice (513/513).
+
+## P2 live smoke: Cloudinary sign -> upload -> register (2026-10-04)
+- Done: live upload of the fixture through sign -> Cloudinary -> register works (201, status uploaded); director plan run succeeded on real Gemini. Fixed getResource to request ?media_metadata=true for videos.
+- Learned: the Cloudinary API key needs the Master Admin role (a restricted role gives 403 "missing permissions (create)" on upload); the Admin API omits video `duration` unless media_metadata=true, which left durationMs null. Signed `folder` alone puts the folder into public_id on this account.
+- Next: P3 processing workers + index.
+- Gate: eslint + vitest phase0,1,2,4,5 passed (513/513); storage.test.js URL assertion updated with human approval.

@@ -62,9 +62,11 @@ export async function signUpload({ folder, resourceType = 'video' }) {
 }
 
 // Admin API: GET /resources/:type/upload/:public_id. Not found -> null.
+// Videos need media_metadata=true, or the response has no `duration`.
 export async function getResource(publicId, { resourceType = 'video' } = {}) {
   const { cloudName, apiKey, apiSecret } = creds();
-  const res = await fetch(`${API}/${cloudName}/resources/${resourceType}/upload/${encodePublicId(publicId)}`, {
+  const query = resourceType === 'video' ? '?media_metadata=true' : '';
+  const res = await fetch(`${API}/${cloudName}/resources/${resourceType}/upload/${encodePublicId(publicId)}${query}`, {
     headers: { Authorization: `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')}` },
   });
   if (res.status === 404) return null;

@@ -105,7 +105,10 @@ describe('real storage (Cloudinary), no network', () => {
     const r = Resource.parse(await real.getResource('proj/p1/originals/clip'));
     expect(r).toMatchObject({ publicId: 'proj/p1/originals/clip', durationMs: 20040, width: 640, height: 360, bytes: 12345 });
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe('https://api.cloudinary.com/v1_1/demo-cloud/resources/video/upload/proj/p1/originals/clip');
+    // Without media_metadata=true the real Admin API omits `duration` for videos.
+    expect(url).toBe(
+      'https://api.cloudinary.com/v1_1/demo-cloud/resources/video/upload/proj/p1/originals/clip?media_metadata=true',
+    );
     expect(init.headers.Authorization).toBe(`Basic ${Buffer.from('1234:shh-secret').toString('base64')}`);
   });
 
