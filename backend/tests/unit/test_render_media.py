@@ -265,7 +265,7 @@ def test_graph_sponsor_placeholder_card_overlays_captions_and_audio_mix() -> Non
     assert "[bg_1][1:v]overlay=0:0:format=auto,format=yuv420p,setsar=1[v_1]" in g
     assert [c.kind for c in modern.cards] == ["sponsor_card", "lower_third"]
     assert "overlay=0:0:format=auto:enable='between(t,1.000,3.000)'[ov0]" in g
-    assert "[ov0]subtitles=captions.ass:fontsdir=fonts[vsub]" in g and modern.uses_captions
+    assert "[ov0]subtitles=filename=captions.ass:fontsdir=fonts[vsub]" in g and modern.uses_captions
     assert "volume=-18dB,adelay=500|500,apad[m_0]" in g
     assert "[aj][m_0]amix=inputs=2:duration=first:normalize=0[amixed]" in g
     assert g.count("amix=inputs") == 1  # the rejected sfx is not mixed

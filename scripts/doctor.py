@@ -161,7 +161,7 @@ def check_libass(ffmpeg: str) -> None:
                     "-i",
                     "color=c=black:s=64x64:d=0.2",
                     "-vf",
-                    "subtitles=t.ass",
+                    "subtitles=filename=t.ass",
                     "-f",
                     "null",
                     "-",

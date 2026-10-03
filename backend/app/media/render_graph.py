@@ -236,7 +236,7 @@ def build_plan(
         cur = f"ov{j}"
     uses_captions = any(c.status != "rejected" for c in timeline.tracks.captions)
     if uses_captions:
-        chains.append(f"[{cur}]subtitles={ass_name}:fontsdir={fonts_dir}[vsub]")
+        chains.append(f"[{cur}]subtitles=filename={ass_name}:fontsdir={fonts_dir}[vsub]")
         cur = "vsub"
     chains.append(f"[{cur}]format=yuv420p[vout]")
 
