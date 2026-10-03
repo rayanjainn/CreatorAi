@@ -9,7 +9,7 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -17,6 +17,8 @@ BACKEND_ROOT = REPO_ROOT / "backend"
 MIGRATIONS_DIR = BACKEND_ROOT / "migrations"
 
 EmbedBackend = Literal["auto", "sentence-transformers", "fastembed", "hashing"]
+OLLAMA_CLOUD_URL = "https://ollama.com"
+REAL_PROVIDERS = ("gemini", "groq", "ollama")
 
 
 class Settings(BaseSettings):
@@ -61,7 +63,15 @@ class Settings(BaseSettings):
     gemini_model_lite: str = "gemini-2.5-flash-lite"
     groq_api_key: str = ""
     groq_chat_model: str = "llama-3.3-70b-versatile"
-    llm_allow_mock: bool = True
+    # Ollama Cloud (https://ollama.com, needs OLLAMA_API_KEY) or a local server
+    # (OLLAMA_BASE_URL=http://localhost:11434, no key). Model ids are user-adjustable.
+    ollama_api_key: str = ""
+    ollama_base_url: str = OLLAMA_CLOUD_URL
+    ollama_model: str = "gpt-oss:120b"
+    ollama_vision_model: str = "qwen3-vl:235b"
+    llm_provider_order: str = "gemini,groq,ollama"
+    # Mock is an explicit dev/test opt-in. It is never the default and never a silent fallback.
+    llm_allow_mock: bool = False
     llm_cache_enabled: bool = True
     llm_timeout_sec: float = 30.0
     llm_queue_wait_sec: float = 25.0
@@ -70,6 +80,7 @@ class Settings(BaseSettings):
     llm_circuit_failures: int = 3
     gemini_rpm: int = 8
     groq_rpm: int = 20
+    ollama_rpm: int = 30
     groq_tpm: int = 6000
     groq_max_input_tokens: int = 6000
 
@@ -114,6 +125,27 @@ class Settings(BaseSettings):
         if not self.media_signing_secret:
             self.media_signing_secret = sha256(f"media:{self.app_secret}".encode()).hexdigest()
         return self
+
+    @field_validator("llm_provider_order")
+    @classmethod
+    def _check_order(cls, value: str) -> str:
+        names = [n.strip().lower() for n in value.split(",") if n.strip()]
+        unknown = [n for n in names if n not in REAL_PROVIDERS]
+        if unknown:
+            raise ValueError(
+                f"LLM_PROVIDER_ORDER has unknown provider(s) {unknown}; use {list(REAL_PROVIDERS)}"
+            )
+        return ",".join(dict.fromkeys(names)) or ",".join(REAL_PROVIDERS)
+
+    @property
+    def provider_order(self) -> tuple[str, ...]:
+        """Real LLM providers in routing order (``LLM_PROVIDER_ORDER``)."""
+        return tuple(n for n in self.llm_provider_order.split(",") if n)
+
+    @property
+    def ollama_is_local(self) -> bool:
+        """True when ``OLLAMA_BASE_URL`` points somewhere other than Ollama Cloud."""
+        return self.ollama_base_url.strip().rstrip("/").lower() != OLLAMA_CLOUD_URL
 
     @property
     def db_path(self) -> Path:

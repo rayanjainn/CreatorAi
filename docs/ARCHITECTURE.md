@@ -17,8 +17,8 @@ CreatorAi runs as **two processes** on one machine: a FastAPI API on :8000 and t
 │                  │  jobs table = source of truth      │ handlers          │
 │                  └─► PubSub (in-memory, last-event replay) ─► SSE         │
 │                                                                           │
-│ llm.gateway.run() ─► cache ─► rate limit ─► Gemini / Groq ─► mock         │
-│ ml.embedder (MiniLM or hashing) + ml.vectors (numpy cosine over BLOBs)    │
+│ llm.gateway.run_with_meta() ─► cache ─► rate limit ─► Gemini/Groq/Ollama  │
+│ ml.embedder (fastembed MiniLM; hashing = flagged fallback) + ml.vectors   │
 │ media.ffmpeg (run/probe)   storage.LocalStorage   /media Range route      │
 │ workers.scheduler (nightly Timer, callbacks registered by modules)        │
 └───────────────────────────────────────────────────────────────────────────┘
@@ -68,11 +68,14 @@ CreatorAi runs as **two processes** on one machine: a FastAPI API on :8000 and t
 
 ## LLM flow
 
-`llm.run(task, variables, schema, workspace_id, images=None, cache=True)` renders `prompts/<task>.md`
-with the creator context, checks the cache (mock answers are never cached), then walks the chain
-(`Gemini -> Groq -> mock` per `tasks.py`) applying rate limits, JSON validation with one repair retry,
-429/5xx backoff and a 60 s circuit breaker. If everything fails it raises `LLM_BUSY` (503, `retry_after`).
-Without any key the deterministic `mock` provider answers, so the product works offline.
+`llm.run_with_meta(task, variables, schema, workspace_id, images=None, cache=True)` (and the thin
+`llm.run`) renders `prompts/<task>.md` with the creator context, checks the cache, then walks the chain
+built from `LLM_PROVIDER_ORDER` (default `gemini,groq,ollama`, see `tasks.py`) applying rate limits, JSON
+validation with one repair retry, 429/5xx backoff and a 60 s circuit breaker. If every configured
+provider fails it raises `LLM_BUSY` (503, `retry_after`); with none configured it raises
+`LLM_NOT_CONFIGURED` (503). The `mock` provider joins the chain only when `LLM_ALLOW_MOCK=true`
+(never the default, never cached, always flagged). Each result carries `LLMMeta` (provider, model,
+is_mock, cache_hit, latency) which becomes the response `provenance`.
 
 ## Data layout
 

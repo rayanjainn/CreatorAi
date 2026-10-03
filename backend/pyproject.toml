@@ -23,14 +23,14 @@ dependencies = [
   "opencv-python-headless>=4.9",
   "scenedetect>=0.6.3",
   "vaderSentiment>=3.3.2",
+  "fastembed>=0.4",        # real embeddings (ONNX MiniLM, no torch); model downloads on first use
+  "faster-whisper>=1.0",   # local ASR fallback (CTranslate2, no torch)
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.4"]
-# Better embeddings than the built-in hashing embedder (downloads a ~90 MB model on first use).
+# Optional alternative embedder (pulls torch). fastembed is already a core dependency.
 ml = ["sentence-transformers>=2.7"]
-# Offline transcription fallback.
-asr = ["faster-whisper>=1.0"]
 
 [tool.setuptools.packages.find]
 include = ["app*"]

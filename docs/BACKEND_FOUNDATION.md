@@ -82,24 +82,61 @@ job_id = enqueue("asset.process", "asset", asset.id, {"reprocess": False}, works
 ## 4. Add an LLM task
 
 1. Output model in `llm/schemas.py` and an entry in `TASK_SCHEMAS`.
-2. Route in `llm/tasks.py`: `TASK_ROUTES["my.task"] = TaskRoute((GEMINI_MAIN, GROQ), max_tokens=800)`.
+2. Route in `llm/tasks.py`: `TASK_SPECS["my.task"] = TaskSpec(800)` (add `gemini_tier="lite"` for cheap tasks,
+   `vision=True` for image tasks). The chain is built from `LLM_PROVIDER_ORDER`; never hard-code providers.
 3. Prompt `llm/prompts/my.task.md`: start with the common preamble, then `{creator_context}`, your
    `{variables}`, and end with `JSON SCHEMA:\n{schema}` (copy any existing prompt).
 4. Mock behaviour in `llm/providers/mock.py` (`_HANDLERS["my.task"] = fn`): derive output from the
-   variables so the offline demo is useful. It is validated against your schema.
+   variables; it is validated against your schema. Also list the user-visible text fields in `_MARKED`
+   so the output carries the `[MOCK]` prefix (mock must be self-evident even if the badge is missed).
 5. Call it:
 
 ```python
 from app.llm import gateway as llm
 from app.llm.schemas import HooksOutput
 
-out = llm.run("script.hooks", {"topic": t, "count": 5, "tone": "witty", "platform": "shorts"},
-              HooksOutput, ctx.workspace_id)          # sync; raises AppError LLM_BUSY (503, retry_after)
+out, meta = llm.run_with_meta("script.hooks", {"topic": t, "count": 5, "tone": "witty", "platform": "shorts"},
+                              HooksOutput, ctx.workspace_id)   # sync
+provenance = meta.provenance            # Provenance(source="ai"|"mock", provider=..., model=...)
+# llm.run(...) is a thin wrapper returning only `out`; use it only when the result is never shown.
 ```
+
+Errors: `LLM_NOT_CONFIGURED` (503, no real provider and mock off; the message lists the env vars) and
+`LLM_BUSY` (503, `retry_after`, every configured provider failed). The gateway never falls back to
+mock unless `LLM_ALLOW_MOCK=true`. `meta` = `LLMMeta(provider, model, is_mock, cache_hit, latency_ms)`.
 
 `creator_context` and `schema` placeholders are filled by the gateway. A missing variable raises
 `ValueError` at call time. Add a sample to `tests/unit/test_llm_tasks.py` (`SAMPLES`); the parametrised
 tests then check prompt rendering and mock validity for the new task automatically.
+
+### Provenance contract (binding for every endpoint)
+
+**Every API response that contains generated content MUST include a `provenance` object** so the UI
+can badge it (`app/schemas/common.py`):
+
+```python
+from app.schemas.common import Provenance, attach_provenance   # WithProvenance mixin for models
+Provenance(source="ai", provider="gemini", model="gemini-2.5-flash")   # meta.provenance
+Provenance.heuristic("rules")      # deterministic non-AI logic: hashing embedder, rule-based scores
+Provenance.demo()                  # seeded data (is_seed=true rows, make seed): ALWAYS "demo"
+Provenance.user()                  # typed or edited by the user
+```
+
+`source` is `ai | mock | heuristic | demo | user`. A result that mixes sources reports the weakest one
+(mock/heuristic/demo beat ai). Persist the provenance with the row (e.g. in the JSON column next to the
+generated payload) so lists and detail views stay badged after a reload. The UI must render a visible
+badge for anything other than `ai`/`user`, and never show mock/heuristic/demo as real.
+
+### Provider setup, status and verification
+
+- Providers: Gemini, Groq, Ollama (cloud: `OLLAMA_API_KEY`; local: `OLLAMA_BASE_URL=http://localhost:11434`).
+  Ollama is "configured" when a key is set or the base URL is not the cloud default.
+- `GET /health` (public) and `GET /llm/status` report `data_mode` (`real` | `mock` | `unconfigured`) and
+  per-provider `configured`/`healthy` (healthy = configured and circuit closed).
+- `POST /llm/test` (auth) does one tiny real round-trip per configured provider and returns
+  `{ok, latency_ms, model, error}` each; error text is key-redacted. Keys are never logged.
+- Vision tasks are routed only to Gemini and Ollama (`OLLAMA_VISION_MODEL`); Groq is skipped for
+  images and when the prompt estimate exceeds `GROQ_MAX_INPUT_TOKENS`.
 
 ## 5. Add a migration
 
@@ -117,10 +154,36 @@ from app.ml.embedder import embed_texts, embedder_info
 from app.ml.vectors import pack_vector, unpack_matrix, top_k
 
 vecs = embed_texts(["a", "b"])                     # (n, 384) float32, L2-normalised
+embedder_info()["real"]                            # False => hashing heuristic fallback; use embedder_provenance()
 row.embedding = pack_vector(vecs[0])               # BLOB
 hits = top_k(query_vec, unpack_matrix([r.embedding for r in rows]), k=5)   # [(index, cosine)]
 ok, weak = get_settings().match_thresholds(embedder_info()["backend"])      # per-backend thresholds
 ```
+
+Default backend order is `fastembed` (ONNX MiniLM, core dependency) -> `sentence-transformers` (if
+installed) -> `hashing`. Hashing is a flagged heuristic: a WARNING is logged once, `/health` reports
+`embedder: {backend, real: false}` and results must be badged `heuristic` (`embedder_provenance()`).
+The model downloads on first use; `make models` preloads it (`make setup` runs it non-fatally).
+Do not mix vectors from different backends in one index; re-embed after switching backend.
+
+### ASR providers (`ml/asr`)
+
+```python
+from app.ml.asr import get_asr_chain, ASRError
+for p in get_asr_chain():                          # [GroqASR, LocalASR] filtered by ASR_PROVIDER/config
+    try:
+        t = p.transcribe(chunk_path, language=None, offset_sec=chunk_start)   # Transcript
+        break                                      # t.words/t.segments in original-audio seconds
+    except ASRError as exc:
+        if not exc.retryable: ...                  # then try the next provider
+```
+
+`Transcript` carries `provider`, `model`, `language`, `words`, `segments`, `words_estimated` (Groq returned
+no word times, so they were interpolated per Plan 8.2) and `.provenance` (`ai`). Groq uses
+`/openai/v1/audio/transcriptions` (multipart, `verbose_json`, word + segment granularities); local uses
+faster-whisper (`int8`, `word_timestamps`, `vad_filter`). Sidecar transcripts are handled by ingest, and an
+empty chain / total failure must fail the `transcribe` stage with `ASR_UNAVAILABLE`, never invent text.
+`make models-asr` preloads the Whisper model.
 
 ## 7. Storage, media URLs and ffmpeg
 
@@ -142,14 +205,18 @@ The frontend must prefix `/media/...` URLs with the API origin (`http://localhos
 ## 8. Testing conventions
 
 - `tests/conftest.py` creates one temp `DATA_DIR` for the session, migrates once, wipes every table after
-  each test and resets singletons (pubsub, gateway, job registry). No network, no keys, hashing embedder.
+  each test and resets singletons (pubsub, gateway, job registry). No network, no keys, hashing embedder, `LLM_ALLOW_MOCK=true` set **explicitly** (the config default is
+  false). Tests of real providers use `httpx.MockTransport`; stub model loaders for embedder/ASR. Never hit the network.
 - Fixtures: `client` (TestClient), `auth` (signed-up user's headers), `workspace_id`, `data_dir`.
 - `make test` runs the whole backend suite in a few seconds; `make lint` runs `ruff check` and `ruff format --check`.
 
 ## Decisions to know
 
 - `JobContext` handlers are sync functions; `llm.run` is a sync function (no async anywhere).
-- `LLM_ALLOW_MOCK=true` makes `mock` the last link in every chain. Mock results are not cached.
+- `LLM_ALLOW_MOCK` defaults to **false**. When true, `mock` is the last link of every chain; mock results
+  are not cached, carry `provenance.source="mock"` and `[MOCK]` text markers.
+- Seed/demo convention: anything created by `make seed` or flagged `is_seed` (e.g. `yt_videos`) is
+  `provenance.source = "demo"` in every response that exposes it.
 - Signup is allowed only while no user exists (`AUTH_ALLOW_MULTI=true` lifts that). The profile is created
   with `domain="technology"` and `onboarding_done=false` until `POST /onboarding`.
-- `GET /api/v1/health` is public and returns versions and feature flags (LLM providers, ASR, embedder, ffmpeg).
+- `GET /api/v1/health` is public and returns versions, `data_mode` and feature flags (LLM providers, ASR, embedder incl. `real`, ffmpeg).

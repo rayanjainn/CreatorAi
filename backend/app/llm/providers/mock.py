@@ -1,7 +1,8 @@
 """Offline deterministic provider. Derives schema-valid output from the prompt variables.
 
-It is the last link of every chain when ``LLM_ALLOW_MOCK`` is on, so the whole product works with
-zero API keys. Output is a pure function of ``(task, variables)``.
+It exists only for development and tests and is used only when ``LLM_ALLOW_MOCK=true`` (never the
+default, never a silent fallback). Output is a pure function of ``(task, variables)`` and is marked
+with ``[MOCK]`` in its user-visible text so it can never be mistaken for real AI output.
 """
 
 from __future__ import annotations
@@ -520,6 +521,71 @@ _HANDLERS: dict[str, HookFn] = {
 }
 
 
+MOCK_MARK = "[MOCK]"
+# task -> (path, max_words, max_chars); "*" walks every list item. Only user-visible text is marked.
+_MARKED: dict[str, list[tuple[str, int | None, int | None]]] = {
+    "director.plan": [("angle", None, None)],
+    "director.review": [("strengths.*", None, None), ("suggestions.*", None, None)],
+    "script.hooks": [("hooks.*.text", 18, None)],
+    "script.generate": [("meta.titles.*", None, 70), ("meta.description", None, None)],
+    "script.meta": [("titles.*", None, 70), ("description", None, None)],
+    "assets.caption_keyframes": [("description", None, None)],
+    "clips.rerank_copy": [("clips.*.title", None, 70), ("clips.*.hook", 15, None)],
+    "sponsors.integration": [("slots.*.integration_script", None, None)],
+    "twin.chat": [("reply", None, None)],
+    "twin.style_extract": [("summary", None, None)],
+    "insights.narrate_ideas": [("narrative.*", None, None), ("ideas.*.title", None, 80)],
+}
+
+
+def _mark(text: str, max_words: int | None, max_chars: int | None) -> str:
+    if text.startswith(MOCK_MARK):
+        return text
+    out = f"{MOCK_MARK} {text}"
+    if max_words is not None:
+        out = " ".join(out.split()[:max_words])
+    if max_chars is not None and len(out) > max_chars:
+        out = out[: max_chars - 1].rstrip() + "…"
+    return out
+
+
+def _apply_mark(node: Any, parts: list[str], max_words: int | None, max_chars: int | None) -> Any:
+    head, rest = parts[0], parts[1:]
+    if head == "*" and isinstance(node, list):
+        return [
+            _mark(x, max_words, max_chars)
+            if not rest
+            else _apply_mark(x, rest, max_words, max_chars)
+            for x in node
+            if isinstance(x, str) or rest
+        ]
+    if isinstance(node, dict) and head in node:
+        value = node[head]
+        node = {
+            **node,
+            head: _mark(value, max_words, max_chars)
+            if not rest and isinstance(value, str)
+            else _apply_mark(value, rest, max_words, max_chars)
+            if rest
+            else value,
+        }
+    return node
+
+
+def mark_mock_output(task: str, data: dict[str, Any]) -> dict[str, Any]:
+    """Prefix the visible text fields of ``data`` with ``[MOCK]`` (idempotent)."""
+    for path, words, chars in _MARKED.get(task, []):
+        data = _apply_mark(data, path.split("."), words, chars)
+    if task == "script.generate" and isinstance(data.get("body_md"), str):
+        body = data["body_md"]
+        if not body.startswith(MOCK_MARK):
+            data = {
+                **data,
+                "body_md": f"{MOCK_MARK} Offline mock output, not AI generated.\n\n{body}",
+            }
+    return data
+
+
 class MockProvider(Provider):
     name = "mock"
     supports_images = True
@@ -536,7 +602,8 @@ class MockProvider(Provider):
         if handler is None:
             raise ProviderError(f"mock has no handler for task {request.task!r}")
         schema = TASK_SCHEMAS[request.task]
-        text = schema.model_validate(handler(request.variables)).model_dump_json()
+        raw = schema.model_validate(handler(request.variables)).model_dump(mode="json")
+        text = schema.model_validate(mark_mock_output(request.task, raw)).model_dump_json()
         return LLMResult(
             text=text,
             tokens_in=estimate_tokens(request.prompt),

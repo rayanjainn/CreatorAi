@@ -13,7 +13,7 @@ def test_defaults_match_plan() -> None:
     assert s.silence_min_sec == 0.6 and s.pause_keep_sec == 0.15
     assert s.render_x264_preset == "veryfast"
     assert s.gemini_rpm == 8 and s.groq_rpm == 20 and s.groq_tpm == 6000
-    assert s.llm_allow_mock is True and s.auth_mode == "local"
+    assert s.auth_mode == "local"
 
 
 def test_match_thresholds_are_per_backend() -> None:
@@ -71,4 +71,30 @@ def test_env_example_documents_every_setting_and_loads(
         10.0,
         30.0,
     ]
-    assert loaded.llm_allow_mock is True and loaded.env == "dev"
+    assert loaded.llm_allow_mock is False and loaded.env == "dev"
+    assert loaded.provider_order == ("gemini", "groq", "ollama")
+    assert loaded.ollama_base_url == "https://ollama.com" and loaded.ollama_model == "gpt-oss:120b"
+
+
+def test_mock_is_off_by_default(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.delenv("LLM_ALLOW_MOCK", raising=False)
+    assert Settings(DATA_DIR=str(tmp_path), _env_file=None).llm_allow_mock is False  # type: ignore[call-arg]
+
+
+def test_provider_order_parsing_and_validation(tmp_path: Path) -> None:
+    s = Settings(DATA_DIR=str(tmp_path), LLM_PROVIDER_ORDER=" Ollama, groq ,ollama")
+    assert s.provider_order == ("ollama", "groq")
+    with pytest.raises(ValueError, match="openai"):
+        Settings(DATA_DIR=str(tmp_path), LLM_PROVIDER_ORDER="gemini,openai")
+
+
+@pytest.mark.parametrize(
+    ("url", "local"),
+    [
+        ("https://ollama.com", False),
+        ("https://ollama.com/", False),
+        ("http://localhost:11434", True),
+    ],
+)
+def test_ollama_local_detection(tmp_path: Path, url: str, local: bool) -> None:
+    assert Settings(DATA_DIR=str(tmp_path), OLLAMA_BASE_URL=url).ollama_is_local is local

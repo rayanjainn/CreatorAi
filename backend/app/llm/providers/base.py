@@ -84,3 +84,14 @@ def http_error(provider: str, response: httpx.Response) -> ProviderError:
         retry_after=retry_after,
         retryable=response.status_code == 429 or response.status_code >= 500,
     )
+
+
+def json_body(provider: str, response: httpx.Response) -> dict[str, Any]:
+    """Decode a 200 response body as a JSON object or raise a (non-retryable) ``ProviderError``."""
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise ProviderError(f"{provider} returned a non-JSON body: {response.text[:120]}") from exc
+    if not isinstance(data, dict):
+        raise ProviderError(f"{provider} returned an unexpected JSON body")
+    return data
