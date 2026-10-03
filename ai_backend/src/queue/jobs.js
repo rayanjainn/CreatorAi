@@ -19,6 +19,8 @@ export const JOBS = Object.freeze({
 
 export const PAYLOADS = {
   [JOBS.NOOP]: z.object({ message: z.string().max(200).optional() }).strict(),
+  // P4: run one queued agent_runs row (the run row carries the agent name and input).
+  [JOBS.AGENT_RUN]: z.object({ runId: z.uuid() }).strict(),
 };
 
 export function parsePayload(name, data) {

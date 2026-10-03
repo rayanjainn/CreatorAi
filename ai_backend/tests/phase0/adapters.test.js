@@ -9,7 +9,6 @@ import { getTranscription } from '../../src/adapters/transcription/index.js';
 import { getStorage } from '../../src/adapters/storage/index.js';
 import { getWebSearch } from '../../src/adapters/search/index.js';
 import { getFfmpeg } from '../../src/adapters/ffmpeg/index.js';
-import * as llmReal from '../../src/adapters/llm/real.js';
 import * as embeddingsReal from '../../src/adapters/embeddings/real.js';
 import * as transcriptionReal from '../../src/adapters/transcription/real.js';
 import * as storageReal from '../../src/adapters/storage/real.js';
@@ -127,7 +126,6 @@ describe('fake ffmpeg', () => {
 
 describe('real adapters are stubs until their phase', () => {
   it.each([
-    ['llm.completeJson', () => llmReal.completeJson({ prompt: 'x' })],
     ['embeddings.embedTexts', () => embeddingsReal.embedTexts(['x'])],
     ['transcription.transcribe', () => transcriptionReal.transcribe({ url: 'x' })],
     ['storage.signUpload', () => storageReal.signUpload({ folder: 'x' })],
