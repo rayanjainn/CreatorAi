@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import APIRouter
-from sqlalchemy import text
+from sqlalchemy import func, select, text
 
 from app import __version__
 from app.config import get_settings
@@ -16,6 +16,7 @@ from app.db import session_scope
 from app.llm.gateway import get_gateway
 from app.media.ffmpeg import ffmpeg_available, ffmpeg_version
 from app.ml.embedder import embedder_info
+from app.models import User
 
 router = APIRouter(tags=["health"])
 
@@ -26,12 +27,15 @@ def health() -> dict[str, Any]:
     gateway = get_gateway()
     with session_scope() as db:
         db.execute(text("select 1"))
+        users = db.scalar(select(func.count()).select_from(User)) or 0
     return {
         "status": "ok",
         "version": __version__,
         "time": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "python": ".".join(map(str, sys.version_info[:3])),
         "auth_mode": settings.auth_mode,
+        # Same rule as POST /auth/signup; lets the sign-in page hide "create account".
+        "signup_open": users == 0 or settings.auth_allow_multi,
         "data_mode": gateway.data_mode(),
         "features": {
             "llm": {

@@ -24,6 +24,15 @@ def test_health_is_public_and_reports_features(client: TestClient) -> None:
     assert feats["asr"]["sidecar"] is True
 
 
+def test_health_reports_whether_signup_is_open(client: TestClient) -> None:
+    assert client.get("/api/v1/health").json()["signup_open"] is True
+    res = client.post(
+        "/api/v1/auth/signup", json={"email": "a@example.com", "password": "password1"}
+    )
+    assert res.status_code == 201
+    assert client.get("/api/v1/health").json()["signup_open"] is False
+
+
 def test_signup_login_me_flow(client: TestClient) -> None:
     res = client.post(
         "/api/v1/auth/signup",
