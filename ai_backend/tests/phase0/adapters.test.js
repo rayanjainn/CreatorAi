@@ -9,7 +9,6 @@ import { getTranscription } from '../../src/adapters/transcription/index.js';
 import { getStorage } from '../../src/adapters/storage/index.js';
 import { getWebSearch } from '../../src/adapters/search/index.js';
 import { getFfmpeg } from '../../src/adapters/ffmpeg/index.js';
-import * as ffmpegReal from '../../src/adapters/ffmpeg/real.js';
 import { CompleteJsonOutput } from '../../src/adapters/llm/contract.js';
 import { embeddingsOutput } from '../../src/adapters/embeddings/contract.js';
 import { TranscribeOutput } from '../../src/adapters/transcription/contract.js';
@@ -117,13 +116,5 @@ describe('fake ffmpeg', () => {
     expect(probe.streams.map((s) => s.type).sort()).toEqual(['audio', 'video']);
     RunOutput.parse(await f.run(['-version']));
     expect(f.runs).toEqual([['-version']]);
-  });
-});
-
-describe('real adapters are stubs until their phase', () => {
-  it.each([
-    ['ffmpeg.probe', () => ffmpegReal.probe('x')],
-  ])('%s throws "not implemented"', async (_name, call) => {
-    await expect(call()).rejects.toThrow(/not implemented/);
   });
 });

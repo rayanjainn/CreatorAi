@@ -18,3 +18,8 @@ export const ProbeOutput = z.object({
 });
 
 export const RunOutput = z.object({ code: z.number().int(), stderrTail: z.string() });
+
+// detectScenes(input, { threshold }) -> cut times in ms, ascending, each > 0.
+export const DetectScenesOutput = z.array(z.number().int().positive());
+
+export const ExtractFrameOutput = z.object({ path: z.string().min(1) });
