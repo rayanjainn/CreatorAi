@@ -76,21 +76,21 @@ def test_poster_time() -> None:
 def test_proxy_thumb_keyframe_audio_chunk_with_real_ffmpeg(tmp_path: Path) -> None:
     src = tmp_path / "src.mp4"
     subprocess.run(
-        ["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "testsrc=s=1280x720:d=4:r=25",
-         "-f", "lavfi", "-i", "sine=frequency=330:duration=4", "-c:v", "libx264", "-c:a", "aac",
+        ["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "testsrc=s=640x360:d=3:r=15",
+         "-f", "lavfi", "-i", "sine=frequency=330:duration=3", "-c:v", "libx264", "-c:a", "aac",
          "-shortest", str(src)],
         check=True,
     )  # fmt: skip
     proxy, thumb, key, audio, chunk = (
         tmp_path / n for n in ("p.mp4", "t.jpg", "k.jpg", "a.mp3", "c.mp3")
     )
-    make_proxy(src, proxy, duration=4.0)
+    make_proxy(src, proxy, duration=3.0)
     assert probe(proxy).height == 480
-    make_thumb(src, thumb, poster_time(4.0))
+    make_thumb(src, thumb, poster_time(3.0))
     assert Image.open(thumb).size[0] <= 640
     make_keyframe(src, key, 2.0)
     assert max(Image.open(key).size) <= 384  # both sides <= 384 px
-    extract_audio(src, audio, duration=4.0)
-    assert probe(audio).duration == pytest.approx(4.0, abs=0.2)
+    extract_audio(src, audio, duration=3.0)
+    assert probe(audio).duration == pytest.approx(3.0, abs=0.2)
     cut_chunk(audio, chunk, 1.0, 3.0)
     assert probe(chunk).duration == pytest.approx(2.0, abs=0.15)

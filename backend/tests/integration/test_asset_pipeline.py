@@ -66,7 +66,7 @@ def test_full_pipeline_on_demo_video(
     asset = run_demo(client, auth, demo_media)
     assert asset["status"] == "ready" and asset["error"] is None and asset["kind"] == "video"
     assert asset["duration_sec"] == pytest.approx(demo_media.duration, abs=0.3)
-    assert (asset["width"], asset["height"], asset["fps"]) == (320, 180, 25.0)
+    assert (asset["width"], asset["height"], asset["fps"]) == (320, 180, 10.0)
     assert asset["stages_done"] == FULL_VIDEO_STAGES
     assert asset["job"]["status"] == "succeeded" and asset["job"]["progress"] == 100
 
@@ -94,7 +94,8 @@ def test_full_pipeline_on_demo_video(
     # shots: 5 scenes from the generated colour cuts, keyframes <= 384 px
     shots = asset["shots"]
     assert asset["analysis"]["shots"]["method"] == "scenedetect" and len(shots) == 5
-    assert [round(s["start_sec"]) for s in shots[1:]] == [round(c) for c in demo_media.scene_cuts]
+    detected = [s["start_sec"] for s in shots[1:]]
+    assert detected == pytest.approx(demo_media.scene_cuts, abs=0.35)  # 10 fps frame rounding
     frame = Image.open(io.BytesIO(client.get(shots[0]["keyframe_url"]).content))
     assert max(frame.size) <= 384
     assert all(s["captioned"] for s in shots)

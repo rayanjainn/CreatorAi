@@ -100,7 +100,9 @@ def synth_audio(words: list[dict[str, object]], duration: float, path: Path) -> 
         out.writeframes(pcm.tobytes())
 
 
-def _video_filter(cuts: list[float], duration: float, width: int, height: int, label: bool) -> str:
+def _video_filter(
+    cuts: list[float], duration: float, width: int, height: int, fps: int, label: bool
+) -> str:
     bounds = [0.0, *cuts, duration]
     parts, names = [], []
     for i in range(len(bounds) - 1):
@@ -112,14 +114,15 @@ def _video_filter(cuts: list[float], duration: float, width: int, height: int, l
                 f"fontsize={max(14, height // 12)}:x=(w-text_w)/2:y=(h-text_h)/2"
             )
         parts.append(
-            f"color=c={color}:s={width}x{height}:r=25:d={bounds[i + 1] - bounds[i]:.3f}{text}[v{i}]"
+            f"color=c={color}:s={width}x{height}:r={fps}:"
+            f"d={bounds[i + 1] - bounds[i]:.3f}{text}[v{i}]"
         )
         names.append(f"[v{i}]")
     return ";".join(parts) + f";{''.join(names)}concat=n={len(names)}:v=1:a=0[v]"
 
 
 def generate(
-    out_dir: Path, name: str = "hero_demo", width: int = 640, height: int = 360
+    out_dir: Path, name: str = "hero_demo", width: int = 640, height: int = 360, fps: int = 25
 ) -> DemoMedia:
     """Write ``<name>.mp4`` and ``<name>.words.json`` to ``out_dir`` and describe them."""
     if shutil.which("ffmpeg") is None:
@@ -132,7 +135,7 @@ def generate(
     for label in (True, False):  # drawtext needs libfreetype + a font; fall back to plain colour
         cmd = [
             "ffmpeg", "-y", "-v", "error", "-filter_complex",
-            _video_filter(cuts, duration, width, height, label), "-i", str(wav), "-map", "[v]",
+            _video_filter(cuts, duration, width, height, fps, label), "-i", str(wav), "-map", "[v]",
             "-map", "0:a", "-c:v", "libx264", "-preset", "veryfast", "-crf", "30",
             "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "64k", "-movflags", "+faststart",
             "-shortest", str(video),
@@ -166,8 +169,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--name", default="hero_demo")
     parser.add_argument("--width", type=int, default=640)
     parser.add_argument("--height", type=int, default=360)
+    parser.add_argument("--fps", type=int, default=25)
     args = parser.parse_args(argv)
-    media = generate(args.out, args.name, args.width, args.height)
+    media = generate(args.out, args.name, args.width, args.height, args.fps)
     print(f"video   : {media.video} ({media.duration:.1f} s, DEMO data)")
     print(f"sidecar : {media.sidecar} ({len(media.words)} words, provenance=demo)")
     print(f"scene cuts at: {', '.join(f'{c:.1f}s' for c in media.scene_cuts)}")

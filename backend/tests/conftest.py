@@ -115,7 +115,7 @@ def no_processing() -> Iterator[None]:
 def demo_media(tmp_path_factory: pytest.TempPathFactory) -> Any:
     """Synthetic DEMO footage (~45 s, 5 scenes, tone bursts) + words.json sidecar, generated once.
 
-    Same generator as ``backend/scripts/make_demo_media.py`` (small 320x180 variant, no binaries
+    Same generator as ``backend/scripts/make_demo_media.py`` (small 320x180 10 fps variant, no binaries
     are committed). Attributes: ``video``, ``sidecar``, ``duration``, ``words``, ``scene_cuts``.
     """
     import importlib.util
@@ -130,7 +130,7 @@ def demo_media(tmp_path_factory: pytest.TempPathFactory) -> Any:
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module  # dataclasses look the module up by name
     spec.loader.exec_module(module)
-    return module.generate(tmp_path_factory.mktemp("demo"), "hero_demo", 320, 180)
+    return module.generate(tmp_path_factory.mktemp("demo"), "hero_demo", 320, 180, 10)
 
 
 @pytest.fixture(scope="session")
