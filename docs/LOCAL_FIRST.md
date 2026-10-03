@@ -2,7 +2,9 @@
 
 `Plan.md` is the product/feature reference (schema shape, JSON contracts, pipelines, thresholds).
 **This file overrides it for infrastructure.** Goal: a teammate clones the repo and is running in
-under 5 minutes with **no Docker, no Redis, no Postgres, no cloud accounts, no API keys**.
+under 5 minutes with **no Docker, no Redis, no Postgres and no cloud accounts**. The only thing
+a teammate adds is **one free AI key** (Gemini, Groq or Ollama): the app runs the real AI pipeline by default
+(see *Real AI by default* below).
 
 ## What changed vs Plan.md
 
@@ -19,14 +21,28 @@ under 5 minutes with **no Docker, no Redis, no Postgres, no cloud accounts, no A
 | Redis rate limiter | In-process sliding-window limiter (same defaults) | |
 | Supabase Auth | **Local auth**: email+password in `users` table (scrypt hash), HS256 JWT (PyJWT) | single creator; sign-up allowed only while no user exists. "Continue with Google" renders disabled (tooltip: "Not available in local mode") |
 | Supabase pooler notes | n/a | |
-| Gemini / Groq mandatory | **Optional.** Gateway chain = configured real providers, then built-in deterministic **`mock` provider** (offline, schema-valid output) | the whole app works with zero keys; keys only improve quality. `LLM_ALLOW_MOCK=true` default |
-| Groq Whisper mandatory | Transcription chain: **sidecar transcript** (`<file>.words.json`/`.srt`/`.vtt`, or uploaded via API) → Groq Whisper (if key) → `faster-whisper` (if installed) → clear `ASR_UNAVAILABLE` failure at the `transcribe` stage | demo/test footage ships with a sidecar so the pipeline is fully demoable offline |
-| sentence-transformers mandatory | `EMBED_BACKEND=auto`: `sentence-transformers` if installed → `fastembed` if installed → built-in **hashing embedder** (384-d, word+bigram feature hashing, zero downloads) | all return L2-normalised 384-d float32. `pip install -e ".[ml]"` for MiniLM quality. Thresholds (`MATCH_OK`, `MATCH_WEAK`) are **per-backend** in config |
+| Gemini / Groq mandatory | **At least one real provider is required: Gemini, Groq or Ollama (cloud or local).** Chain order = `LLM_PROVIDER_ORDER` (default `gemini,groq,ollama`), unconfigured providers skipped. No OpenAI, no Anthropic. The deterministic **`mock` provider** exists only behind `LLM_ALLOW_MOCK=true` (default **false**) | with no provider and mock off, AI endpoints return `LLM_NOT_CONFIGURED` (503) naming the env vars. Mock is never a silent fallback |
+| Groq Whisper mandatory | Transcription chain: **sidecar transcript** (`<file>.words.json`/`.srt`/`.vtt`, or uploaded via API) → Groq Whisper (if key) → local `faster-whisper` (core dependency; model downloaded by `make models-asr` / first use) → clear `ASR_UNAVAILABLE` failure at the `transcribe` stage. Chain: `ml.asr.get_asr_chain()` | demo/test footage ships with a sidecar so the pipeline is fully demoable offline |
+| sentence-transformers mandatory | `EMBED_BACKEND=auto`: **`fastembed`** (ONNX MiniLM, core dependency, no torch) → `sentence-transformers` if installed → **hashing embedder** as a *flagged heuristic fallback only* (loud WARNING once, `embedder.real=false`, provenance `heuristic`) | all return L2-normalised 384-d float32. `make models` preloads the model (needs internet once; `make setup` runs it non-fatally). Thresholds (`MATCH_OK`, `MATCH_WEAK`) are **per-backend** in config |
 | YouTube OAuth | Implemented as in plan but **optional**: needs `GOOGLE_CLIENT_ID/SECRET`. Without them `/youtube/*` returns `NO_YOUTUBE_CONNECTION` and the UI shows a "Connect YouTube" help card. Insights run on **seeded demo data** (`is_seed=true`) | refresh tokens Fernet-encrypted with `APP_SECRET`-derived key |
 | §7.4 Token budget | **Not built.** It is a planning estimate only. Kept in Plan.md for reference | |
 
 Everything else in Plan.md (ids, seconds as floats, status enums, JSON contracts §6, pipelines §8,
 error codes §6.10, presets, render graph, sponsor/twin/insights logic) is **unchanged and binding**.
+
+## Real AI by default (binding product rule)
+
+- The app runs the **real** pipeline. Supported LLMs: **Gemini, Groq, Ollama** (Ollama Cloud with
+  `OLLAMA_API_KEY`, or a local server with `OLLAMA_BASE_URL=http://localhost:11434`). Free keys:
+  Google AI Studio (aistudio.google.com/apikey), Groq console (console.groq.com/keys),
+  ollama.com/settings/keys. No OpenAI, no Anthropic API anywhere.
+- **Mock is explicit opt-in** (`LLM_ALLOW_MOCK=true`, dev/test only) and is never silent: results carry
+  `provenance.source="mock"`, mock text carries a `[MOCK]` marker, and `/health` + `/llm/status` report
+  `data_mode` = `real` | `mock` | `unconfigured`.
+- **Everything that is not a real model result is labelled**: `heuristic` (hashing embedder, rule-based
+  scoring), `demo` (anything seeded: `is_seed=true` rows from `make seed`, e.g. demo YouTube metrics),
+  `user` (typed by the user). Seeded data is *always* `source: "demo"`.
+- Verify keys with `POST /api/v1/llm/test` (one tiny real round-trip per configured provider).
 
 ## Layout
 
@@ -50,8 +66,8 @@ creatorai/
 2. `make seed` – demo user `demo@creatorai.local` / `demo1234`, demo profile, board cards, seed YouTube videos + metrics, twin memories, a **hero project** with generated footage + sidecar transcript + script.
 3. `make dev` – API (reload) + web together; prints URLs. Ctrl-C stops both.
 4. `make test` – backend pytest + frontend typecheck/lint/tests.
-5. No step may require network access after dependencies are installed, other than *optional* LLM/YouTube calls.
-6. Missing optional config (keys, ML extras) must degrade gracefully with a clear message, never a stack trace.
+5. After `make setup` (+ `make models`) the only network use is the chosen LLM provider (and optional YouTube/Groq ASR). Model downloads happen once, in `make models`.
+6. Missing config (no AI key, offline model download) must produce a clear, actionable message, never a stack trace and never silently fake data.
 
 ## Conventions recap
 

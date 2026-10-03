@@ -5,7 +5,7 @@ PY := $(VENV)/bin/python
 HAS_WEB := $(wildcard frontend/package.json)
 
 .DEFAULT_GOAL := help
-.PHONY: help setup dev seed migrate test lint reset clean gen-api
+.PHONY: help setup models models-asr dev seed migrate test lint reset clean gen-api
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-9s %s\n", $$1, $$2}'
@@ -17,7 +17,14 @@ setup: ## Create the venv, install deps, copy .env, run migrations
 	@if [ -n "$(HAS_WEB)" ]; then cd frontend && npm ci; else echo "frontend/ not present yet, skipping npm ci"; fi
 	@[ -f .env ] || cp .env.example .env
 	$(PY) backend/scripts/migrate.py
-	@echo "Setup done. Run: make dev"
+	@$(PY) backend/scripts/download_models.py || echo "WARNING: model download failed (offline?). Embeddings will use a heuristic fallback until you run 'make models' online."
+	@echo "Setup done. Add at least one AI key to .env (GEMINI_API_KEY, GROQ_API_KEY or OLLAMA_API_KEY), then run: make dev"
+
+models: ## Download the embedding model (needs internet once)
+	$(PY) backend/scripts/download_models.py
+
+models-asr: ## Download embedding + faster-whisper models (needs internet once)
+	$(PY) backend/scripts/download_models.py --asr
 
 dev: ## Start API (:8000) and web (:3000) together
 	$(PY) scripts/dev.py

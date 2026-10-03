@@ -1,7 +1,10 @@
-"""Text embedders: sentence-transformers or fastembed when installed, else a hashing embedder.
+"""Text embedders. Real by default: fastembed (ONNX MiniLM, a core dependency), then
+sentence-transformers if installed, and only then the hashing embedder, which is a flagged
+*heuristic* fallback (``embedder_info()["real"]`` is False and a WARNING is logged once).
 
 All backends return L2-normalised 384-d float32 matrices. Select one with ``EMBED_BACKEND``
-(``auto`` prefers sentence-transformers, then fastembed, then the zero-download hashing one).
+(``auto`` = fastembed -> sentence-transformers -> hashing). The first real use downloads the model
+(``make models`` preloads it); offline or on any load failure the hashing fallback kicks in.
 """
 
 from __future__ import annotations
@@ -21,6 +24,7 @@ import numpy as np
 
 from app.config import get_settings
 from app.ml.vectors import EMBED_DIM, Matrix, normalize
+from app.schemas.common import Provenance
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +33,7 @@ class Embedder(Protocol):
     name: str
     model: str
     dim: int
+    real: bool
 
     def embed(self, texts: list[str]) -> Matrix: ...
 
@@ -70,6 +75,7 @@ class HashingEmbedder:
     name = "hashing"
     model = "hashing-384"
     dim = EMBED_DIM
+    real = False  # heuristic, not a neural model: provenance source "heuristic"
 
     def _features(self, text: str) -> Counter[str]:
         raw = [t.lower() for t in _TOKEN_RE.findall(text)]
@@ -95,6 +101,7 @@ class HashingEmbedder:
 class SentenceTransformerEmbedder:
     name = "sentence-transformers"
     dim = EMBED_DIM
+    real = True
 
     def __init__(self, model: str) -> None:
         from sentence_transformers import SentenceTransformer
@@ -110,6 +117,7 @@ class SentenceTransformerEmbedder:
 class FastEmbedEmbedder:
     name = "fastembed"
     dim = EMBED_DIM
+    real = True
 
     def __init__(self, model: str) -> None:
         from fastembed import TextEmbedding
@@ -125,18 +133,40 @@ _lock = threading.Lock()
 _instance: Embedder | None = None
 
 
+_warned = False
+
+
+def _warn_heuristic(reason: str) -> None:
+    global _warned
+    if not _warned:
+        _warned = True
+        log.warning(
+            "EMBEDDINGS ARE A HEURISTIC FALLBACK (hashing embedder, not a neural model): %s. "
+            "Matching and search quality is reduced. Run `make models` while online to download "
+            "the real embedding model, then restart.",
+            reason,
+        )
+
+
 def _build(backend: str, model: str) -> Embedder:
     order = {
-        "auto": ["sentence-transformers", "fastembed", "hashing"],
-        "sentence-transformers": ["sentence-transformers", "hashing"],
-        "fastembed": ["fastembed", "hashing"],
+        "auto": ["fastembed", "sentence-transformers", "hashing"],
+        "sentence-transformers": ["sentence-transformers", "fastembed", "hashing"],
+        "fastembed": ["fastembed", "sentence-transformers", "hashing"],
         "hashing": ["hashing"],
     }[backend]
+    failures: list[str] = []
     for candidate in order:
         if candidate == "hashing":
+            _warn_heuristic(
+                "EMBED_BACKEND=hashing"
+                if backend == "hashing"
+                else "; ".join(failures) or "no real embedder installed"
+            )
             return HashingEmbedder()
         module = "sentence_transformers" if candidate == "sentence-transformers" else "fastembed"
         if importlib.util.find_spec(module) is None:
+            failures.append(f"{candidate} not installed")
             continue
         try:
             cls = (
@@ -147,6 +177,8 @@ def _build(backend: str, model: str) -> Embedder:
             return cls(model)
         except Exception as exc:
             log.warning("embedder %s unavailable (%s); falling back", candidate, exc)
+            failures.append(f"{candidate} failed to load ({type(exc).__name__}: {exc})")
+    _warn_heuristic("; ".join(failures))
     return HashingEmbedder()
 
 
@@ -162,9 +194,10 @@ def get_embedder() -> Embedder:
 
 
 def reset_embedder() -> None:
-    global _instance
+    global _instance, _warned
     with _lock:
         _instance = None
+        _warned = False
 
 
 def embed_texts(texts: list[str]) -> Matrix:
@@ -180,8 +213,18 @@ def embedder_info() -> dict[str, Any]:
     ok, weak = get_settings().match_thresholds(embedder.name)
     return {
         "backend": embedder.name,
+        "real": embedder.real,
+        "provenance": embedder_provenance(embedder).model_dump(),
         "model": embedder.model,
         "dim": embedder.dim,
         "match_ok": ok,
         "match_weak": weak,
     }
+
+
+def embedder_provenance(embedder: Embedder | None = None) -> Provenance:
+    """``ai`` for a neural embedder, ``heuristic`` for the hashing fallback."""
+    embedder = embedder or get_embedder()
+    if embedder.real:
+        return Provenance(source="ai", provider=embedder.name, model=embedder.model)
+    return Provenance.heuristic(embedder.name, embedder.model)
