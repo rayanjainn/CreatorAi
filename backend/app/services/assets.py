@@ -23,6 +23,7 @@ from app.models import Asset, ContentItem, new_id, utcnow
 from app.repositories.assets import AssetRepository, SegmentRepository, ShotRepository
 from app.schemas.common import Provenance, weakest
 from app.security import sign_media
+from app.services import search_service
 from app.services.ingest.plan import STAGES, invalidate_from
 from app.storage.local import get_storage
 from app.workers.runner import JOB_HANDLERS, enqueue, get_runner
@@ -369,6 +370,7 @@ def patch_asset(db: Session, workspace_id: str, asset_id: str, changes: dict[str
         update_analysis(asset, user_edited=sorted(edited))
     asset.updated_at = utcnow()
     db.flush()
+    search_service.invalidate(workspace_id)
     return asset
 
 
@@ -382,3 +384,4 @@ def delete_asset(db: Session, workspace_id: str, asset_id: str) -> None:
     repo.delete(workspace_id, asset.id)
     with contextlib.suppress(AppError):
         get_storage().delete_prefix(prefix)
+    search_service.invalidate(workspace_id)

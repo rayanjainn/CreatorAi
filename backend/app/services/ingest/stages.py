@@ -191,7 +191,9 @@ def stage_segments(run: Run) -> None:
 # ── shots / keyframes ─────────────────────────────────────────────────────────────────────────
 def stage_shots(run: Run) -> None:
     asset = run.snapshot()
-    source = run.path(asset.proxy_key) if asset.proxy_key else run.original_path()
+    # the 480p proxy is faster to decode than big originals; small originals are used directly
+    use_proxy = asset.proxy_key and (asset.height or 0) > 480
+    source = run.path(asset.proxy_key) if use_proxy else run.original_path()  # type: ignore[arg-type]
     duration = asset.duration_sec or 0.0
     shots, method = detect_shots(source, duration)
     run.check_cancel()
