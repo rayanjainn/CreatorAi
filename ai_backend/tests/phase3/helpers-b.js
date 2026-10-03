@@ -50,6 +50,14 @@ export async function analysisOf(assetId) {
   return rows[0] ?? null;
 }
 
+// A fake-LLM reply (queue it with getLlm().queueResponse) that fits whichever analysis call
+// it meets: a caption batch (request has images) or the summary. Queue one per expected
+// call, e.g. queueResponse(analysisReply, analysisReply) for <= CAPTION_BATCH keyframes.
+export function analysisReply(req) {
+  if (req.images?.length) return { captions: req.images.map((_, i) => `Fake caption ${i + 1}`) };
+  return { summary: 'Fake summary of the video.', topics: ['fake topic'] };
+}
+
 // Inserts scenes with keyframe assets directly (for the faces / analysis tests).
 // spans: [[startMs, endMs], ...]. -> [{ sceneId, keyframeId, keyframePublicId, idx, startMs, endMs }]
 export async function seedScenes(projectId, assetId, spans) {
