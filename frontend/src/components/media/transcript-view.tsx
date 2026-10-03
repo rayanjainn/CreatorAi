@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { Fragment, memo, useEffect, useMemo, useRef } from 'react'
 import { formatTimecode } from '@/lib/format'
 import { highlightParts } from '@/lib/library'
 import type { TranscriptSegment } from '@/lib/api/types'
@@ -59,8 +59,8 @@ const Segment = memo(function Segment({ seg, active, currentTime, onSeek, query 
               const live = currentTime >= w.start && currentTime < w.end
               const hit = !!query && highlightParts(w.word, query).some((p) => p.hit)
               return (
+                <Fragment key={i}>
                 <button
-                  key={i}
                   type="button"
                   className="t-word"
                   data-live={live || undefined}
@@ -69,7 +69,8 @@ const Segment = memo(function Segment({ seg, active, currentTime, onSeek, query 
                   onClick={() => onSeek(w.start)}
                 >
                   {w.word}
-                </button>
+                </button>{' '}
+                </Fragment>
               )
             })
           : (

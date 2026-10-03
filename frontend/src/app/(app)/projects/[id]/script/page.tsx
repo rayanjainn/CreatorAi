@@ -11,18 +11,19 @@ import { ErrorState } from '@/components/common/error-state'
 import { ProvenanceBadge } from '@/components/provenance/provenance-badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useApproveScript, useContentItem, useScript } from '@/lib/api/hooks'
+import { useApproveScript, useContentItem, useScript, useScriptVersions } from '@/lib/api/hooks'
 import type { Card } from '@/lib/api/types'
 
 export default function ScriptPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const item = useContentItem(id)
   const card = item.data as Card | undefined
-  const script = useScript(id, !!card?.progress.has_script)
+  const versions = useScriptVersions(id)
+  const script = useScript(id, (versions.data?.length ?? 0) > 0)
   const approve = useApproveScript(id)
   const [open, setOpen] = useState(false)
 
-  if (item.isPending || script.isLoading) return <Skeleton style={{ height: 320, borderRadius: 15 }} />
+  if (item.isPending || versions.isPending || script.isLoading) return <Skeleton style={{ height: 320, borderRadius: 15 }} />
   if (item.isError) return <ErrorState error={item.error} onRetry={() => item.refetch()} />
   if (script.isError) return <ErrorState error={script.error} onRetry={() => script.refetch()} title="Could not load the script" />
   const s = script.data ?? null

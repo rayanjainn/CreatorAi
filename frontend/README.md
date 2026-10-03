@@ -34,9 +34,21 @@ src/components/
   provenance/      ProvenanceBadge, DataModeBanner, DataModeChip, useDataMode
   shell/           AppShell, Sidebar, Topbar, nav.ts (nav + breadcrumb titles), TwinDrawer, JobToasts, JobsProvider, RequireAuth
   board/           Board, ContentCard, ProjectCard/Row, NewContentDialog, DeleteContentDialog, IdeasPanel
+  media/           VideoPlayer (signed proxy, Range seeking, clip window, `ref.seek(t)`), TranscriptView (clickable words),
+                   ShotStrip, Waveform (SVG from the analysis energy curve)
+  library/         LibraryPage (shared by /assets and /search), SearchBar, MomentCard, AssetCard/Grid, AssetStatusChip,
+                   UploadDialog/UploadZone/UploadPill, PipelineChecklist, FailureNotice (+ Attach transcript), TagEditor,
+                   AssetDetailHost (drawer driven by `?asset=<id>&t=<sec>`, see `useAssetDrawer`)
+  plan/            DirectorForm, PlanView, ShotList (editable + CSV/MD export), ReviewReport, ScoreRing
+  script/          HookPicker, ScriptGenerate, ScriptEditor (autosave + dirty indicator), MetaPanel, ScriptVersions
+  match/           CoverageBar, ScriptFootageView, BeatRow (play / swap / confirm / reject), MissingScenes
+  clips/           GenerateClips, ClipCard, InlineText, RenderDialog, RenderRow
+  projects/        ProjectHeader (editable title, stage advance incl. NO_SCRIPT, switcher, running-jobs strip)
+  hubs/            useProjects, HubRow (Creative Director / Script Match hubs)
 src/lib/api/       schema.d.ts (generated) · types.ts · client.ts · errors.ts · error-toasts.ts · hooks.ts
-src/lib/           auth.ts (token) · sse.ts · time.ts · format.ts · board.ts (pure optimistic move) · use-*.ts
-src/stores/        ui (sidebar, drawers, new-content dialog), jobs (live jobs), toasts
+src/lib/           upload.ts (chunked, resumable, 4 parallel chunks, speed/ETA) · track-job.ts · library.ts (stage list, kinds) ·
+                   render-presets.ts · auth.ts (token) · sse.ts · time.ts · format.ts · board.ts (pure optimistic move) · use-*.ts
+src/stores/        ui (sidebar, drawers, new-content dialog), jobs (live jobs), toasts, uploads (upload queue), project-ui (primary video)
 src/styles/        tokens.css, base.css, shell.css, ui.css, pages.css, board.css (imported by app/globals.css)
 ```
 
@@ -58,6 +70,31 @@ src/styles/        tokens.css, base.css, shell.css, ui.css, pages.css, board.css
   `.kanban*` ...). Tokens (`--primary #8b5cf6`, `--amber`, `--cyan`, surfaces `--surface/-2/-3`, `--radius 14px`) are in
   `styles/tokens.css`. Respect `prefers-reduced-motion`; give every control a visible `:focus-visible` ring and an accessible name.
 - Tests hooks: key elements carry `data-testid` (see `e2e/app.spec.ts`).
+
+## Hooks added for the library and projects (`lib/api/hooks.ts`)
+
+Assets `useAssets / useAsset / useTranscript / usePatchAsset / useDeleteAsset / useReprocessAsset / useAttachTranscript / useSearch` ·
+Director `usePlan / usePlanVersions / useGeneratePlan / usePatchPlan / useReview / useReviewVersions / useRunReview` ·
+Scripts `useScript / useScriptVersions / useGenerateHooks / useGenerateScript / usePatchScript / useRestoreScript / useApproveScript /
+useRewriteScene / useGenerateMeta` · Matching `useMatch / useRunMatch / useBeatDecision` · Clips `useClips / useAllClips / useGenerateClips /
+usePatchClip / useClipDecision` · Renders `useContentRenders / useAllRenders / useRender / useCreateRender / useDeleteRender` ·
+`useJob`, `useContentList`. Every enqueue calls `trackJob` itself. Mutations that call the LLM set `meta: LLM_INLINE` so
+`LLM_NOT_CONFIGURED` / `LLM_BUSY` are rendered inline by `<LlmNotice error onRetry />` instead of a toast.
+Reads that 404/409 when "nothing exists yet" (`NO_PLAN`, `NO_SCRIPT`, transcript) resolve to `null`, and the pages gate them on the card's
+`progress` flags or a versions list, so the console stays free of expected errors.
+
+**Primary video** (footage tab) is per-viewer UI state (`stores/project-ui.ts`, localStorage). It is passed as `asset_id` to
+`POST /content/{id}/clips/generate`; without a choice the longest ready video is used (same as the backend).
+
+**Playback caveat**: the proxy is H.264/AAC. Playwright's bundled Chromium cannot decode it, so `VideoPlayer` shows an honest error panel and
+exposes the requested position as `data-seek-target` (that is what the e2e asserts). Chrome, Edge and Safari play it normally.
+
+## E2E
+
+`make e2e` seeds a throwaway DATA_DIR, builds the app and runs two Playwright projects against it: `keyless` (API with no keys, mock off:
+everything except `e2e/mock/`) and then `mock` (the API restarted with `LLM_ALLOW_MOCK=true`; only `e2e/mock/generation.spec.ts`, which
+asserts the MOCK banner and badges). `UPLOAD_CHUNK_SIZE=65536` is set so the upload spec really is chunked. The specs assume a fresh seed
+(the match spec swaps and confirms beats), so rerun against a reseeded DB.
 
 ## Add a page
 

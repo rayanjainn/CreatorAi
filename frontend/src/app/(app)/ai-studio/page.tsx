@@ -12,7 +12,7 @@ import { ProvenanceBadge } from '@/components/provenance/provenance-badge'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/field'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useContentItem, useContentList, useScript } from '@/lib/api/hooks'
+import { useContentItem, useContentList, useScript, useScriptVersions } from '@/lib/api/hooks'
 import { stripDemo } from '@/lib/format'
 import { useUi } from '@/stores/ui'
 import type { Card } from '@/lib/api/types'
@@ -35,7 +35,8 @@ function Studio() {
   const projectId = params.get('project') ?? ''
   const item = useContentItem(projectId || undefined)
   const card = item.data as Card | undefined
-  const script = useScript(projectId, !!card?.progress.has_script)
+  const versions = useScriptVersions(projectId)
+  const script = useScript(projectId, (versions.data?.length ?? 0) > 0)
   const s = script.data ?? null
 
   const choose = (id: string) => router.replace(id ? `${pathname}?project=${id}` : pathname)
@@ -67,7 +68,7 @@ function Studio() {
       </section>
       {!projectId ? (
         <EmptyState icon={<Sparkles size={22} />} title="Choose a project to start" description="Hooks and scripts belong to a project. Pick one above, or create a new one." actions={<Button onClick={() => openNew()}>New project</Button>} />
-      ) : item.isPending || script.isLoading ? (
+      ) : item.isPending || versions.isPending || script.isLoading ? (
         <Skeleton style={{ height: 260, borderRadius: 15 }} />
       ) : card ? (
         <div className="stack" data-testid="studio-body">

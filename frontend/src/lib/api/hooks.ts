@@ -642,6 +642,7 @@ export function useScript(id: string, enabled = true) {
 
 export function useScriptVersions(id: string) {
   return useQuery({
+    enabled: !!id,
     queryKey: qk.scriptVersions(id),
     queryFn: () => unwrap(api.GET('/api/v1/content/{item_id}/scripts', { params: { path: { item_id: id } } })) as Promise<ScriptVersion[]>,
   })

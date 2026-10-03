@@ -6,7 +6,6 @@ import { Modal } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/field'
 import { VideoPlayer } from '@/components/media/video-player'
-import { ProvenanceBadge } from '@/components/provenance/provenance-badge'
 import { useCreateRender, useRender } from '@/lib/api/hooks'
 import { isCode } from '@/lib/api/errors'
 import { mediaUrl } from '@/lib/api/client'
@@ -140,8 +139,6 @@ function RenderBody({ clip, onClose }: { clip: Clip; onClose: () => void }) {
         </div>
       )}
       <div className="modal-foot" style={{ marginTop: 6 }}>
-        <ProvenanceBadge source="user" label="Your edit" />
-        <span style={{ flex: 1 }} />
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>

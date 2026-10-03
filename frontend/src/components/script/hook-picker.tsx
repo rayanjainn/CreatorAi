@@ -64,7 +64,7 @@ export function HookPicker({ projectId, script }: { projectId: string; script: S
                       </span>
                       <span className="mono">{Math.round(h.signal_score * 100)}</span>
                     </span>
-                    {h.provenance && <ProvenanceBadge {...h.provenance} />}
+                    {(h.provenance ?? gen.data?.provenance) && <ProvenanceBadge {...(h.provenance ?? gen.data!.provenance)} />}
                   </div>
                 </div>
                 <Button

@@ -22,6 +22,12 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   reporter: [['list']],
+  // `keyless` runs against an API with no AI keys and mock off; `mock` (e2e/mock/*) runs against the same data
+  // directory with LLM_ALLOW_MOCK=true (scripts/e2e.py restarts the API between the two).
+  projects: [
+    { name: 'keyless', testIgnore: '**/mock/**' },
+    { name: 'mock', testMatch: '**/mock/**' },
+  ],
   use: {
     baseURL: WEB,
     trace: 'retain-on-failure',

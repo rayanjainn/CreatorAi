@@ -43,45 +43,66 @@ def main() -> int:
         "GEMINI_API_KEY": "",
         "GROQ_API_KEY": "",
         "OLLAMA_API_KEY": "",
+        "UPLOAD_CHUNK_SIZE": "65536",  # small chunks so the e2e upload really is chunked
         "CORS_ORIGINS": f"http://localhost:{WEB_PORT},http://127.0.0.1:{WEB_PORT}",
         "NEXT_PUBLIC_API_URL": f"http://localhost:{API_PORT}",
         "E2E_WEB_URL": f"http://localhost:{WEB_PORT}",
         "E2E_API_URL": f"http://localhost:{API_PORT}",
+        "E2E_BACKEND_PYTHON": str(PY),
     }
     procs: list[subprocess.Popen[bytes]] = []
+
+    def stop(p: subprocess.Popen[bytes]) -> None:
+        try:  # kill the whole process group: `npx` spawns node children
+            if os.name == "nt":
+                p.terminate()
+            else:
+                os.killpg(p.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+        try:
+            p.wait(timeout=8)
+        except subprocess.TimeoutExpired:
+            p.kill()
+
+    def start_api(mock: bool) -> subprocess.Popen[bytes]:
+        api_env = {**env, "LLM_ALLOW_MOCK": "true" if mock else "false"}
+        proc = subprocess.Popen(
+            [str(PY), "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", API_PORT],
+            cwd=BACKEND, env=api_env, start_new_session=os.name != "nt",
+        )  # fmt: skip
+        procs.append(proc)
+        wait(f"http://localhost:{API_PORT}/api/v1/health")
+        return proc
+
     try:
         print(f"[e2e] data dir {data}; seeding ...", flush=True)
         subprocess.run([str(PY), "scripts/migrate.py"], cwd=BACKEND, env=env, check=True)
         subprocess.run([str(PY), "scripts/seed_demo.py"], cwd=BACKEND, env=env, check=True)
-        procs.append(subprocess.Popen(
-            [str(PY), "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", API_PORT],
-            cwd=BACKEND, env=env, start_new_session=os.name != "nt",
-        ))  # fmt: skip
         shell = os.name == "nt"
         subprocess.run(["npm", "run", "build"], cwd=FRONTEND, env=env, check=True, shell=shell)
+        api = start_api(mock=False)
         procs.append(subprocess.Popen(
             ["npx", "next", "start", "-p", WEB_PORT], cwd=FRONTEND, env=env, shell=os.name == "nt",
             start_new_session=os.name != "nt",
         ))  # fmt: skip
-        wait(f"http://localhost:{API_PORT}/api/v1/health")
         wait(f"http://localhost:{WEB_PORT}/login")
         args = sys.argv[1:]
-        cmd = ["npm", "run", "e2e", "--", *args]
-        return subprocess.run(cmd, cwd=FRONTEND, env=env, shell=shell).returncode
+
+        def suite(project: str) -> int:
+            cmd = ["npm", "run", "e2e", "--", f"--project={project}", *args]
+            return subprocess.run(cmd, cwd=FRONTEND, env=env, shell=shell).returncode
+
+        # Phase 1: no keys, mock off. Phase 2: same data, LLM_ALLOW_MOCK=true (generation flows).
+        code = suite("keyless")
+        stop(api)
+        procs.remove(api)
+        start_api(mock=True)
+        mock_code = suite("mock")
+        return code or mock_code
     finally:
-        for p in procs:  # kill the whole process group: `npx` spawns node children
-            try:
-                if os.name == "nt":
-                    p.terminate()
-                else:
-                    os.killpg(p.pid, signal.SIGTERM)
-            except ProcessLookupError:
-                pass
         for p in procs:
-            try:
-                p.wait(timeout=8)
-            except subprocess.TimeoutExpired:
-                p.kill()
+            stop(p)
         shutil.rmtree(data, ignore_errors=True)
 
 
