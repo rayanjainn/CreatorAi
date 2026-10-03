@@ -29,7 +29,8 @@ GREEN, YELLOW, RED, DIM, RESET = (
 HINTS = {
     "python": (
         "  macOS:          brew install python@3.12\n"
-        "  Ubuntu/Debian:  sudo apt install python3.12 python3.12-venv\n"
+        "  Ubuntu 24.04:   sudo apt install python3 python3-venv\n"
+        "  Ubuntu 22.04:   add the deadsnakes PPA, then apt install python3.12 python3.12-venv\n"
         "  then:           make setup PYTHON=python3.12"
     ),
     "venv": "  Ubuntu/Debian:  sudo apt install python3-venv",

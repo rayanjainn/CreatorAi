@@ -208,7 +208,7 @@ The frontend must prefix `/media/...` URLs with the API origin (`http://localhos
   each test and resets singletons (pubsub, gateway, job registry). No network, no keys, hashing embedder, `LLM_ALLOW_MOCK=true` set **explicitly** (the config default is
   false). Tests of real providers use `httpx.MockTransport`; stub model loaders for embedder/ASR. Never hit the network.
 - Fixtures: `client` (TestClient), `auth` (signed-up user's headers), `workspace_id`, `data_dir`.
-- `make test` runs the whole backend suite in a few seconds; `make lint` runs `ruff check` and `ruff format --check`.
+- `make test` runs the whole backend suite (about 600 tests, roughly 100 s) plus the frontend checks; `make lint` runs `ruff check` and `ruff format --check`.
 
 ## Decisions to know
 

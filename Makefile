@@ -6,7 +6,7 @@ PY := $(VENV)/bin/python
 HAS_WEB := $(wildcard frontend/package.json)
 
 .DEFAULT_GOAL := help
-.PHONY: help doctor setup models models-asr dev seed demo-media migrate test lint reset reset-password clean gen-api e2e
+.PHONY: help docs-check doctor setup models models-asr dev seed demo-media migrate test lint reset reset-password clean gen-api e2e
 
 help: ## Show this help
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-15s %s\n", $$1, $$2}'
@@ -60,6 +60,9 @@ test: ## Backend pytest (+ frontend typecheck, lint and unit tests)
 lint: ## ruff check + format check (+ frontend eslint)
 	cd backend && .venv/bin/ruff check --config pyproject.toml . ../scripts && .venv/bin/ruff format --config pyproject.toml --check . ../scripts
 	@if [ -n "$(HAS_WEB)" ]; then cd frontend && npm run lint; fi
+
+docs-check: ## Check relative links and anchors in all Markdown files
+	@$(PYTHON) scripts/check_links.py
 
 e2e: ## Playwright end-to-end tests on a throwaway seeded data dir (API :8100, web :3100)
 	$(PY) scripts/e2e.py $(ARGS)
