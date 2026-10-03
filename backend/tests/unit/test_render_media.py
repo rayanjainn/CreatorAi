@@ -259,7 +259,7 @@ def test_graph_sponsor_placeholder_card_overlays_captions_and_audio_mix() -> Non
         AudioItem(id="a_2", source="ai", status="rejected", kind="sfx", asset_id="A",
                   src_in=0, src_out=2, tl_start=1),
     ]  # fmt: skip
-    modern = render_graph.build_plan(tl, ASSETS, amix_normalize=True)
+    modern = render_graph.build_plan(tl, ASSETS, amix_normalize=True, caption_renderer="libass")
     g = modern.filter_complex
     assert "color=c=#111111:s=1080x1920:r=30:d=3.000[bg_1]" in g
     assert "[bg_1][1:v]overlay=0:0:format=auto,format=yuv420p,setsar=1[v_1]" in g
@@ -269,7 +269,7 @@ def test_graph_sponsor_placeholder_card_overlays_captions_and_audio_mix() -> Non
     assert "volume=-18dB,adelay=500|500,apad[m_0]" in g
     assert "[aj][m_0]amix=inputs=2:duration=first:normalize=0[amixed]" in g
     assert g.count("amix=inputs") == 1  # the rejected sfx is not mixed
-    legacy = render_graph.build_plan(tl, ASSETS, amix_normalize=False)
+    legacy = render_graph.build_plan(tl, ASSETS, amix_normalize=False, caption_renderer="libass")
     assert "normalize" not in legacy.filter_complex
     assert "amix=inputs=2:duration=first[amixed];[amixed]volume=2[aout]" in legacy.filter_complex
 

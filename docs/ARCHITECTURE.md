@@ -206,8 +206,9 @@ cancel flag every 200 ms and kills the process.
 silent audio. Joining: one `concat` when every transition is a cut; otherwise a left fold where a fade/dissolve is
 `xfade` + `acrossfade` with `offset = running - d` (`running += dur - d`) and a cut is a two-input `concat`
 followed by `fps=30` (concat leaves a 1/1000000 timebase that `xfade` rejects). `d` is clamped to half of both
-neighbours. Overlays are card PNGs with `overlay=enable='between(t,s,e)'`, captions the `subtitles` filter on an
-ASS file in the work dir with `fontsdir=fonts` (relative, so no path escaping), music/sfx/voiceover are
+neighbours. Overlays are card PNGs with `overlay=enable='between(t,s,e)'`, captions either the `subtitles` filter on an
+ASS file in the work dir with `fontsdir=fonts` (relative, so no path escaping) or, without libass, Pillow PNG states
+(see **Caption renderers**), music/sfx/voiceover are
 `atrim, volume, adelay, apad` into one `amix`.
 
 * **Transitions shift time.** Clips overlap during a fade, so everything after one plays earlier than its timeline
@@ -224,6 +225,23 @@ uppercase / outline 6 / alignment 5, `minimal_bottom` Inter 52 with a semi-trans
 (MarginV 160 or 60), `karaoke` Montserrat Bold 80, alignment 2, MarginV 420, `{\kf}` per word (yellow fill over
 white; `\kf` sweeps SecondaryColour to PrimaryColour, so Primary = yellow). `media/cards.py` draws the sponsor,
 lower-third and text cards with Pillow at output size.
+
+**Caption renderers (`media/caption_support.py`, `captions_common.py`, `captions_png.py`).** Burn-in works on any ffmpeg
+that has the core filters. `CAPTION_RENDERER=auto|libass|pillow` (default `auto`): `libass_available()` really runs
+`subtitles=filename=t.ass` on a tiny ASS once per process (cached, like the amix probe) and `auto` picks libass when
+it works, else Pillow; an explicit `libass` is honoured even when the probe fails. `GET /health` exposes
+`features.captions {renderer, libass}`. Which captions show, when, and in which style is decided ONCE in
+`captions_common.caption_events` (rejected dropped, `time_map` + output-duration clamp, `style_override`) and
+`karaoke_words`, so the ASS and PNG paths cannot drift. The Pillow path (`captions_png.build_track`) draws one
+full-frame transparent PNG per distinct visual state (a line, or per word window for karaoke where the current word
+is yellow; no word timings = a static line), scaled like the ASS path (height/1920, 0.6 for 16:9), with wrapping to 86 %
+of the width, auto-shrink and per-character font fallback (missing glyphs are dropped, never an error). States that
+never overlap in time form a "lane": the lane is ONE `-f concat -safe 0 -i captions_N.txt` input (ffconcat list with a
+blank PNG in the gaps) and ONE `overlay=0:0:format=auto:eof_action=repeat` placed where `subtitles` would be, so a 60 s
+karaoke clip with ~150 states is one decoder and one overlay, not 150 inputs. Output-time remapping is baked into the
+list timestamps. Overlapping captions (rare) get extra lanes. Differences from libass: the karaoke highlight jumps
+word to word instead of sweeping (and un-highlights after the word), box padding and glyph hinting are close but not
+pixel-identical, and overlapping captions are not collision-avoided.
 
 **Fonts (`media/fonts.py`, `backend/assets/fonts`).** Montserrat-Bold.ttf and Inter-Regular.otf are vendored (SIL
 OFL, licences alongside). If a file is missing the resolver falls back to a system font via fontconfig/DejaVu/

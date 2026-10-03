@@ -56,6 +56,10 @@ def ok(msg: str) -> None:
     print(f"  {GREEN}[ok]{RESET}   {msg}")
 
 
+def info(msg: str) -> None:
+    print(f"  {DIM}[info]{RESET} {msg}")
+
+
 def warn(msg: str, hint: str = "") -> None:
     global warnings
     warnings += 1
@@ -135,8 +139,9 @@ def check_node() -> None:
 
 
 def check_libass(ffmpeg: str) -> None:
-    """Burned-in captions need the ``subtitles`` filter (libass). Only exports depend on it, so a
-    miss is a warning: ingest, search, the board and the editor all work without it.
+    """Report whether ffmpeg has a working ``subtitles`` filter (libass). Not a problem either way:
+    without it exports burn captions with the built-in Pillow renderer, which needs no libass or
+    freetype (``CAPTION_RENDERER=auto|libass|pillow``).
 
     Probes by really running the filter instead of grepping ``-filters`` (listing formats vary).
     """
@@ -172,35 +177,26 @@ def check_libass(ffmpeg: str) -> None:
                 cwd=tmp,
             )
         except (OSError, subprocess.TimeoutExpired) as exc:
-            warn(f"could not test ffmpeg's subtitles filter ({exc})")
+            info(f"could not test ffmpeg's subtitles filter ({exc}); exports fall back as needed")
             return
+    renderer = env_setting("CAPTION_RENDERER", "auto")
     if proc.returncode == 0:
-        ok("ffmpeg has libass (burned-in captions will render)")
+        if renderer == "pillow":
+            ok("ffmpeg has libass; CAPTION_RENDERER=pillow forces the built-in caption renderer")
+        else:
+            ok("ffmpeg has libass (exports burn captions with it)")
         return
-    err = (proc.stderr or "").strip().splitlines()
-    detail = "\n    ".join(err[:6]) if err else "no error output"
-    others = [
-        str(Path(d, "ffmpeg"))
-        for d in os.environ.get("PATH", "").split(os.pathsep)
-        if d and Path(d, "ffmpeg").exists() and str(Path(d, "ffmpeg")) != ffmpeg
-    ]
-    hint = (
-        f"  ffmpeg said:\n    {detail}\n"
-        f"  binary tested: {ffmpeg}\n"
-        "  Fix (macOS): the default Homebrew `ffmpeg` may be a slim build. Try\n"
-        "      brew install ffmpeg-full      (keg-only; see its bin/ dir)\n"
-        "    then put in .env:\n"
-        "      FFMPEG_BIN=/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg\n"
-        "      FFPROBE_BIN=/opt/homebrew/opt/ffmpeg-full/bin/ffprobe\n"
-        "    Verify with: <that ffmpeg> -hide_banner -filters | grep subtitles\n"
-        "  Fix (Ubuntu/Debian): sudo apt install ffmpeg.  Static builds: use a full/GPL build.\n"
-        "  Everything except caption burn-in on EXPORT works without it, so setup continues."
-    )
-    if others:
-        hint += "\n  Other ffmpeg binaries on PATH: " + ", ".join(others)
-    warn(
-        "ffmpeg cannot run the `subtitles` filter (no libass): exports with captions will fail",
-        hint,
+    if renderer == "libass":
+        warn(
+            "CAPTION_RENDERER=libass but this ffmpeg cannot run the `subtitles` filter: "
+            "exports with captions will fail",
+            f"  binary tested: {ffmpeg}\n"
+            "  Set CAPTION_RENDERER=auto (or pillow) to use the built-in renderer.",
+        )
+        return
+    info(
+        "libass not available: exports use the built-in caption renderer "
+        "(works everywhere; libass is slightly faster/crisper)"
     )
 
 

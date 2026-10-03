@@ -14,7 +14,8 @@ Per video item ``i`` (sorted by ``tl_start``)::
 Join: ``concat`` when every transition is a cut, otherwise a left fold where a fade/dissolve step
 is ``xfade`` + ``acrossfade`` with ``offset = running - d`` (``running += dur - d``) and a cut step
 is a two-input ``concat``. Overlays are ``overlay=enable='between(t,s,e)'`` on card PNGs, captions
-are the ``subtitles`` filter, music/sfx/voiceover are mixed with ``amix``.
+are the ``subtitles`` filter (libass) or, without libass, Pillow PNG states overlaid from a
+concat-demuxer input (``captions_png``), music/sfx/voiceover are mixed with ``amix``.
 
 Transitions overlap neighbouring clips, so everything after one plays earlier than its timeline
 time. :attr:`RenderPlan.time_map` converts timeline seconds to output seconds and is applied to
@@ -35,6 +36,8 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 
 from app.config import get_settings
+from app.media.caption_support import resolve_caption_renderer
+from app.media.captions_png import CaptionTrack, build_track
 from app.schemas.timeline import AudioItem, OverlayItem, Timeline, VideoItem
 
 FPS = 30
@@ -70,6 +73,8 @@ class RenderPlan:
     duration: float  # expected output length in seconds
     cards: list[CardSpec] = field(default_factory=list)
     uses_captions: bool = False
+    caption_renderer: str = "libass"  # libass | pillow (see media/caption_support.py)
+    caption_track: CaptionTrack | None = None  # pillow: PNG states + lanes the caller must write
     time_map: Callable[[float], float] = lambda t: t
     amix_normalize: bool = True
 
@@ -116,12 +121,16 @@ def build_plan(
     ass_name: str = "captions.ass",
     fonts_dir: str = "fonts",
     amix_normalize: bool | None = None,
+    caption_renderer: str | None = None,
 ) -> RenderPlan:
     """Build the ffmpeg inputs, ``filter_complex`` and output options for ``timeline``.
 
     ``timeline`` must already be retargeted to the preset (aspect/size/caption style). Raises
     ``ValueError`` when there is nothing to render or an asset is missing from ``assets``.
+    ``caption_renderer`` (``libass`` | ``pillow``) defaults to the ``CAPTION_RENDERER`` setting
+    resolved against what this ffmpeg supports.
     """
+    renderer = caption_renderer or resolve_caption_renderer()
     if amix_normalize is None:
         amix_normalize = amix_supports_normalize()
     width, height = timeline.width, timeline.height
@@ -235,7 +244,17 @@ def build_plan(
         )
         cur = f"ov{j}"
     uses_captions = any(c.status != "rejected" for c in timeline.tracks.captions)
-    if uses_captions:
+    track: CaptionTrack | None = None
+    if uses_captions and renderer == "pillow":
+        # One lane = captions that never overlap in time = ONE concat-demuxer input of PNG
+        # states (blank frames in the gaps), overlaid once: no per-caption inputs or enables.
+        track = build_track(timeline, time_map, out_duration)
+        uses_captions = bool(track.lanes)
+        for n in range(len(track.lanes)):
+            idx = add_input("-f", "concat", "-safe", "0", "-i", track.lane_list_name(n))
+            chains.append(f"[{cur}][{idx}:v]overlay=0:0:format=auto:eof_action=repeat[vcap{n}]")
+            cur = f"vcap{n}"
+    elif uses_captions:
         chains.append(f"[{cur}]subtitles=filename={ass_name}:fontsdir={fonts_dir}[vsub]")
         cur = "vsub"
     chains.append(f"[{cur}]format=yuv420p[vout]")
@@ -277,6 +296,8 @@ def build_plan(
         duration=out_duration,
         cards=cards,
         uses_captions=uses_captions,
+        caption_renderer=renderer,
+        caption_track=track,
         time_map=time_map,
         amix_normalize=amix_normalize,
     )

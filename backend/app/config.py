@@ -18,6 +18,7 @@ BACKEND_ROOT = REPO_ROOT / "backend"
 MIGRATIONS_DIR = BACKEND_ROOT / "migrations"
 
 EmbedBackend = Literal["auto", "sentence-transformers", "fastembed", "hashing"]
+CaptionRenderer = Literal["auto", "libass", "pillow"]
 OLLAMA_CLOUD_URL = "https://ollama.com"
 REAL_PROVIDERS = ("gemini", "groq", "ollama")
 
@@ -120,6 +121,7 @@ class Settings(BaseSettings):
     shot_min_len_frames: int = 15
     keyframe_max_shots: int = 12
     render_x264_preset: str = "veryfast"
+    caption_renderer: CaptionRenderer = "auto"
     ffmpeg_bin: str = "ffmpeg"
     ffprobe_bin: str = "ffprobe"
 
