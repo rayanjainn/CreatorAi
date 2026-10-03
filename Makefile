@@ -22,6 +22,8 @@ setup: ## One-time (re-runnable): doctor, venv, deps, .env, migrations, model do
 	$(PYTHON) -m venv $(VENV)
 	$(PY) -m pip install --quiet --upgrade pip
 	$(PY) -m pip install --quiet -e "backend[dev]"
+	@# Repair venvs created before the scenedetect pin: a stray full opencv-python 5 hides the Haar face detector.
+	@$(PY) -c "import cv2,sys; sys.exit(0 if hasattr(cv2,'CascadeClassifier') else 1)" || { echo "Repairing the OpenCV install (need 4.x headless)"; $(PY) -m pip uninstall -y -q opencv-python opencv-python-headless; $(PY) -m pip install -q "opencv-python-headless>=4.9,<5"; }
 	@if [ -n "$(HAS_WEB)" ]; then \
 	  if [ frontend/node_modules/.package-lock.json -nt frontend/package-lock.json ]; then echo "frontend dependencies up to date"; \
 	  else (cd frontend && npm ci --no-audit --no-fund); fi; \

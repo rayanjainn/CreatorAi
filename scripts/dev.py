@@ -96,6 +96,10 @@ def stop(proc: subprocess.Popen[str]) -> None:
                 os.killpg(proc.pid, signal.SIGKILL)
 
 
+def _raise_interrupt(signum: int, frame: object) -> None:
+    raise KeyboardInterrupt
+
+
 def main() -> int:
     problem = preflight()
     if problem:
@@ -106,6 +110,9 @@ def main() -> int:
         # The browser origin must be allowed by the API: follow a non-default web port.
         env.setdefault("CORS_ORIGINS", f"http://localhost:{WEB_PORT},http://127.0.0.1:{WEB_PORT}")
         env.setdefault("FRONTEND_URL", f"http://localhost:{WEB_PORT}")
+    # `kill <pid>` / a closed terminal must stop the children too (they run in their own sessions).
+    signal.signal(signal.SIGTERM, _raise_interrupt)
+    signal.signal(signal.SIGINT, signal.default_int_handler)  # also when started in the background
     procs: dict[str, subprocess.Popen[str]] = {}
     api_cmd = [
         backend_python(), "-m", "uvicorn", "app.main:app",
