@@ -36,6 +36,10 @@ export const PAYLOADS = {
   [JOBS.AGENT_RUN]: z.object({ runId: z.uuid() }).strict(),
   // P7: run one queued renders row (the row pins the timeline version and kind).
   [JOBS.RENDER_RUN]: z.object({ renderId: z.uuid() }).strict(),
+  // P6: run one queued editing_jobs row (the row carries the project, asset and input).
+  [JOBS.MEDIA_MOMENTS]: z.object({ jobId: z.uuid() }).strict(),
+  [JOBS.EDITING_REELS]: z.object({ jobId: z.uuid() }).strict(),
+  [JOBS.EDITING_REVISE]: z.object({ jobId: z.uuid() }).strict(),
 };
 
 export function parsePayload(name, data) {
