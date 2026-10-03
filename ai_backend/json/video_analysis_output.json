@@ -1,0 +1,1655 @@
+{
+    "asset": {
+        "id": "3f7a2a27-e5c3-47a1-bb7a-e4bc764bee2d",
+        "projectId": "ee7b6fdc-58a6-49ea-a383-ca7269345188",
+        "kind": "original",
+        "parentAssetId": null,
+        "publicId": "proj/ee7b6fdc-58a6-49ea-a383-ca7269345188/originals/ncgp3l5ru5qkkaqs4jsi",
+        "url": "https://res.cloudinary.com/dooexykzj/video/upload/v1791062295/proj/ee7b6fdc-58a6-49ea-a383-ca7269345188/originals/ncgp3l5ru5qkkaqs4jsi.mp4",
+        "durationMs": 838471,
+        "width": 1280,
+        "height": 720,
+        "status": "processing",
+        "meta": {
+            "bytes": 33575569,
+            "format": "mp4",
+            "resourceType": "video"
+        },
+        "createdBy": "2f558097-5b9d-47a6-b425-b900db700eb5",
+        "createdAt": "2026-10-03T21:23:50.579Z",
+        "updatedAt": "2026-10-03T21:29:39.985Z"
+    },
+    "transcript": [
+        {
+            "startMs": 0,
+            "endMs": 1880,
+            "text": "All right, hi everyone and welcome to a new video.",
+            "speaker": null
+        },
+        {
+            "startMs": 2460,
+            "endMs": 6060,
+            "text": "After a really long time, I resonated really well with a talk,",
+            "speaker": null
+        },
+        {
+            "startMs": 6140,
+            "endMs": 9160,
+            "text": "which was the talk by GHH, who's the founder of Ruby on Rails,",
+            "speaker": null
+        },
+        {
+            "startMs": 9280,
+            "endMs": 10420,
+            "text": "on their recent conference.",
+            "speaker": null
+        },
+        {
+            "startMs": 10880,
+            "endMs": 11900,
+            "text": "It's a one-hour talk.",
+            "speaker": null
+        },
+        {
+            "startMs": 12080,
+            "endMs": 15760,
+            "text": "I would urge all developers, serious developers, experienced developers,",
+            "speaker": null
+        },
+        {
+            "startMs": 15920,
+            "endMs": 17960,
+            "text": "novice developers to try to look at the talk.",
+            "speaker": null
+        },
+        {
+            "startMs": 18360,
+            "endMs": 21100,
+            "text": "And mostly, you'll heavily relate with everything that he's saying.",
+            "speaker": null
+        },
+        {
+            "startMs": 21300,
+            "endMs": 23380,
+            "text": "This video is a trimmed-down version of the talk",
+            "speaker": null
+        },
+        {
+            "startMs": 23380,
+            "endMs": 25040,
+            "text": "and my takes on everything that he's mentioned,",
+            "speaker": null
+        },
+        {
+            "startMs": 25320,
+            "endMs": 28780,
+            "text": "the current mindset and state of most software developers in the industry,",
+            "speaker": null
+        },
+        {
+            "startMs": 28780,
+            "endMs": 32740,
+            "text": "and what the future looks like. With that and without any further ado, let's get into it.",
+            "speaker": null
+        },
+        {
+            "startMs": 32940,
+            "endMs": 37800,
+            "text": "I've titled the talk, Coding is an Abstraction. For the longest time, people have fought on this",
+            "speaker": null
+        },
+        {
+            "startMs": 37800,
+            "endMs": 41280,
+            "text": "specific topic, whether or not AI is going to take jobs, whether or not AI makes you more productive.",
+            "speaker": null
+        },
+        {
+            "startMs": 41480,
+            "endMs": 46900,
+            "text": "And now we're at a point where less than 1% of engineers all around the world are hand coding,",
+            "speaker": null
+        },
+        {
+            "startMs": 47080,
+            "endMs": 51480,
+            "text": "everyone else is using agents. This is empirical data from the talk that DHS did. In the room of",
+            "speaker": null
+        },
+        {
+            "startMs": 51480,
+            "endMs": 57940,
+            "text": "1,000 developers, around 5 people actually still hand code. 99.95% have been coding using agents.",
+            "speaker": null
+        },
+        {
+            "startMs": 57940,
+            "endMs": 62240,
+            "text": "this is the talk i'll link it in the description i would urge everyone to take out one hour and look",
+            "speaker": null
+        },
+        {
+            "startMs": 62240,
+            "endMs": 67860,
+            "text": "at the talk end to end this by the way is someone who is fairly contrarian towards ai and over time",
+            "speaker": null
+        },
+        {
+            "startMs": 67860,
+            "endMs": 72060,
+            "text": "his opinion has changed and he's not the only one who lies in that category this was a tweet i did",
+            "speaker": null
+        },
+        {
+            "startMs": 72060,
+            "endMs": 76340,
+            "text": "last november where i was of a very similar opinion that most developers need to probably",
+            "speaker": null
+        },
+        {
+            "startMs": 76340,
+            "endMs": 80820,
+            "text": "look at code understand code hand code most things to be able to crack interview i think that's still",
+            "speaker": null
+        },
+        {
+            "startMs": 80820,
+            "endMs": 85260,
+            "text": "a little true for interview prep but other than that in day to day this tweet now makes no sense",
+            "speaker": null
+        },
+        {
+            "startMs": 85260,
+            "endMs": 91300,
+            "text": "The tweet was, I cry in tears when I have to take an interview only to see the candidate fumble with the most basic syntax.",
+            "speaker": null
+        },
+        {
+            "startMs": 91420,
+            "endMs": 94560,
+            "text": "Again, something that made sense to me back in November 25th.",
+            "speaker": null
+        },
+        {
+            "startMs": 94580,
+            "endMs": 96340,
+            "text": "But I did put out a small caution here.",
+            "speaker": null
+        },
+        {
+            "startMs": 96400,
+            "endMs": 99340,
+            "text": "An argument can be made that we won't need to memorize code.",
+            "speaker": null
+        },
+        {
+            "startMs": 99540,
+            "endMs": 100880,
+            "text": "And I think that's become very true now.",
+            "speaker": null
+        },
+        {
+            "startMs": 100960,
+            "endMs": 104160,
+            "text": "You now actually don't at all probably need to memorize code.",
+            "speaker": null
+        },
+        {
+            "startMs": 104280,
+            "endMs": 105820,
+            "text": "There is merit to knowing syntax.",
+            "speaker": null
+        },
+        {
+            "startMs": 105940,
+            "endMs": 107420,
+            "text": "There is merit to understanding syntax.",
+            "speaker": null
+        },
+        {
+            "startMs": 107900,
+            "endMs": 111000,
+            "text": "There is merit to knowing what is happening if you look at a specific line of code.",
+            "speaker": null
+        },
+        {
+            "startMs": 111000,
+            "endMs": 115680,
+            "text": "but for sure you're not going to write any line of code from here on up until eternity you know",
+            "speaker": null
+        },
+        {
+            "startMs": 115680,
+            "endMs": 121360,
+            "text": "ever as a software developer this is on November 2025 and December 2025 is when I installed Claude",
+            "speaker": null
+        },
+        {
+            "startMs": 121360,
+            "endMs": 124980,
+            "text": "Code for the first time and in two months or so I realized traditional coding the way we used to",
+            "speaker": null
+        },
+        {
+            "startMs": 124980,
+            "endMs": 129760,
+            "text": "code before is not really needed anymore and if you do take that route of you know hand coding",
+            "speaker": null
+        },
+        {
+            "startMs": 129760,
+            "endMs": 135040,
+            "text": "still working like it's 2020 the only problem is you're being super counterproductive it's September",
+            "speaker": null
+        },
+        {
+            "startMs": 135040,
+            "endMs": 139820,
+            "text": "2026 right now and I think most people are juggling between these four five ten companies",
+            "speaker": null
+        },
+        {
+            "startMs": 139820,
+            "endMs": 141160,
+            "text": "various agents that exist.",
+            "speaker": null
+        },
+        {
+            "startMs": 141580,
+            "endMs": 143300,
+            "text": "And a good engineer is probably",
+            "speaker": null
+        },
+        {
+            "startMs": 143300,
+            "endMs": 145280,
+            "text": "30-40 times more productive,",
+            "speaker": null
+        },
+        {
+            "startMs": 145700,
+            "endMs": 147700,
+            "text": "can ship out 30-40 times faster",
+            "speaker": null
+        },
+        {
+            "startMs": 147700,
+            "endMs": 149600,
+            "text": "compared to how they used to ship out code",
+            "speaker": null
+        },
+        {
+            "startMs": 149600,
+            "endMs": 151660,
+            "text": "three years ago. Languages are now",
+            "speaker": null
+        },
+        {
+            "startMs": 151660,
+            "endMs": 153360,
+            "text": "a very solid abstraction.",
+            "speaker": null
+        },
+        {
+            "startMs": 153660,
+            "endMs": 155760,
+            "text": "This comes with a lot of bad things.",
+            "speaker": null
+        },
+        {
+            "startMs": 155900,
+            "endMs": 157840,
+            "text": "As scary as this sounds, if you're an expert",
+            "speaker": null
+        },
+        {
+            "startMs": 157840,
+            "endMs": 159760,
+            "text": "in Ruby on Rails for the longest",
+            "speaker": null
+        },
+        {
+            "startMs": 159760,
+            "endMs": 161780,
+            "text": "time, you might feel like your expertise",
+            "speaker": null
+        },
+        {
+            "startMs": 161780,
+            "endMs": 163760,
+            "text": "is not valued anymore and that",
+            "speaker": null
+        },
+        {
+            "startMs": 163760,
+            "endMs": 165820,
+            "text": "is partially true. But if you really look",
+            "speaker": null
+        },
+        {
+            "startMs": 165820,
+            "endMs": 167760,
+            "text": "at it, someone who does know Rust or Ruby",
+            "speaker": null
+        },
+        {
+            "startMs": 167760,
+            "endMs": 169700,
+            "text": "on Rails well is someone who can probably",
+            "speaker": null
+        },
+        {
+            "startMs": 169700,
+            "endMs": 173400,
+            "text": "be more productive with AI. The only thing is though, that's not the only skill set you need",
+            "speaker": null
+        },
+        {
+            "startMs": 173400,
+            "endMs": 177840,
+            "text": "to have now. You basically need to own the cycle end-to-end. That means if you have an application",
+            "speaker": null
+        },
+        {
+            "startMs": 177840,
+            "endMs": 183560,
+            "text": "that has a mobile app, a desktop app, a website, a backend, the full DevOps pipeline, scaling it,",
+            "speaker": null
+        },
+        {
+            "startMs": 183640,
+            "endMs": 189020,
+            "text": "metrics, logs, observability. As one engineer, you're sort of expected to know how to orchestrate",
+            "speaker": null
+        },
+        {
+            "startMs": 189020,
+            "endMs": 193520,
+            "text": "AI to do all of this. If your company actually hits scale, as a solo developer, you will be",
+            "speaker": null
+        },
+        {
+            "startMs": 193520,
+            "endMs": 198600,
+            "text": "expected to cut down costs, maybe talk to cloud providers, get discounts. This whole process,",
+            "speaker": null
+        },
+        {
+            "startMs": 198600,
+            "endMs": 215528,
+            "text": "Not just that one React Native front or that one Rust back is expected from an engineer anymore This is also one of the reasons companies are not hiring super aggressively because initially the founder of the CTO can lead the product to a very good state and then you can hire one and max two engineers",
+            "speaker": null
+        },
+        {
+            "startMs": 215788,
+            "endMs": 217308,
+            "text": "The downside of hiring",
+            "speaker": null
+        },
+        {
+            "startMs": 217308,
+            "endMs": 217888,
+            "text": "the third engineer",
+            "speaker": null
+        },
+        {
+            "startMs": 217888,
+            "endMs": 218788,
+            "text": "is probably much more",
+            "speaker": null
+        },
+        {
+            "startMs": 218788,
+            "endMs": 219748,
+            "text": "giving them context.",
+            "speaker": null
+        },
+        {
+            "startMs": 220028,
+            "endMs": 220828,
+            "text": "So much AI slob,",
+            "speaker": null
+        },
+        {
+            "startMs": 220888,
+            "endMs": 221668,
+            "text": "so many merge conflicts.",
+            "speaker": null
+        },
+        {
+            "startMs": 221828,
+            "endMs": 223148,
+            "text": "It doesn't make sense",
+            "speaker": null
+        },
+        {
+            "startMs": 223148,
+            "endMs": 224608,
+            "text": "to hire more",
+            "speaker": null
+        },
+        {
+            "startMs": 224608,
+            "endMs": 225588,
+            "text": "to solve problems",
+            "speaker": null
+        },
+        {
+            "startMs": 225588,
+            "endMs": 227028,
+            "text": "considering a single engineer",
+            "speaker": null
+        },
+        {
+            "startMs": 227028,
+            "endMs": 227888,
+            "text": "is so productive now.",
+            "speaker": null
+        },
+        {
+            "startMs": 228108,
+            "endMs": 229208,
+            "text": "This is how we used",
+            "speaker": null
+        },
+        {
+            "startMs": 229208,
+            "endMs": 230248,
+            "text": "to code up until 2025.",
+            "speaker": null
+        },
+        {
+            "startMs": 230448,
+            "endMs": 231048,
+            "text": "We were expected",
+            "speaker": null
+        },
+        {
+            "startMs": 231048,
+            "endMs": 232868,
+            "text": "to know this central state.",
+            "speaker": null
+        },
+        {
+            "startMs": 233368,
+            "endMs": 234248,
+            "text": "It was a good idea",
+            "speaker": null
+        },
+        {
+            "startMs": 234248,
+            "endMs": 239528,
+            "text": "to understand high level code and almost never most engineers looked at you know low level code",
+            "speaker": null
+        },
+        {
+            "startMs": 239528,
+            "endMs": 243928,
+            "text": "26 this has become another abstraction now the only thing you need to know is",
+            "speaker": null
+        },
+        {
+            "startMs": 243928,
+            "endMs": 248668,
+            "text": "english you need to know how to orchestrate an agent give it the right prompts and maybe testing",
+            "speaker": null
+        },
+        {
+            "startMs": 248668,
+            "endMs": 253168,
+            "text": "so your only job right now is giving a prompt pressing enter probably pressing enter a few more",
+            "speaker": null
+        },
+        {
+            "startMs": 253168,
+            "endMs": 257728,
+            "text": "times and then testing the final thing this is we've been stuck right now it's hard to tell if",
+            "speaker": null
+        },
+        {
+            "startMs": 257728,
+            "endMs": 262348,
+            "text": "we'll ever be able to break out of this if there will ever be you know agi or ai that does not need",
+            "speaker": null
+        },
+        {
+            "startMs": 262348,
+            "endMs": 268128,
+            "text": "a human but at least right now as of 2026 and probably for a long time this is how engineering",
+            "speaker": null
+        },
+        {
+            "startMs": 268128,
+            "endMs": 273288,
+            "text": "would work where this person is now only expected to talk to a terminal or a different ui in english",
+            "speaker": null
+        },
+        {
+            "startMs": 273288,
+            "endMs": 278688,
+            "text": "and never look at this or this these are all abstractions or bundles that almost always you",
+            "speaker": null
+        },
+        {
+            "startMs": 278688,
+            "endMs": 283668,
+            "text": "will never look at a lot of this was not possible up until last year because number one the harnesses",
+            "speaker": null
+        },
+        {
+            "startMs": 283668,
+            "endMs": 288228,
+            "text": "weren't as good cloud code wasn't a product codex did not exist um and secondly models weren't as",
+            "speaker": null
+        },
+        {
+            "startMs": 288228,
+            "endMs": 292448,
+            "text": "good. Over time, they've become really good. In fact, it feels like there is no incremental",
+            "speaker": null
+        },
+        {
+            "startMs": 292448,
+            "endMs": 296588,
+            "text": "improvement that's going to make us more productive. The only other improvement we can see is AGI,",
+            "speaker": null
+        },
+        {
+            "startMs": 296788,
+            "endMs": 299708,
+            "text": "which is, you know, getting the human out of the loop, which we'll see when it happens.",
+            "speaker": null
+        },
+        {
+            "startMs": 299888,
+            "endMs": 304328,
+            "text": "Not just languages, frameworks are also, you know, not super necessary anymore. A good example of",
+            "speaker": null
+        },
+        {
+            "startMs": 304328,
+            "endMs": 309028,
+            "text": "this is React, Ruby on Rails, TypeScript, NextGes. The reason they were introduced weren't because",
+            "speaker": null
+        },
+        {
+            "startMs": 309028,
+            "endMs": 312968,
+            "text": "they're, you know, any faster than other languages. In fact, you know, notoriously, TypeScript is",
+            "speaker": null
+        },
+        {
+            "startMs": 312968,
+            "endMs": 317108,
+            "text": "very slow. React comes with its own set of challenges of client-side rendering and, you know,",
+            "speaker": null
+        },
+        {
+            "startMs": 317108,
+            "endMs": 321788,
+            "text": "takes away a bunch of SEO benefits from you, which is why next year's game. There was a lot of effort,",
+            "speaker": null
+        },
+        {
+            "startMs": 322088,
+            "endMs": 326608,
+            "text": "time, energy spent in building these frameworks to make developers more productive because a",
+            "speaker": null
+        },
+        {
+            "startMs": 326608,
+            "endMs": 331768,
+            "text": "developer was writing code by hand. Now that is not true. And hence, every code base can now move",
+            "speaker": null
+        },
+        {
+            "startMs": 331768,
+            "endMs": 336168,
+            "text": "to the most optimal language, Rust. If you look at the talk, DHH mentions the same thing. Rust,",
+            "speaker": null
+        },
+        {
+            "startMs": 336388,
+            "endMs": 340008,
+            "text": "what he mentions is a very cool thing, which is Rust is a beautiful language if you never have to",
+            "speaker": null
+        },
+        {
+            "startMs": 340008,
+            "endMs": 345708,
+            "text": "look at its syntax. The specific syntax he pointed to is this. And I totally agree. This is one of",
+            "speaker": null
+        },
+        {
+            "startMs": 345708,
+            "endMs": 350628,
+            "text": "those syntaxes that we decouple in our cohorts and you know by the end after learning a bunch of",
+            "speaker": null
+        },
+        {
+            "startMs": 350628,
+            "endMs": 355488,
+            "text": "jargon around lifetimes generics you finally are able to somehow digest this code base but imagine",
+            "speaker": null
+        },
+        {
+            "startMs": 355488,
+            "endMs": 360848,
+            "text": "you never have to look at this code base yet you get all the memory safety the cpu saving the cpu",
+            "speaker": null
+        },
+        {
+            "startMs": 360848,
+            "endMs": 365348,
+            "text": "and ram benefits that come out of a language like last there is no reason for you to now write code",
+            "speaker": null
+        },
+        {
+            "startMs": 365348,
+            "endMs": 368868,
+            "text": "in typescript the only reason most startups preferred that was because it was easy to ramp",
+            "speaker": null
+        },
+        {
+            "startMs": 368868,
+            "endMs": 372868,
+            "text": "up engineers it was easy to hire for these languages even though they were the most unoptable",
+            "speaker": null
+        },
+        {
+            "startMs": 372868,
+            "endMs": 377468,
+            "text": "languages. The same is true for React Native or Flutter. They were introduced to help you maintain",
+            "speaker": null
+        },
+        {
+            "startMs": 377468,
+            "endMs": 380688,
+            "text": "a single code base. But why do you need a single code base now? You can have 10 different code bases",
+            "speaker": null
+        },
+        {
+            "startMs": 380688,
+            "endMs": 384368,
+            "text": "because AI is the one who's orchestrating them anyways. If there is performance merits, even if",
+            "speaker": null
+        },
+        {
+            "startMs": 384368,
+            "endMs": 389668,
+            "text": "there's like 1% more performance that you get out of Kotlin or SwiftUI, you are going to prefer that",
+            "speaker": null
+        },
+        {
+            "startMs": 389668,
+            "endMs": 394868,
+            "text": "over, you know, writing code in React Native or Flutter. If a company as big as Anthropic or, you",
+            "speaker": null
+        },
+        {
+            "startMs": 394868,
+            "endMs": 400448,
+            "text": "know, Bun in this case, can rewrite the full Bun runtime in Rust from a language like Zig in less",
+            "speaker": null
+        },
+        {
+            "startMs": 400448,
+            "endMs": 404168,
+            "text": "than a week most e-commerce application backends can migrate to Rust in you",
+            "speaker": null
+        },
+        {
+            "startMs": 404168,
+            "endMs": 407708,
+            "text": "less than probably two days with the effort of like one or two engineers so",
+            "speaker": null
+        },
+        {
+            "startMs": 407708,
+            "endMs": 411188,
+            "text": "the argument of we'll not be able to hire engineers for this specific language",
+            "speaker": null
+        },
+        {
+            "startMs": 411188,
+            "endMs": 414248,
+            "text": "gets thrown out the window considering you don't need expertise in that",
+            "speaker": null
+        },
+        {
+            "startMs": 414248,
+            "endMs": 427816,
+            "text": "language the only thing that you need is the final outcome and you can always have AI be the reviewer of the code be the reviewer of the metrics and almost always you land at better metrics if you use a language like rust or if you use native kotlin or java compared to react native english",
+            "speaker": null
+        },
+        {
+            "startMs": 427816,
+            "endMs": 432156,
+            "text": "is the new programming language and outcomes are the only things that matter the in the talk you'll",
+            "speaker": null
+        },
+        {
+            "startMs": 432156,
+            "endMs": 438356,
+            "text": "see dhh calling himself a retired professional programmer from 2001 to 26 and he also produces",
+            "speaker": null
+        },
+        {
+            "startMs": 438356,
+            "endMs": 442616,
+            "text": "a new job role which is the energized professional maker i like to call the same person a builder",
+            "speaker": null
+        },
+        {
+            "startMs": 442616,
+            "endMs": 446236,
+            "text": "Builders would be the only job that exists, at least in software development.",
+            "speaker": null
+        },
+        {
+            "startMs": 446516,
+            "endMs": 452176,
+            "text": "People who have some product sense, are accountable, are good employees, and who can lead products end-to-end.",
+            "speaker": null
+        },
+        {
+            "startMs": 452396,
+            "endMs": 457356,
+            "text": "Your job as a learner is now to go not just in depth of one technology,",
+            "speaker": null
+        },
+        {
+            "startMs": 457436,
+            "endMs": 460156,
+            "text": "just something I would heavily recommend, you know, a few years ago,",
+            "speaker": null
+        },
+        {
+            "startMs": 460256,
+            "endMs": 465096,
+            "text": "become really good in, I don't know, a specific tech stack or a specific technology or a specific niche.",
+            "speaker": null
+        },
+        {
+            "startMs": 465316,
+            "endMs": 467456,
+            "text": "And, you know, it'll be easy for you to get a very hyping job.",
+            "speaker": null
+        },
+        {
+            "startMs": 467676,
+            "endMs": 469996,
+            "text": "The path to a job now is very weird.",
+            "speaker": null
+        },
+        {
+            "startMs": 469996,
+            "endMs": 474596,
+            "text": "in the sense number one you're expected to know a lot of things you need to cover not just depth",
+            "speaker": null
+        },
+        {
+            "startMs": 474596,
+            "endMs": 480216,
+            "text": "but breadth number two there are too many people out in the market and hence network effects are",
+            "speaker": null
+        },
+        {
+            "startMs": 480216,
+            "endMs": 483976,
+            "text": "the only thing that's sort of getting at least early engineers in if you clicked on this video",
+            "speaker": null
+        },
+        {
+            "startMs": 483976,
+            "endMs": 487996,
+            "text": "for you know some good advice around early engineers getting a job i don't have any for you",
+            "speaker": null
+        },
+        {
+            "startMs": 487996,
+            "endMs": 493356,
+            "text": "we run super 30 here and i know how challenging it is to get a fresher place right now the only thing",
+            "speaker": null
+        },
+        {
+            "startMs": 493356,
+            "endMs": 497576,
+            "text": "you have to be extraordinary you're competing with you know people from the best colleges people",
+            "speaker": null
+        },
+        {
+            "startMs": 497576,
+            "endMs": 501136,
+            "text": "with very high IQ and the number of jobs are limited. A company does not need to hire 10",
+            "speaker": null
+        },
+        {
+            "startMs": 501136,
+            "endMs": 505156,
+            "text": "people anymore. They want to hire that one person and then what will they look at if there are a",
+            "speaker": null
+        },
+        {
+            "startMs": 505156,
+            "endMs": 507696,
+            "text": "hundred freshers out there? They'll probably look at some sort of pedigree, right? If someone's from",
+            "speaker": null
+        },
+        {
+            "startMs": 507696,
+            "endMs": 512376,
+            "text": "an IIT, someone has cracked some sort of lumpy art or simple network effects. This is a friend of a",
+            "speaker": null
+        },
+        {
+            "startMs": 512376,
+            "endMs": 516776,
+            "text": "brother or a brother of a friend. So let's give him a chance because you know for a fact there is no",
+            "speaker": null
+        },
+        {
+            "startMs": 516776,
+            "endMs": 520936,
+            "text": "real difference in the outcome of person one and person two. If person two is a bad developer but",
+            "speaker": null
+        },
+        {
+            "startMs": 520936,
+            "endMs": 524156,
+            "text": "a little more accountable can put more hours, he'll probably be more productive than person one.",
+            "speaker": null
+        },
+        {
+            "startMs": 524156,
+            "endMs": 526696,
+            "text": "So SaaS might shrink personal software is intibitable.",
+            "speaker": null
+        },
+        {
+            "startMs": 527076,
+            "endMs": 528976,
+            "text": "Atlation stock did really well in the last six months.",
+            "speaker": null
+        },
+        {
+            "startMs": 529056,
+            "endMs": 529516,
+            "text": "So I don't know.",
+            "speaker": null
+        },
+        {
+            "startMs": 530036,
+            "endMs": 538236,
+            "text": "But I do feel that eventually at some point when most businesses realize that coding is actually easy, AI writes stable code, you can deploy it, it works well.",
+            "speaker": null
+        },
+        {
+            "startMs": 538236,
+            "endMs": 542376,
+            "text": "They might want to bring a lot of these tools in-house that they pay for right now.",
+            "speaker": null
+        },
+        {
+            "startMs": 542756,
+            "endMs": 545916,
+            "text": "It's already happening with companies that are led by programming people.",
+            "speaker": null
+        },
+        {
+            "startMs": 546096,
+            "endMs": 554136,
+            "text": "So good examples of these might be, you know, Kamra Vod or even DHH in his talk, you know, created four different products all by coded or, you know, call it whatever.",
+            "speaker": null
+        },
+        {
+            "startMs": 554156,
+            "endMs": 558976,
+            "text": "coded with AI, all competing with products like Keynote, personalized to his specific",
+            "speaker": null
+        },
+        {
+            "startMs": 558976,
+            "endMs": 559876,
+            "text": "day-to-day.",
+            "speaker": null
+        },
+        {
+            "startMs": 560076,
+            "endMs": 561056,
+            "text": "I think that might happen more.",
+            "speaker": null
+        },
+        {
+            "startMs": 561476,
+            "endMs": 563596,
+            "text": "And most businesses can now own their own code bases.",
+            "speaker": null
+        },
+        {
+            "startMs": 564436,
+            "endMs": 566016,
+            "text": "Every company can and will make software.",
+            "speaker": null
+        },
+        {
+            "startMs": 566316,
+            "endMs": 570736,
+            "text": "They have the merit or the expertise or they just need like one 12 LPA, 13 LPA, 15 LPA",
+            "speaker": null
+        },
+        {
+            "startMs": 570736,
+            "endMs": 574656,
+            "text": "engineer to write their whole code base in Rust or C, native assembly, whatever language",
+            "speaker": null
+        },
+        {
+            "startMs": 574656,
+            "endMs": 575316,
+            "text": "they please.",
+            "speaker": null
+        },
+        {
+            "startMs": 575556,
+            "endMs": 578916,
+            "text": "Lovable and emergent, as simple of a product as they might sound to us.",
+            "speaker": null
+        },
+        {
+            "startMs": 579056,
+            "endMs": 579736,
+            "text": "They make sense.",
+            "speaker": null
+        },
+        {
+            "startMs": 579736,
+            "endMs": 584356,
+            "text": "you know a lot of non-technical people can now orchestrate agents to build out personalized",
+            "speaker": null
+        },
+        {
+            "startMs": 584356,
+            "endMs": 589016,
+            "text": "software for them and if they were to outsource this to an engineer or on upwork or to an agency",
+            "speaker": null
+        },
+        {
+            "startMs": 589016,
+            "endMs": 592896,
+            "text": "the cost is like a thousand times so it actually makes a lot of sense why these products work",
+            "speaker": null
+        },
+        {
+            "startMs": 592896,
+            "endMs": 598836,
+            "text": "a good company to look at is 8020 by chamath their thesis is most software or 80 percent of",
+            "speaker": null
+        },
+        {
+            "startMs": 598836,
+            "endMs": 602696,
+            "text": "most softwares can be built at 20 percent of the cost so what they're selling to companies now is",
+            "speaker": null
+        },
+        {
+            "startMs": 602696,
+            "endMs": 607636,
+            "text": "if you are paying a sas subscription let's say you know 100k a year something like that for slack",
+            "speaker": null
+        },
+        {
+            "startMs": 607636,
+            "endMs": 611596,
+            "text": "for Trello for whatever they're going to send engineers to your company and",
+            "speaker": null
+        },
+        {
+            "startMs": 611596,
+            "endMs": 615256,
+            "text": "they're going to build the same SAS migrate all of the data for 20% of the",
+            "speaker": null
+        },
+        {
+            "startMs": 615256,
+            "endMs": 618016,
+            "text": "costs and they'll make sure they'll make sure you have at least 80% of the",
+            "speaker": null
+        },
+        {
+            "startMs": 618016,
+            "endMs": 620456,
+            "text": "functionality if not more which makes a lot of sense right this specific",
+            "speaker": null
+        },
+        {
+            "startMs": 620456,
+            "endMs": 636124,
+            "text": "software niche of cutting down SAS costs and giving people access to their own data their own code base for any software they might be paying for and giving them at least 80 of the most useful features at 20 of the cost makes a lot of sense So I would assume more companies like these make sense if you want to start one today No more",
+            "speaker": null
+        },
+        {
+            "startMs": 636124,
+            "endMs": 639644,
+            "text": "programmers, just the people making agents that make programs. Again, make your peace with it.",
+            "speaker": null
+        },
+        {
+            "startMs": 640064,
+            "endMs": 643304,
+            "text": "A lot of Luddites, including me, for the longest time. But in the last six months, I think everyone",
+            "speaker": null
+        },
+        {
+            "startMs": 643304,
+            "endMs": 648164,
+            "text": "has made their peace with it and there's nothing bad in it. It's the way the world has shaped and",
+            "speaker": null
+        },
+        {
+            "startMs": 648164,
+            "endMs": 652224,
+            "text": "over time, if you look at it, your job has gotten easier and that's what should happen to humans.",
+            "speaker": null
+        },
+        {
+            "startMs": 652224,
+            "endMs": 656004,
+            "text": "you know our lives should get easier over time and not tough i get it you will had expertise in",
+            "speaker": null
+        },
+        {
+            "startMs": 656004,
+            "endMs": 659944,
+            "text": "a specific niche you chose computer science for you know specific outcomes and you might not get",
+            "speaker": null
+        },
+        {
+            "startMs": 659944,
+            "endMs": 664864,
+            "text": "those outcomes anymore considering there's a lot of competition but to that i say competition is for",
+            "speaker": null
+        },
+        {
+            "startMs": 664864,
+            "endMs": 668704,
+            "text": "losers and i will leave you with these last five minutes from the talk by dhs again as i mentioned",
+            "speaker": null
+        },
+        {
+            "startMs": 668704,
+            "endMs": 671344,
+            "text": "if you have the time i would urge you to look at his full talk it's very interesting it's like a",
+            "speaker": null
+        },
+        {
+            "startMs": 671344,
+            "endMs": 674744,
+            "text": "movie if you really look at it rather than spending like an hour on netflix to look at this video",
+            "speaker": null
+        },
+        {
+            "startMs": 674744,
+            "endMs": 680344,
+            "text": "will that be landed i'll see you guys next one bye bye no one knows anything about the future",
+            "speaker": null
+        },
+        {
+            "startMs": 681144,
+            "endMs": 685024,
+            "text": "So therefore, the rational choice is to be happy about it.",
+            "speaker": null
+        },
+        {
+            "startMs": 685884,
+            "endMs": 689184,
+            "text": "If you are sad about it up front and it turns out wonderful,",
+            "speaker": null
+        },
+        {
+            "startMs": 689704,
+            "endMs": 690704,
+            "text": "what a waste of time.",
+            "speaker": null
+        },
+        {
+            "startMs": 691484,
+            "endMs": 692224,
+            "text": "And do you know what?",
+            "speaker": null
+        },
+        {
+            "startMs": 692744,
+            "endMs": 694404,
+            "text": "If we get the nuclear apocalypse,",
+            "speaker": null
+        },
+        {
+            "startMs": 695124,
+            "endMs": 697404,
+            "text": "you should have spent your last day being a little more cheery.",
+            "speaker": null
+        },
+        {
+            "startMs": 697824,
+            "endMs": 698844,
+            "text": "It's over anyway.",
+            "speaker": null
+        },
+        {
+            "startMs": 701284,
+            "endMs": 702524,
+            "text": "Pure game theory.",
+            "speaker": null
+        },
+        {
+            "startMs": 702524,
+            "endMs": 706424,
+            "text": "There's only one play here, and it's total fucking optimism.",
+            "speaker": null
+        },
+        {
+            "startMs": 707444,
+            "endMs": 709984,
+            "text": "Lean in to the max possible.",
+            "speaker": null
+        },
+        {
+            "startMs": 710344,
+            "endMs": 713204,
+            "text": "because the utopia is almost here,",
+            "speaker": null
+        },
+        {
+            "startMs": 714204,
+            "endMs": 715504,
+            "text": "we're going to get it.",
+            "speaker": null
+        },
+        {
+            "startMs": 716784,
+            "endMs": 720204,
+            "text": "And we're going to get a reformation of the computer.",
+            "speaker": null
+        },
+        {
+            "startMs": 720784,
+            "endMs": 725444,
+            "text": "Agent Luther is going to disintermediate the cleric class.",
+            "speaker": null
+        },
+        {
+            "startMs": 727244,
+            "endMs": 732844,
+            "text": "He's going to allow everyone to make programmers.",
+            "speaker": null
+        },
+        {
+            "startMs": 733264,
+            "endMs": 734384,
+            "text": "Now, maybe that's a little scary.",
+            "speaker": null
+        },
+        {
+            "startMs": 734764,
+            "endMs": 736104,
+            "text": "Like, maybe we're going to get a little competition.",
+            "speaker": null
+        },
+        {
+            "startMs": 736524,
+            "endMs": 738124,
+            "text": "Who's afraid of a little competition?",
+            "speaker": null
+        },
+        {
+            "startMs": 738124,
+            "endMs": 739004,
+            "text": "Aren't you better?",
+            "speaker": null
+        },
+        {
+            "startMs": 739004,
+            "endMs": 741004,
+            "text": "Don't you know more?",
+            "speaker": null
+        },
+        {
+            "startMs": 741004,
+            "endMs": 742004,
+            "text": "Of course you do.",
+            "speaker": null
+        },
+        {
+            "startMs": 742004,
+            "endMs": 744004,
+            "text": "You're a fucking Rails programmer.",
+            "speaker": null
+        },
+        {
+            "startMs": 744004,
+            "endMs": 746004,
+            "text": "You're the best of the best.",
+            "speaker": null
+        },
+        {
+            "startMs": 746004,
+            "endMs": 748004,
+            "text": "This is goddamn Top Gun I'm looking at here.",
+            "speaker": null
+        },
+        {
+            "startMs": 756004,
+            "endMs": 759004,
+            "text": "Embrace that with gusto.",
+            "speaker": null
+        },
+        {
+            "startMs": 759004,
+            "endMs": 763004,
+            "text": "The future is galactically awesome.",
+            "speaker": null
+        },
+        {
+            "startMs": 763004,
+            "endMs": 766004,
+            "text": "Don't be that loser in the dark.",
+            "speaker": null
+        },
+        {
+            "startMs": 766004,
+            "endMs": 772004,
+            "text": "And do you know what? Even if you are, realize the next generation is not.",
+            "speaker": null
+        },
+        {
+            "startMs": 772004,
+            "endMs": 778004,
+            "text": "Harris' daughter here is trying an omachi version we're making for kids",
+            "speaker": null
+        },
+        {
+            "startMs": 778004,
+            "endMs": 783004,
+            "text": "because kids are really excited about things that happen, that change.",
+            "speaker": null
+        },
+        {
+            "startMs": 783004,
+            "endMs": 788004,
+            "text": "They don't have 500 layers of things to unlearn and be stressed about.",
+            "speaker": null
+        },
+        {
+            "startMs": 788004,
+            "endMs": 791004,
+            "text": "And do you know what? If this doesn't expire you,",
+            "speaker": null
+        },
+        {
+            "startMs": 791004,
+            "endMs": 794004,
+            "text": "the next generation is just going to fucking tell you.",
+            "speaker": null
+        },
+        {
+            "startMs": 794004,
+            "endMs": 797004,
+            "text": "The future is now for me.",
+            "speaker": null
+        },
+        {
+            "startMs": 800384,
+            "endMs": 803244,
+            "text": "So take the white pill.",
+            "speaker": null
+        },
+        {
+            "startMs": 804404,
+            "endMs": 806304,
+            "text": "Take the optimism pill.",
+            "speaker": null
+        },
+        {
+            "startMs": 806944,
+            "endMs": 812824,
+            "text": "Lean in, even with the uncertainty, even with the stress, even with all of it.",
+            "speaker": null
+        },
+        {
+            "startMs": 813104,
+            "endMs": 815084,
+            "text": "Realize there is only one choice.",
+            "speaker": null
+        },
+        {
+            "startMs": 815704,
+            "endMs": 822984,
+            "text": "And that is for you to embrace the future with optimism, with gusto, with full acceleration.",
+            "speaker": null
+        },
+        {
+            "startMs": 822984,
+            "endMs": 826064,
+            "text": "that black pill is for fucking losers.",
+            "speaker": null
+        },
+        {
+            "startMs": 826684,
+            "endMs": 827424,
+            "text": "Don't be a loser.",
+            "speaker": null
+        }
+    ],
+    "scenes": [
+        {
+            "idx": 0,
+            "startMs": 0,
+            "endMs": 7241,
+            "keyframeAssetId": "7efa76e2-ce62-4a54-972b-99d60db9e85f",
+            "caption": "Image 1: No visual information provided."
+        },
+        {
+            "idx": 1,
+            "startMs": 7241,
+            "endMs": 10811,
+            "keyframeAssetId": "88f00599-bc0c-4521-8c53-9401b08e7c2a",
+            "caption": "Image 2: No visual information provided."
+        },
+        {
+            "idx": 2,
+            "startMs": 10811,
+            "endMs": 32432,
+            "keyframeAssetId": "136f207d-0c6d-4e21-b7d4-d02e70d3bd60",
+            "caption": "Image 3: No visual information provided."
+        },
+        {
+            "idx": 3,
+            "startMs": 32432,
+            "endMs": 133767,
+            "keyframeAssetId": "9b2d456c-fe9c-46f2-a95a-3a6a58a99a49",
+            "caption": "Image 4: No visual information provided."
+        },
+        {
+            "idx": 4,
+            "startMs": 133767,
+            "endMs": 149850,
+            "keyframeAssetId": "019c35ca-d49b-49eb-a900-ac34d67e0128",
+            "caption": "A slide titled \"Sept 2026\" displays logos for Codex, Cursor, Devin, and Claude, with a presenter in the bottom right corner."
+        },
+        {
+            "idx": 5,
+            "startMs": 149850,
+            "endMs": 436903,
+            "keyframeAssetId": "95a05402-b529-40da-8024-5d251fcae957",
+            "caption": "A slide titled \"2026\" illustrates a coding workflow with images of a programmer, terminal commands, and code editors, featuring a presenter inset."
+        },
+        {
+            "idx": 6,
+            "startMs": 436903,
+            "endMs": 523823,
+            "keyframeAssetId": "28e1b085-d270-47c4-91b9-1098d86480b9",
+            "caption": "A slide stating \"Builders would be the only job role that exists\" features a diamond background with text and a presenter inset."
+        },
+        {
+            "idx": 7,
+            "startMs": 523823,
+            "endMs": 676776,
+            "keyframeAssetId": "32a4e122-afe2-414e-ac44-0628ff0e5efd",
+            "caption": "A slide titled \"Saas might shrink, personalized software is in\" lists three points about software trends, with a presenter in the corner."
+        },
+        {
+            "idx": 8,
+            "startMs": 676776,
+            "endMs": 677277,
+            "keyframeAssetId": "789510ed-6739-4db7-8fbd-6d62d51d94cc",
+            "caption": "A smiling woman holds a coffee cup in a bright kitchen, sunlight streaming through a window."
+        },
+        {
+            "idx": 9,
+            "startMs": 677277,
+            "endMs": 715548,
+            "keyframeAssetId": "cca4c142-ecfd-422e-9f7c-40853491d46b",
+            "caption": "Two friends laugh while playing a board game at a wooden table, cards scattered around."
+        },
+        {
+            "idx": 10,
+            "startMs": 715548,
+            "endMs": 729896,
+            "keyframeAssetId": "009ba661-0fcc-4cf3-ab82-78dbee48bbb0",
+            "caption": "A close‑up of a hand typing on a laptop, code snippets visible on the screen."
+        },
+        {
+            "idx": 11,
+            "startMs": 729896,
+            "endMs": 798531,
+            "keyframeAssetId": "17b0954c-d2ab-4dba-be77-0205fc9e127d",
+            "caption": "The sunset view from a balcony, city skyline silhouetted against orange‑pink clouds."
+        },
+        {
+            "idx": 12,
+            "startMs": 798531,
+            "endMs": 838471,
+            "keyframeAssetId": "18ea1b5a-c5a0-44e4-b233-254e3b6c7644",
+            "caption": "A man with long hair wearing a black t-shirt gestures while speaking on stage against a blue background."
+        }
+    ],
+    "faces": [
+        {
+            "sceneIdx": 0,
+            "atMs": 3620,
+            "bbox": {
+                "x": 162,
+                "y": 45,
+                "width": 132,
+                "height": 179
+            }
+        },
+        {
+            "sceneIdx": 1,
+            "atMs": 9026,
+            "bbox": {
+                "x": 30,
+                "y": 195,
+                "width": 14,
+                "height": 18
+            }
+        },
+        {
+            "sceneIdx": 1,
+            "atMs": 9026,
+            "bbox": {
+                "x": 206,
+                "y": 24,
+                "width": 56,
+                "height": 84
+            }
+        },
+        {
+            "sceneIdx": 2,
+            "atMs": 21621,
+            "bbox": {
+                "x": 166,
+                "y": 63,
+                "width": 126,
+                "height": 169
+            }
+        },
+        {
+            "sceneIdx": 3,
+            "atMs": 83099,
+            "bbox": {
+                "x": 399,
+                "y": 224,
+                "width": 31,
+                "height": 39
+            }
+        },
+        {
+            "sceneIdx": 4,
+            "atMs": 141808,
+            "bbox": {
+                "x": 401,
+                "y": 225,
+                "width": 31,
+                "height": 38
+            }
+        },
+        {
+            "sceneIdx": 5,
+            "atMs": 293376,
+            "bbox": {
+                "x": 399,
+                "y": 223,
+                "width": 31,
+                "height": 39
+            }
+        },
+        {
+            "sceneIdx": 5,
+            "atMs": 293376,
+            "bbox": {
+                "x": 78,
+                "y": 117,
+                "width": 22,
+                "height": 29
+            }
+        },
+        {
+            "sceneIdx": 6,
+            "atMs": 480363,
+            "bbox": {
+                "x": 398,
+                "y": 225,
+                "width": 31,
+                "height": 38
+            }
+        },
+        {
+            "sceneIdx": 7,
+            "atMs": 600299,
+            "bbox": {
+                "x": 395,
+                "y": 225,
+                "width": 29,
+                "height": 36
+            }
+        },
+        {
+            "sceneIdx": 9,
+            "atMs": 696412,
+            "bbox": {
+                "x": 191,
+                "y": 21,
+                "width": 60,
+                "height": 87
+            }
+        },
+        {
+            "sceneIdx": 10,
+            "atMs": 722722,
+            "bbox": {
+                "x": 314,
+                "y": 57,
+                "width": 64,
+                "height": 84
+            }
+        },
+        {
+            "sceneIdx": 10,
+            "atMs": 722722,
+            "bbox": {
+                "x": 218,
+                "y": 31,
+                "width": 57,
+                "height": 81
+            }
+        },
+        {
+            "sceneIdx": 10,
+            "atMs": 722722,
+            "bbox": {
+                "x": 344,
+                "y": 40,
+                "width": 67,
+                "height": 88
+            }
+        },
+        {
+            "sceneIdx": 10,
+            "atMs": 722722,
+            "bbox": {
+                "x": 452,
+                "y": 66,
+                "width": 28,
+                "height": 57
+            }
+        },
+        {
+            "sceneIdx": 11,
+            "atMs": 764213,
+            "bbox": {
+                "x": 201,
+                "y": 21,
+                "width": 57,
+                "height": 88
+            }
+        },
+        {
+            "sceneIdx": 12,
+            "atMs": 818501,
+            "bbox": {
+                "x": 209,
+                "y": 26,
+                "width": 59,
+                "height": 91
+            }
+        }
+    ],
+    "analysis": {
+        "summary": "The speaker reviews a recent talk on how AI agents have become the dominant way developers write code, with less than 1% still hand‑coding, dramatically increasing productivity and shifting the engineer’s role to orchestrating AI across the full product stack. This new paradigm values end‑to‑end system knowledge, prompt engineering, and testing over memorizing syntax, leading many companies to operate with just one or two engineers. While this raises concerns about expertise devaluation and hiring practices, the speaker sees further gains only with the advent of AGI that could remove humans from the loop entirely.",
+        "topics": [
+            "AI coding agents",
+            "Productivity boost",
+            "End‑to‑end engineering",
+            "Shift in hiring",
+            "Language abstraction",
+            "Prompt engineering",
+            "Future of software development",
+            "AGI outlook"
+        ],
+        "updatedAt": "2026-10-03T21:31:44.938Z"
+    },
+    "steps": {
+        "analysis": {
+            "status": "done",
+            "error": null,
+            "attempts": 1,
+            "updatedAt": "2026-10-03T21:31:44.961Z"
+        },
+        "embeddings": {
+            "status": "running",
+            "error": "embeddings: HTTP 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/embed_content_free_tier_requests, limit: 100, model: gemini-embedding-2\nPlease retry in 55.651956727s.",
+            "attempts": 2,
+            "updatedAt": "2026-10-03T21:32:14.742Z"
+        },
+        "faces": {
+            "status": "done",
+            "error": null,
+            "attempts": 1,
+            "updatedAt": "2026-10-03T21:30:35.717Z"
+        },
+        "scenes": {
+            "status": "done",
+            "error": null,
+            "attempts": 1,
+            "updatedAt": "2026-10-03T21:30:27.303Z"
+        },
+        "transcription": {
+            "status": "done",
+            "error": null,
+            "attempts": 1,
+            "updatedAt": "2026-10-03T21:30:01.592Z"
+        }
+    }
+}
