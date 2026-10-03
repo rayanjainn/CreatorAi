@@ -182,6 +182,8 @@ def _prov(raw: Any) -> Provenance | None:
 def generation_provenance(script: Script) -> Provenance | None:
     if not script.provider:
         return None
+    if script.provider == "demo":  # seeded by `make seed`: hand-written, never AI
+        return Provenance.demo()
     source = "mock" if script.provider == "mock" else "ai"
     return Provenance(source=source, provider=script.provider, model=script.model)  # type: ignore[arg-type]
 

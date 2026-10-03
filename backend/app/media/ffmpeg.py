@@ -6,6 +6,7 @@ import json
 import shutil
 import subprocess
 import threading
+import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -23,6 +24,10 @@ class FFmpegError(RuntimeError):
 
 class FFmpegTimeout(FFmpegError):
     pass
+
+
+class FFmpegCanceled(FFmpegError):
+    """``should_cancel`` returned true: the ffmpeg process was killed."""
 
 
 def ffmpeg_available() -> bool:
@@ -63,11 +68,14 @@ def run(
     on_progress: Callable[[float], None] | None = None,
     cwd: Path | None = None,
     check: bool = True,
+    should_cancel: Callable[[], bool] | None = None,
 ) -> RunResult:
     """Run ffmpeg with ``args`` (without the binary name).
 
     When ``duration`` and ``on_progress`` are given, ``-progress pipe:1`` is parsed and the
-    callback receives a 0-1 fraction. Raises :class:`FFmpegTimeout` / :class:`FFmpegError`.
+    callback receives a 0-1 fraction. ``should_cancel`` is polled while ffmpeg runs; when it
+    returns true the process is killed and :class:`FFmpegCanceled` is raised. Raises
+    :class:`FFmpegTimeout` / :class:`FFmpegError`.
     """
     cmd = [get_settings().ffmpeg_bin, "-hide_banner", "-nostdin", "-y"]
     if on_progress and duration:
@@ -103,15 +111,30 @@ def run(
     threads.append(threading.Thread(target=read_progress, daemon=True))
     for t in threads:
         t.start()
+    deadline = time.monotonic() + timeout
+    canceled = False
     try:
-        proc.wait(timeout=timeout)
-    except subprocess.TimeoutExpired as exc:
-        proc.kill()
-        proc.wait()
-        raise FFmpegTimeout(f"ffmpeg timed out after {timeout:g}s", "".join(stderr_lines)) from exc
+        while True:
+            try:
+                proc.wait(timeout=0.2 if should_cancel else timeout)
+                break
+            except subprocess.TimeoutExpired as exc:
+                if should_cancel and should_cancel():
+                    proc.kill()
+                    proc.wait()
+                    canceled = True
+                    break
+                if time.monotonic() >= deadline:
+                    proc.kill()
+                    proc.wait()
+                    raise FFmpegTimeout(
+                        f"ffmpeg timed out after {timeout:g}s", "".join(stderr_lines)
+                    ) from exc
     finally:
         for t in threads:
             t.join(timeout=2)
+    if canceled:
+        raise FFmpegCanceled("ffmpeg was canceled", "".join(stderr_lines)[-2000:])
     stderr = "".join(stderr_lines)
     if check and proc.returncode != 0:
         raise FFmpegError(f"ffmpeg exited with code {proc.returncode}", stderr[-2000:])

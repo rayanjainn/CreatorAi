@@ -42,6 +42,11 @@ def guess_mime(key: str) -> str:
     return _EXTRA_TYPES.get(suffix) or mimetypes.guess_type(key)[0] or "application/octet-stream"
 
 
+def _safe_filename(name: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9._ -]+", "_", name).strip(" .")
+    return cleaned[:100] or "download"
+
+
 def parse_range(header: str | None, size: int) -> tuple[int, int] | None:
     """Parse a single ``bytes=a-b`` range into inclusive ``(start, end)``.
 
@@ -92,6 +97,7 @@ def serve_media(
     request: Request,
     exp: Annotated[int | None, Query()] = None,
     sig: Annotated[str | None, Query()] = None,
+    dl: Annotated[str | None, Query(max_length=120)] = None,
 ) -> Response:
     if exp is None or not sig:
         raise AppError("FORBIDDEN", "Missing media signature", details={"reason": "unsigned"})
@@ -106,6 +112,8 @@ def serve_media(
         "Cache-Control": "private, max-age=3600",
     }
     mime = guess_mime(key)
+    if dl:  # download variant of a signed URL (renders): browsers save instead of playing
+        headers["Content-Disposition"] = f'attachment; filename="{_safe_filename(dl)}"'
     if byte_range is None:
         start, end, status = 0, size - 1, 200
     else:

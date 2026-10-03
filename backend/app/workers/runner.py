@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.config import get_settings
 from app.db import get_session_factory, session_scope
 from app.errors import AppError
-from app.models import Job, utcnow
+from app.models import Job, Render, utcnow
 from app.workers.events import job_event
 from app.workers.pubsub import pubsub
 
@@ -322,6 +322,12 @@ def mark_interrupted_jobs() -> int:
         result = db.execute(
             update(Job)
             .where(Job.status.in_(("queued", "running")))
+            .values(status="failed", error="interrupted by restart", finished_at=utcnow())
+        )
+        # a render whose job died stays queued/rendering forever otherwise
+        db.execute(
+            update(Render)
+            .where(Render.status.in_(("queued", "rendering")))
             .values(status="failed", error="interrupted by restart", finished_at=utcnow())
         )
         return int(result.rowcount or 0)  # type: ignore[attr-defined]

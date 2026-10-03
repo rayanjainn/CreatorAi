@@ -92,11 +92,16 @@ def _media_sig(key: str, exp: int) -> str:
     return hmac.new(secret, f"{key}|{exp}".encode(), hashlib.sha256).hexdigest()
 
 
-def sign_media(key: str, ttl: int | None = None) -> str:
-    """Relative signed URL ``/media/{key}?exp=&sig=`` valid for ``ttl`` seconds (default 1 h)."""
+def sign_media(key: str, ttl: int | None = None, *, download_name: str | None = None) -> str:
+    """Relative signed URL ``/media/{key}?exp=&sig=`` valid for ``ttl`` seconds (default 1 h).
+
+    With ``download_name`` the URL carries ``&dl=<name>``: the media route then answers with
+    ``Content-Disposition: attachment`` (the name is cosmetic and not part of the signature).
+    """
     ttl = get_settings().media_url_ttl_sec if ttl is None else ttl
     exp = int(time.time()) + ttl
-    return f"/media/{quote(key, safe='/')}?exp={exp}&sig={_media_sig(key, exp)}"
+    url = f"/media/{quote(key, safe='/')}?exp={exp}&sig={_media_sig(key, exp)}"
+    return f"{url}&dl={quote(download_name)}" if download_name else url
 
 
 def verify_media(key: str, exp: int, sig: str) -> None:
