@@ -20,7 +20,7 @@ if (typeof window !== 'undefined') {
 
 export default function LandingPage() {
  const sectionRef = useRef<HTMLElement>(null)
- const canvasRef = useRef<HTMLCanvasElement>(null)
+
  const particlesRef = useRef<HTMLCanvasElement>(null)
  const [scrollProgress, setScrollProgress] = useState(0)
  const [activeBeat, setActiveBeat] = useState(0)
@@ -334,78 +334,6 @@ export default function LandingPage() {
  }, [])
 
 
- // Petal Canvas Animation
- useEffect(() => {
-   const canvas = canvasRef.current
-   if (!canvas) return
-
-
-   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-
-   const ctx = canvas.getContext('2d')
-   if (!ctx) return
-
-
-   let W = canvas.width = window.innerWidth * window.devicePixelRatio
-   let H = canvas.height = window.innerHeight * window.devicePixelRatio
-
-
-   const petals = Array.from({ length: 70 }, () => ({
-     x: Math.random(),
-     y: Math.random(),
-     r: 6 + Math.random() * 14,
-     sp: 0.2 + Math.random() * 0.8,
-     drift: Math.random() * Math.PI * 2,
-     a: 0.3 + Math.random() * 0.5
-   }))
-
-
-   let startTime = Date.now()
-
-
-   function drawPetals() {
-     const t = Date.now() - startTime
-     ctx!.clearRect(0, 0, W, H)
-    
-     const petalDensity = scrollProgress < 0.48 ? scrollProgress * 0.3 : Math.min(1, (scrollProgress - 0.40) * 2.2)
-     const windAmt = Math.max(0, (scrollProgress - 0.60)) * 1.4
-
-
-     for (const p of petals) {
-       const px = (p.x + Math.sin(t * 0.0003 * p.sp + p.drift) * 0.04 * (0.5 + windAmt * 2)) * W
-       const py = (((p.y + t * 0.00004 * p.sp) % 1)) * H
-       const size = p.r * window.devicePixelRatio * (0.7 + petalDensity * 0.8)
-
-
-       ctx!.globalAlpha = p.a * petalDensity
-       const g = ctx!.createRadialGradient(px, py, 0, px, py, size)
-       g.addColorStop(0, 'rgba(247,196,218,0.9)')
-       g.addColorStop(1, 'rgba(194,106,151,0)')
-
-
-       ctx!.fillStyle = g
-       ctx!.beginPath()
-       ctx!.ellipse(px, py, size, size * 0.6, p.drift + t * 0.0002, 0, Math.PI * 2)
-       ctx!.fill()
-     }
-     ctx!.globalAlpha = 1
-     requestAnimationFrame(drawPetals)
-   }
-
-
-   if (!reduced) {
-     drawPetals()
-   }
-
-
-   const handleResize = () => {
-     W = canvas.width = window.innerWidth * window.devicePixelRatio
-     H = canvas.height = window.innerHeight * window.devicePixelRatio
-   }
-   window.addEventListener('resize', handleResize)
-   return () => window.removeEventListener('resize', handleResize)
- }, [scrollProgress])
 
 
  // Cinematic Scroll Animation
@@ -722,13 +650,6 @@ export default function LandingPage() {
      {/* CINEMATIC PINNED SECTION */}
      <section ref={sectionRef} id="cinematic" className="relative" style={{ height: '820vh' }}>
        <div id="pinStage" className="sticky top-0 h-screen w-full overflow-hidden">
-         {/* Canvas petal layer */}
-         <canvas
-           ref={canvasRef}
-           id="petalCanvas"
-           className="absolute inset-0 w-full h-full z-5 opacity-85"
-           style={{ opacity: 0.85 }}
-         />
 
 
          {/* Parallax visual layers */}
@@ -916,8 +837,8 @@ export default function LandingPage() {
        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
          {/* Feature Card 1 */}
          <div className="group flex flex-col border-white/[0.06] hover:bg-white/[0.04] transition-colors duration-500 cursor-pointer border rounded-2xl p-6 backdrop-blur-lg feature-card tilt-card">
-           <div className="rounded-xl overflow-hidden mb-5 aspect-video bg-gradient-to-br from-[#f5b8d0]/20 to-[#c26a97]/20 flex items-center justify-center">
-             <Search className="w-12 h-12 text-[#f5b8d0]" />
+           <div className="rounded-xl overflow-hidden mb-5 aspect-video">
+             <img src="/Asset Intelligence.png" alt="Asset Intelligence" className="w-full h-full object-cover" />
            </div>
            <div className="flex flex-col flex-grow justify-between">
              <div>
@@ -937,8 +858,8 @@ export default function LandingPage() {
 
          {/* Feature Card 2 */}
          <div className="group flex flex-col border-white/[0.06] hover:bg-white/[0.04] transition-colors duration-500 cursor-pointer border rounded-2xl p-6 backdrop-blur-lg feature-card tilt-card">
-           <div className="rounded-xl overflow-hidden mb-5 aspect-video bg-gradient-to-br from-[#f5b8d0]/20 to-[#c26a97]/20 flex items-center justify-center">
-             <Wand2 className="w-12 h-12 text-[#f5b8d0]" />
+           <div className="rounded-xl overflow-hidden mb-5 aspect-video">
+             <img src="/AI Creative Director.png" alt="AI Creative Director" className="w-full h-full object-cover" />
            </div>
            <div className="flex flex-col flex-grow justify-between">
              <div>
@@ -958,8 +879,8 @@ export default function LandingPage() {
 
          {/* Feature Card 3 */}
          <div className="group flex flex-col border-white/[0.06] hover:bg-white/[0.04] transition-colors duration-500 cursor-pointer border rounded-2xl p-6 backdrop-blur-lg feature-card tilt-card">
-           <div className="rounded-xl overflow-hidden mb-5 aspect-video bg-gradient-to-br from-[#f5b8d0]/20 to-[#c26a97]/20 flex items-center justify-center">
-             <Film className="w-12 h-12 text-[#f5b8d0]" />
+           <div className="rounded-xl overflow-hidden mb-5 aspect-video">
+             <img src="/Intelligent Editor.png" alt="Intelligent Editor" className="w-full h-full object-cover" />
            </div>
            <div className="flex flex-col flex-grow justify-between">
              <div>
