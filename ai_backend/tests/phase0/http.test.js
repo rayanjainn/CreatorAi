@@ -95,8 +95,6 @@ describe('module routers are mounted as 501 stubs', () => {
     ['post', '/projects/p1/agents/research', 4],
     ['patch', '/projects/p1/scripts/s1', 4],
     ['get', '/projects/p1/agents/runs/r1', 4],
-    ['post', '/projects/p1/timelines/t1/versions', 5],
-    ['get', '/projects/p1/timelines/t1/diff', 5],
     ['post', '/projects/p1/media/a1/moments', 6],
     ['post', '/projects/p1/agents/editing/reels', 6],
     ['post', '/projects/p1/timelines/t1/render', 7],
