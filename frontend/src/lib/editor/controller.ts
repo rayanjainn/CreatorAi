@@ -40,7 +40,9 @@ function handleError(e: unknown, what: string): void {
   }
   if (isApiError(e) && (e.code === 'VALIDATION_ERROR' || e.status === 422)) {
     const violations = readViolations(e)
-    s.setSave({ status: 'error', error: violations[0]?.message ?? e.message, violations })
+    const message = violations[0]?.message ?? e.message
+    s.setSave({ status: 'error', error: message, violations })
+    toast.error('The server refused this timeline', violations.length > 1 ? `${message} (and ${violations.length - 1} more)` : message)
     return
   }
   if (isApiError(e) && e.code === 'NETWORK_ERROR') {
@@ -76,6 +78,7 @@ export async function saveNow(): Promise<boolean> {
   const violations = validateAll(s.timeline, assetDurations(s.assets))
   if (violations.length) {
     s.setSave({ status: 'error', error: violations[0].message, violations })
+    toast.error('This timeline is not valid', violations[0].message)
     return false
   }
   const { clipId, timeline, revision, version } = s

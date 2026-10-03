@@ -23,6 +23,7 @@ export const VideoClip = memo(function VideoClip({
   dragging,
   dx,
   onPointerDown,
+  onKeyDown,
   onTrimDown,
 }: {
   item: VideoItem
@@ -37,6 +38,7 @@ export const VideoClip = memo(function VideoClip({
   dragging: boolean
   dx: number
   onPointerDown: (e: React.PointerEvent, item: VideoItem) => void
+  onKeyDown: (e: React.KeyboardEvent, id: string) => void
   onTrimDown: (e: React.PointerEvent, item: VideoItem, edge: 'start' | 'end') => void
 }) {
   const dur = durationOf(item)
@@ -63,6 +65,7 @@ export const VideoClip = memo(function VideoClip({
       data-dragging={dragging}
       style={{ left: item.tl_start * pps, width, transform: dragging ? `translateX(${dx}px)` : undefined }}
       onPointerDown={(e) => onPointerDown(e, item)}
+      onKeyDown={(e) => onKeyDown(e, item.id)}
       role="button"
       tabIndex={0}
       aria-label={`Video clip ${index + 1}, ${dur.toFixed(1)} seconds, ${ai ? 'Agent' : 'You'}, ${item.status}`}

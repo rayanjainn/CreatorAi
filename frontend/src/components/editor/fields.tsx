@@ -5,9 +5,9 @@ import { useResettable } from '@/lib/editor/use-resettable'
 import { clock, parseTime } from '@/lib/timeline'
 
 /** Row with a small caption on the left and the control on the right (inspector layout). */
-export function Row({ label, children, hint }: { label: string; children: ReactNode; hint?: ReactNode }) {
+export function Row({ label, children, hint, stacked }: { label: string; children: ReactNode; hint?: ReactNode; stacked?: boolean }) {
   return (
-    <div className="insp-row">
+    <div className="insp-row" data-stacked={stacked || undefined}>
       <span className="insp-label">{label}</span>
       <div className="insp-ctl">{children}</div>
       {hint && <small className="insp-hint">{hint}</small>}

@@ -1,6 +1,6 @@
 import type { TrackName } from '@/lib/timeline'
 
-export const HEADER_W = 124
+export const HEADER_W = 152
 export const RULER_H = 28
 export const TRACK_H: Record<TrackName, number> = { overlays: 34, captions: 34, video: 70, audio: 46 }
 export const TRACK_ORDER: TrackName[] = ['overlays', 'captions', 'video', 'audio']

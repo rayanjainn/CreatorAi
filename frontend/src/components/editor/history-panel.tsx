@@ -45,17 +45,17 @@ export function HistoryPanel({ clipId }: { clipId: string }) {
 
       <div className="checklist">
         <header className="cl-head">
-          <div>
-            <span className="eyebrow">
-              <ListChecks size={11} /> Edit history &amp; AI changes
-            </span>
+          <span className="eyebrow">
+            <ListChecks size={11} /> Edit history &amp; AI changes
+          </span>
+          <div className="cl-head-row">
             <p>
               {ai === 0 ? 'No Agent layers on this clip.' : t.suggested > 0 ? `${t.suggested} of ${ai + t.user} layers wait for your review.` : 'Every layer is reviewed.'}
             </p>
+            <Button size="sm" disabled={ro || t.suggested === 0} onClick={() => acceptAllLayers()} data-testid="accept-all-panel">
+              <Check size={12} /> Accept all
+            </Button>
           </div>
-          <Button size="sm" disabled={ro || t.suggested === 0} onClick={() => acceptAllLayers()} data-testid="accept-all-panel">
-            <Check size={12} /> Accept all
-          </Button>
         </header>
         {ai > 0 && (
           <div className="cl-progress" role="progressbar" aria-valuemin={0} aria-valuemax={ai} aria-valuenow={decided} aria-label="Agent layers reviewed">
@@ -98,11 +98,13 @@ function GroupRow({ group, timeline, ro }: { group: LayerGroup; timeline: Timeli
         <button type="button" className="cl-toggle" aria-expanded={open} onClick={() => setOpen(!open)}>
           <ChevronRight size={13} className="cl-chev" aria-hidden />
           <StatusIcon g={group} />
-          <span className="cl-label">{group.label}</span>
-          <span className="cl-counts">
-            {c.suggested > 0 && <em className="amber">{c.suggested} suggested</em>}
-            {c.accepted > 0 && <em className="green">{c.accepted} accepted</em>}
-            {c.rejected > 0 && <em className="red">{c.rejected} rejected</em>}
+          <span className="cl-text">
+            <span className="cl-label">{group.label}</span>
+            <span className="cl-counts">
+              {c.suggested > 0 && <em className="amber">{c.suggested} suggested</em>}
+              {c.accepted > 0 && <em className="green">{c.accepted} accepted</em>}
+              {c.rejected > 0 && <em className="red">{c.rejected} rejected</em>}
+            </span>
           </span>
         </button>
         <span className="cl-actions">

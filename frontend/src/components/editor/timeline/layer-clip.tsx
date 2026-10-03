@@ -22,6 +22,7 @@ export const LayerClip = memo(function LayerClip({
   asset,
   hidden,
   onPointerDown,
+  onKeyDown,
   onResizeDown,
 }: {
   item: Layer
@@ -34,6 +35,7 @@ export const LayerClip = memo(function LayerClip({
   asset?: EditAsset
   hidden: boolean
   onPointerDown: (e: React.PointerEvent, item: Layer) => void
+  onKeyDown: (e: React.KeyboardEvent, id: string) => void
   onResizeDown: (e: React.PointerEvent, item: Layer, edge: 'start' | 'end') => void
 }) {
   const len = isAudio(item) ? durationOf(item) : item.tl_end - item.tl_start
@@ -55,6 +57,7 @@ export const LayerClip = memo(function LayerClip({
       data-hidden={hidden}
       style={{ left: item.tl_start * pps, width, top: lane * laneH + 3, height: h }}
       onPointerDown={(e) => onPointerDown(e, item)}
+      onKeyDown={(e) => onKeyDown(e, item.id)}
       role="button"
       tabIndex={0}
       aria-label={`${kind} layer: ${label}, ${item.source === 'ai' ? 'Agent' : 'You'}, ${item.status}`}

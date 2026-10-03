@@ -41,7 +41,6 @@ export function TimelinePanel({ frames }: { frames: Frames }) {
   const locked = useEditor((s) => s.locked)
   const muted = useEditor((s) => s.muted)
   const readOnly = useEditor((s) => !!s.preview || !!s.busy)
-  const playing = useEditor((s) => s.playing)
   const setZoom = useEditor((s) => s.setZoom)
   const scroller = useRef<HTMLDivElement>(null)
   const content = useRef<HTMLDivElement>(null)
@@ -111,15 +110,6 @@ export function TimelinePanel({ frames }: { frames: Frames }) {
     }
   }, [pps])
 
-  // keep the playhead in view while playing
-  const playhead = useEditor((s) => s.playhead)
-  useEffect(() => {
-    const el = scroller.current
-    if (!el || !playing) return
-    const x = HEADER_W + playhead * pps
-    if (x < el.scrollLeft + HEADER_W || x > el.scrollLeft + el.clientWidth - 40) el.scrollLeft = Math.max(0, x - el.clientWidth * 0.3)
-  }, [playhead, playing, pps])
-
   const scrub = (e: React.PointerEvent) => {
     if (e.button !== 0) return
     e.preventDefault()
@@ -137,10 +127,17 @@ export function TimelinePanel({ frames }: { frames: Frames }) {
     startDrag(e, { threshold: 0, onMove: (_dx, _dy, ev) => move(ev.clientX, ev.altKey) })
   }
 
-  const select = (e: React.PointerEvent, id: string) => {
+  const select = (e: { shiftKey: boolean; metaKey: boolean; ctrlKey: boolean }, id: string) => {
     const s = useEditor.getState()
     if (e.shiftKey || e.metaKey || e.ctrlKey) s.toggleSelect(id)
     else if (!s.selection.includes(id) || s.selection.length > 1) s.select([id])
+  }
+  /** Enter / Space select the focused item (keyboard access to the timeline). */
+  const onItemKey = (e: React.KeyboardEvent, id: string) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return
+    e.preventDefault()
+    e.stopPropagation()
+    select(e, id)
   }
 
   /* ---- video: reorder by dragging the body ------------------------------------------------ */
@@ -360,6 +357,7 @@ export function TimelinePanel({ frames }: { frames: Frames }) {
                               dragging={drag?.id === v.id}
                               dx={drag?.id === v.id ? drag.dx : 0}
                               onPointerDown={onVideoDown}
+              onKeyDown={onItemKey}
                               onTrimDown={onTrimDown}
                             />
                           )
@@ -371,6 +369,11 @@ export function TimelinePanel({ frames }: { frames: Frames }) {
                           </div>
                         )}
                       </>
+                    )}
+                    {track !== 'video' && counts[track] === 0 && hasVideo && (
+                      <div className="tl-lane-hint" aria-hidden>
+                        {track === 'audio' ? 'No audio layers. Use the music tool to add some from your library.' : track === 'overlays' ? 'No overlays. Use the text or lower-third tool.' : 'No captions. Regenerate them from the Project tab.'}
+                      </div>
                     )}
                     {track !== 'video' &&
                       (track === 'captions' ? timeline.tracks.captions : track === 'overlays' ? timeline.tracks.overlays : timeline.tracks.audio).map((item) => (
@@ -386,6 +389,7 @@ export function TimelinePanel({ frames }: { frames: Frames }) {
                           hidden={(track === 'captions' || track === 'overlays') && muted[track]}
                           asset={'asset_id' in item && item.asset_id ? assets[item.asset_id] : undefined}
                           onPointerDown={(e, it) => onLayerDown(e, it, track)}
+                          onKeyDown={onItemKey}
                           onResizeDown={(e, it, edge) => onResizeDown(e, it, edge, track)}
                         />
                       ))}
@@ -394,6 +398,7 @@ export function TimelinePanel({ frames }: { frames: Frames }) {
               )
             })}
             <Playhead pps={pps} onScrub={scrub} />
+            <FollowPlayhead scroller={scroller} pps={pps} />
           </div>
         </div>
       </div>
@@ -424,6 +429,19 @@ function TrackButtons({ track }: { track: TrackName }) {
       </Tooltip>
     </span>
   )
+}
+
+/** Keeps the playhead in view while playing (its own component so the 60 fps playhead does not re-render the timeline). */
+function FollowPlayhead({ scroller, pps }: { scroller: React.RefObject<HTMLDivElement | null>; pps: number }) {
+  const playhead = useEditor((s) => s.playhead)
+  const playing = useEditor((s) => s.playing)
+  useEffect(() => {
+    const el = scroller.current
+    if (!el || !playing) return
+    const x = HEADER_W + playhead * pps
+    if (x < el.scrollLeft + HEADER_W || x > el.scrollLeft + el.clientWidth - 40) el.scrollTo({ left: Math.max(0, x - el.clientWidth * 0.3) })
+  }, [playhead, playing, pps, scroller])
+  return null
 }
 
 function Playhead({ pps, onScrub }: { pps: number; onScrub: (e: React.PointerEvent) => void }) {

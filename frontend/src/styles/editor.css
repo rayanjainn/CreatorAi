@@ -313,9 +313,13 @@
   gap: 10px;
 }
 .cl-head {
+  display: grid;
+  gap: 8px;
+}
+.cl-head-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
 }
 .cl-head .eyebrow {
@@ -324,7 +328,6 @@
   gap: 5px;
 }
 .cl-head p {
-  margin-top: 4px;
   font-size: 12px;
   color: var(--muted);
   line-height: 1.4;
@@ -398,6 +401,11 @@
 .cl-ic-rejected {
   color: #f87171;
 }
+.cl-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
 .cl-label {
   white-space: nowrap;
 }
@@ -408,6 +416,7 @@
   min-width: 0;
 }
 .cl-counts em {
+  white-space: nowrap;
   font-style: normal;
   font-size: 10px;
   font-weight: 600;
@@ -791,19 +800,19 @@
 }
 .monitor-notice {
   position: absolute;
-  left: 8px;
-  right: 8px;
-  top: 8px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
   display: flex;
-  gap: 8px;
+  gap: 7px;
   align-items: flex-start;
-  padding: 8px 10px;
-  border-radius: 9px;
-  background: #1b1608e8;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: #1b1608ee;
   border: 1px solid #5a4716;
   color: #f3dfa4;
-  font-size: 11px;
-  line-height: 1.4;
+  font-size: 10px;
+  line-height: 1.35;
   backdrop-filter: blur(6px);
   z-index: 8;
 }
@@ -815,7 +824,8 @@
 .monitor-notice b {
   display: block;
   color: #ffe9a8;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
+  font-size: 10.5px;
 }
 .monitor-notice span {
   color: #d9c58a;
@@ -1164,6 +1174,13 @@
   font-size: 11.5px;
   color: var(--muted);
 }
+.insp-row[data-stacked] {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+.insp-row[data-stacked] .insp-ctl .segmented {
+  gap: 2px;
+}
 .insp-ctl {
   display: flex;
   align-items: center;
@@ -1183,8 +1200,11 @@
 }
 .insp-ctl .segmented button {
   flex: 1;
-  padding: 6px 4px;
+  min-width: 0;
+  padding: 7px 4px;
   font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .insp-val,
 .insp-ro {
@@ -1354,7 +1374,7 @@
 /* ---------- timeline ---------- */
 .tl {
   flex: none;
-  height: clamp(264px, 37vh, 400px);
+  height: clamp(272px, 38vh, 420px);
   display: flex;
   border-top: 1px solid var(--ed-line);
   background: #0f0f13;
@@ -1362,12 +1382,12 @@
 }
 .tl-toolbar {
   flex: none;
-  width: 48px;
+  width: 78px;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 8px 0;
-  gap: 6px;
+  gap: 4px;
   border-right: 1px solid var(--ed-line);
   background: var(--ed-panel);
   overflow-y: auto;
@@ -1375,8 +1395,9 @@
 }
 .tl-tool-group {
   display: grid;
+  grid-template-columns: repeat(2, 34px);
   gap: 3px;
-  padding-bottom: 6px;
+  padding-bottom: 5px;
   border-bottom: 1px solid #1f1f26;
 }
 .tl-tool-group:last-child {
@@ -2046,4 +2067,21 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.tl-lane-hint {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #5c5c68;
+  font-size: 11px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* badges inside clips stay hoverable (tooltip with the Agent's reason); pointer events still bubble to the clip */
+.tl-clip-top .layer-badge,
+.tl-layer-row .layer-badge {
+  pointer-events: auto;
 }

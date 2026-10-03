@@ -174,7 +174,7 @@ function ClipTitle({ clip }: { clip: Clip }) {
         {stripDemo(clip.title)}
       </h1>
       {isDemoTitle(clip.title) && <ProvenanceBadge source="demo" />}
-      {clip.provenance_by_part?.title && <ProvenanceBadge {...clip.provenance_by_part.title} label={undefined} iconOnly />}
+      {clip.provenance_by_part?.title && clip.provenance_by_part.title.source !== 'demo' && <ProvenanceBadge {...clip.provenance_by_part.title} />}
       <button type="button" className="icon-button ed-pencil" aria-label="Rename the clip" title="Rename" onClick={() => setEditing(true)} data-testid="rename-clip">
         {patch.isPending ? <Loader2 size={13} className="spin" /> : <Pencil size={13} />}
       </button>

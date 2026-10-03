@@ -182,7 +182,7 @@ function EngineNotice({ timeline }: { timeline: Timeline }) {
         <AlertTriangle size={14} aria-hidden />
         <div>
           <b>No preview file for this clip</b>
-          <span>The proxy video of {asset?.filename ?? 'this asset'} is missing or still processing, so the monitor shows its still frame. Timecode, captions and overlays still run.</span>
+          <span>{asset?.filename ?? 'This asset'} has no proxy video yet. You see a still frame; timecode, captions and overlays still run.</span>
         </div>
       </div>
     )
@@ -192,8 +192,8 @@ function EngineNotice({ timeline }: { timeline: Timeline }) {
       <div className="monitor-notice" role="status" data-testid="engine-notice" data-kind="decode">
         <AlertTriangle size={14} aria-hidden />
         <div>
-          <b>This browser cannot play the preview video</b>
-          <span>The proxy is H.264/AAC (Chrome, Edge and Safari play it). Playback here is clock-driven: timecode, captions and overlays run, the picture shows still frames.</span>
+          <b>This browser cannot decode the preview video</b>
+          <span>Playback is clock-driven: timecode, captions and overlays run over still frames. Chrome, Edge and Safari play the H.264 proxy.</span>
         </div>
       </div>
     )

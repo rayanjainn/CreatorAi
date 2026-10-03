@@ -16,7 +16,9 @@ import { useEditor } from '@/stores/editor'
 export function ConflictDialog() {
   const conflict = useEditor((s) => s.conflict)
   const revision = useEditor((s) => s.revision)
+  // only computed while the dialog is up (the store updates 60 times a second during playback)
   const localChanges = useEditor((s) => {
+    if (!s.conflict) return 0
     const d = diffTimelines(s.serverTimeline, s.timeline)
     return d.items.size + d.globals.length
   })

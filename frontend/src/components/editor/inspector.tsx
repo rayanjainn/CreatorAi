@@ -143,7 +143,7 @@ function VideoPanel({ item }: { item: VideoItem }) {
   const asset = item.asset_id ? assets[item.asset_id] : undefined
   const limit = asset?.duration_sec ?? undefined
   const dur = durationOf(item)
-  const durations = useEditor((s) => assetDurations(s.assets))
+  const durations = useMemo(() => assetDurations(assets), [assets])
   const crop = Math.round(item.crop_x * 100)
   const pos = cropPositionX(item.crop_x, asset?.width, asset?.height, aspect)
   const tr = item.transition_in ?? { type: 'cut' as const, dur: 0 }
@@ -279,7 +279,7 @@ function AudioPanel({ item }: { item: AudioItem }) {
   const assets = useEditor((s) => s.assets)
   const ro = useReadOnly('audio')
   const asset = assets[item.asset_id]
-  const durations = useEditor((s) => assetDurations(s.assets))
+  const durations = useMemo(() => assetDurations(assets), [assets])
   const len = durationOf(item)
   return (
     <div className="insp-stack" data-testid="inspector-audio">
@@ -458,7 +458,7 @@ function ProjectPanel({ clip }: { clip?: Clip }) {
         </Button>
       </Section>
       <Section title="Format">
-        <Row label="Aspect">
+        <Row label="Aspect" stacked>
           <Segmented<'9:16' | '16:9'> label="Aspect ratio" value={timeline.aspect} onChange={(v) => apply((tl) => setAspect(tl, v), { note: `Aspect ${v}` })} options={[{ value: '9:16', label: '9:16 vertical' }, { value: '16:9', label: '16:9 wide' }]} />
         </Row>
         <small className="insp-hint-line">
@@ -466,7 +466,7 @@ function ProjectPanel({ clip }: { clip?: Clip }) {
         </small>
       </Section>
       <Section title="Captions">
-        <Row label="Style">
+        <Row label="Style" stacked>
           <Segmented<CaptionStyle> label="Caption style" value={timeline.caption_style} onChange={(v) => apply((tl) => setCaptionStyle(tl, v, { clearOverrides }), { note: `Caption style ${STYLE_LABEL[v]}` })} options={(Object.keys(STYLE_LABEL) as CaptionStyle[]).map((s) => ({ value: s, label: STYLE_LABEL[s] }))} />
         </Row>
         <label className="insp-check">
