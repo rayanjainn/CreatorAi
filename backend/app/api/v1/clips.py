@@ -23,6 +23,28 @@ def generate_clips(
     )
 
 
+@router.get("/clips", response_model=list[ClipOut])
+def list_all_clips(
+    ctx: CtxDep,
+    db: DbDep,
+    status: Annotated[str | None, Query(pattern="^(suggested|accepted|rejected)$")] = None,
+    kind: Annotated[str | None, Query(pattern="^(short|full)$")] = None,
+    content_item_id: str | None = None,
+    limit: Annotated[int, Query(ge=1, le=200)] = 200,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> list[dict[str, Any]]:
+    """Clips across every content item, best score first (feeds the Smart Clips hub)."""
+    return svc.list_all_clips(
+        db,
+        ctx.workspace_id,
+        status=status,
+        kind=kind,
+        content_item_id=content_item_id,
+        limit=limit,
+        offset=offset,
+    )
+
+
 @router.get("/content/{item_id}/clips", response_model=list[ClipOut])
 def list_clips(
     item_id: str,

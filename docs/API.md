@@ -282,6 +282,7 @@ Rules worth knowing:
 |---|---|
 | `POST /content/{id}/clips/generate` | `{asset_id?, count? (1-8, default 4), include_full_cut?}` -> `202 {job_id, asset_id}`. Source = `asset_id` or the longest ready video of the item. `409 ASSET_NOT_READY` |
 | `GET /content/{id}/clips?status=&kind=` | Clips ordered by LLM/score rank (full cuts last) |
+| `GET /clips?status=&kind=&content_item_id=&limit=&offset=` | Clips of **every** content item, best score first (`limit` 1-200, default 200). Feeds the cross-project Smart Clips hub; same `ClipOut` objects |
 | `GET /clips/{id}` / `PATCH /clips/{id}` | `PATCH {title?, hook?, caption?}`: edited fields become `user` |
 | `POST /clips/{id}/accept` / `reject` | Accept logs `clip_accepted` and emits the twin event `clip_accepted` `{clip_id, content_item_id}` after commit (once; idempotent). Reject logs `clip_rejected` |
 
@@ -356,6 +357,7 @@ Error codes added: `REVISION_CONFLICT` 409, `NO_CLIP_CANDIDATES` 409.
 |---|---|
 | `POST /clips/{id}/renders` | `{preset: yt_short|reels|tiktok|yt_long, caption_style?}` -> `202 {render, job_id}` (`render.status = "queued"`). `422 DURATION_EXCEEDS_PRESET` with `details {preset, max_duration, duration, over_by}`; `409 ASSET_NOT_READY` (a source file is missing or still processing); `422 VALIDATION_ERROR` (unknown preset, or a clip with no video) |
 | `GET /clips/{id}/renders` | Renders of one clip, newest first |
+| `GET /renders?status=&limit=&offset=` | Renders of **every** clip, newest first (`status` queued/rendering/done/failed; `limit` 1-200, default 200). Feeds the cross-project Repurpose hub |
 | `GET /content/{id}/renders` | Every render of every clip of the item, newest first: the **Renders** list of the export section |
 | `GET /renders/{id}` | One render with signed URLs once `done` |
 | `DELETE /renders/{id}` | `204`; removes the files. `409 CONFLICT` while queued/rendering (cancel `job_id` first) or when a publish job used it |

@@ -2953,12 +2953,12 @@
           }
         }
       },
-      "put": {
+      "post": {
         "tags": [
           "assets"
         ],
         "summary": "Attach an SRT, VTT or words.json transcript and re-run from transcription",
-        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_put",
+        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_post",
         "parameters": [
           {
             "name": "asset_id",
@@ -3010,12 +3010,12 @@
           }
         }
       },
-      "post": {
+      "put": {
         "tags": [
           "assets"
         ],
         "summary": "Attach an SRT, VTT or words.json transcript and re-run from transcription",
-        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_put",
+        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_post",
         "parameters": [
           {
             "name": "asset_id",
@@ -3491,6 +3491,117 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ClipsEnqueued"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clips": {
+      "get": {
+        "tags": [
+          "clips"
+        ],
+        "summary": "List All Clips",
+        "description": "Clips across every content item, best score first (feeds the Smart Clips hub).",
+        "operationId": "list_all_clips_api_v1_clips_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(suggested|accepted|rejected)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(short|full)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kind"
+            }
+          },
+          {
+            "name": "content_item_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Content Item Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 200,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClipOut"
+                  },
+                  "title": "Response List All Clips Api V1 Clips Get"
                 }
               }
             }
@@ -4159,6 +4270,84 @@
                     "$ref": "#/components/schemas/RenderOut"
                   },
                   "title": "Response List Clip Renders Api V1 Clips  Clip Id  Renders Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/renders": {
+      "get": {
+        "tags": [
+          "renders"
+        ],
+        "summary": "List Renders",
+        "description": "Every render of every clip, newest first (feeds the Repurpose hub).",
+        "operationId": "list_renders_api_v1_renders_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(queued|rendering|done|failed)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 200,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RenderOut"
+                  },
+                  "title": "Response List Renders Api V1 Renders Get"
                 }
               }
             }

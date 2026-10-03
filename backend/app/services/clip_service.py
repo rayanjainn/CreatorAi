@@ -745,6 +745,35 @@ def list_clips(
     return sorted(rows, key=lambda r: (r["kind"] == "full", r["rank"] or 99, -r["score"]))
 
 
+def list_all_clips(
+    db: Session,
+    workspace_id: str,
+    *,
+    status: str | None = None,
+    kind: str | None = None,
+    content_item_id: str | None = None,
+    limit: int = 200,
+    offset: int = 0,
+) -> list[dict[str, Any]]:
+    """Clips of every content item, best score first (the cross-project Smart Clips hub)."""
+    stmt = select(Clip).where(Clip.workspace_id == workspace_id)
+    if status:
+        stmt = stmt.where(Clip.status == status)
+    if kind:
+        stmt = stmt.where(Clip.kind == kind)
+    if content_item_id:
+        stmt = stmt.where(Clip.content_item_id == content_item_id)
+    clips = list(
+        db.execute(
+            stmt.order_by(Clip.score.desc(), Clip.created_at.desc(), Clip.id)
+            .limit(limit)
+            .offset(offset)
+        ).scalars()
+    )
+    edits = EditRepository(db).by_clips(workspace_id, [c.id for c in clips])
+    return [clip_out(db, workspace_id, c, edits.get(c.id)) for c in clips]
+
+
 def get_clip(db: Session, workspace_id: str, clip_id: str) -> dict[str, Any]:
     return clip_out(db, workspace_id, ClipRepository(db).require(workspace_id, clip_id))
 

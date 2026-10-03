@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Query, Response
 
 from app.deps import CtxDep, DbDep
 from app.schemas.renders import RenderEnqueued, RenderOut, RenderRequest
@@ -24,6 +24,18 @@ def create_render(clip_id: str, body: RenderRequest, ctx: CtxDep, db: DbDep) -> 
         db, ctx.workspace_id, clip_id, body.preset, body.caption_style
     )
     return {"render": svc.get_render(db, ctx.workspace_id, render.id), "job_id": job_id}
+
+
+@router.get("/renders", response_model=list[RenderOut])
+def list_renders(
+    ctx: CtxDep,
+    db: DbDep,
+    status: Annotated[str | None, Query(pattern="^(queued|rendering|done|failed)$")] = None,
+    limit: Annotated[int, Query(ge=1, le=200)] = 200,
+    offset: Annotated[int, Query(ge=0)] = 0,
+) -> list[dict[str, Any]]:
+    """Every render of every clip, newest first (feeds the Repurpose hub)."""
+    return svc.list_all(db, ctx.workspace_id, status=status, limit=limit, offset=offset)
 
 
 @router.get("/clips/{clip_id}/renders", response_model=list[RenderOut])
