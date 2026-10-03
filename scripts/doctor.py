@@ -178,18 +178,22 @@ def check_libass(ffmpeg: str) -> None:
         ok("ffmpeg has libass (burned-in captions will render)")
         return
     err = (proc.stderr or "").strip().splitlines()
-    detail = err[-1] if err else "no error output"
+    detail = "\n    ".join(err[:6]) if err else "no error output"
     others = [
         str(Path(d, "ffmpeg"))
         for d in os.environ.get("PATH", "").split(os.pathsep)
         if d and Path(d, "ffmpeg").exists() and str(Path(d, "ffmpeg")) != ffmpeg
     ]
     hint = (
-        f"  ffmpeg said: {detail}\n"
+        f"  ffmpeg said:\n    {detail}\n"
         f"  binary tested: {ffmpeg}\n"
-        "  Fix: use a build with libass (macOS: `brew install ffmpeg`, first on\n"
-        "  PATH; Ubuntu/Debian: `sudo apt install ffmpeg`; static: a full/GPL build), or point\n"
-        "  FFMPEG_BIN / FFPROBE_BIN at one.\n"
+        "  Fix (macOS): the default Homebrew `ffmpeg` may be a slim build. Try\n"
+        "      brew install ffmpeg-full      (keg-only; see its bin/ dir)\n"
+        "    then put in .env:\n"
+        "      FFMPEG_BIN=/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg\n"
+        "      FFPROBE_BIN=/opt/homebrew/opt/ffmpeg-full/bin/ffprobe\n"
+        "    Verify with: <that ffmpeg> -hide_banner -filters | grep subtitles\n"
+        "  Fix (Ubuntu/Debian): sudo apt install ffmpeg.  Static builds: use a full/GPL build.\n"
         "  Everything except caption burn-in on EXPORT works without it, so setup continues."
     )
     if others:
@@ -200,10 +204,24 @@ def check_libass(ffmpeg: str) -> None:
     )
 
 
+def env_setting(name: str, default: str) -> str:
+    """Value from the shell, else from ``.env`` (the backend reads ``.env``), else the default."""
+    if os.environ.get(name):
+        return os.environ[name]
+    env_file = ROOT / ".env"
+    if env_file.exists():
+        for line in env_file.read_text(encoding="utf-8").splitlines():
+            key, sep, value = line.partition("=")
+            value = value.split(" #")[0].strip().strip("\"'")
+            if sep and key.strip() == name and value:
+                return value
+    return default
+
+
 def check_ffmpeg() -> None:
     ffmpeg, ffprobe = (
-        shutil.which(os.environ.get("FFMPEG_BIN", "ffmpeg")),
-        shutil.which(os.environ.get("FFPROBE_BIN", "ffprobe")),
+        shutil.which(env_setting("FFMPEG_BIN", "ffmpeg")),
+        shutil.which(env_setting("FFPROBE_BIN", "ffprobe")),
     )
     if not ffmpeg or not ffprobe:
         fail(
