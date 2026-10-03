@@ -52,6 +52,7 @@ export type Health = {
       match_weak: number
     }
     ffmpeg: { present: boolean; version: string | null }
+    captions?: { renderer: 'libass' | 'pillow'; libass: boolean }
     youtube: { configured: boolean }
   }
 }

@@ -9,6 +9,7 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from PIL import Image, ImageChops
 
 from app.config import get_settings
 from app.db import session_scope
@@ -308,3 +309,131 @@ def test_ffmpeg_run_can_be_canceled() -> None:
             should_cancel=lambda: time.monotonic() - started > 0.6,
         )
     assert time.monotonic() - started < 10
+
+
+# ── captions without libass: the Pillow renderer, burned in for real ─────────────────────────
+def frame_at(video: Path, t: float, dest: Path) -> Image.Image:
+    subprocess.run(
+        [get_settings().ffmpeg_bin, "-v", "error", "-y", "-ss", f"{t}", "-i", str(video),
+         "-frames:v", "1", str(dest)],
+        check=True,
+    )  # fmt: skip
+    return Image.open(dest).convert("RGB")
+
+
+def changed_box(a: Image.Image, b: Image.Image, threshold: int = 70) -> tuple[int, ...] | None:
+    """Bounding box of pixels that differ clearly between two frames (None when identical)."""
+    diff = ImageChops.difference(a, b).convert("L").point(lambda v: 255 if v > threshold else 0)
+    return diff.getbbox()
+
+
+def caption_timeline(asset_id: str, aspect: str, style: str, captions: bool) -> Timeline:
+    tl = Timeline.empty(aspect, style)  # type: ignore[arg-type]
+    tl.tracks.video = [v(1, 1.0, 4.5, 0.0, asset_id)]
+    tl.duration = 3.5
+    if captions:
+        tl.tracks.captions = [
+            cap(1, 0.4, 1.8, "burned in captions work"),
+            cap(2, 2.2, 3.2, "without libass"),
+        ]
+    return tl
+
+
+@pytest.fixture
+def no_libass(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Simulate an ffmpeg without the subtitles filter (Homebrew's ffmpeg 9): auto -> pillow."""
+    from app.media import caption_support
+
+    monkeypatch.setattr(caption_support, "libass_available", lambda: False)
+    monkeypatch.setattr(get_settings(), "caption_renderer", "auto")
+
+
+def render_path(
+    client: TestClient, auth: Hdr, clip: dict[str, str], tl: Timeline, preset: str, data_dir: Path
+) -> Path:
+    put_timeline(client, auth, clip["clip"], tl)
+    created = request_render(client, auth, clip["clip"], preset, caption_style=tl.caption_style)
+    done = client.get(f"{V1}/renders/{created['render']['id']}", headers=auth).json()
+    assert done["status"] == "done", done
+    return data_dir / f"renders/{done['id']}.mp4"
+
+
+@pytest.mark.parametrize(
+    ("preset", "aspect", "style", "size", "region"),
+    [
+        ("tiktok", "9:16", "karaoke", (1080, 1920), (0, 1250, 1080, 1560)),
+        ("yt_short", "9:16", "bold_center", (1080, 1920), (0, 760, 1080, 1160)),
+        ("yt_long", "16:9", "minimal_bottom", (1920, 1080), (0, 880, 1920, 1080)),
+    ],
+)
+def test_pillow_captions_are_burned_into_a_real_export(
+    client: TestClient, auth: Hdr, clip: dict[str, str], data_dir: Path, tmp_path: Path,
+    no_libass: None, preset: str, aspect: str, style: str, size: tuple[int, int],
+    region: tuple[int, int, int, int],
+) -> None:  # fmt: skip
+    from app.media.render_graph import resolve_caption_renderer
+
+    assert resolve_caption_renderer() == "pillow"  # no libass here, so auto picks pillow
+    plain = render_path(client, auth, clip, caption_timeline(clip["asset"], aspect, style, False), preset, data_dir)  # fmt: skip
+    capped = render_path(client, auth, clip, caption_timeline(clip["asset"], aspect, style, True), preset, data_dir)  # fmt: skip
+    probed = ffprobe(capped)
+    video = next(s for s in probed["streams"] if s["codec_type"] == "video")
+    assert (video["width"], video["height"]) == size
+    assert any(s["codec_type"] == "audio" for s in probed["streams"])
+    assert float(probed["format"]["duration"]) == pytest.approx(3.5, abs=0.2)
+
+    # inside a caption: pixels differ from the caption-free export, only in the caption zone
+    with_cap = frame_at(capped, 1.0, tmp_path / "cap.png")
+    without = frame_at(plain, 1.0, tmp_path / "plain.png")
+    box = changed_box(with_cap, without)
+    assert box is not None, "no caption pixels found in the exported frame"
+    assert box[0] >= region[0] and box[2] <= region[2], box
+    assert box[1] >= region[1] and box[3] <= region[3], box
+    # between captions (t=2.0) the two exports show the same picture
+    gap_cap = frame_at(capped, 2.0, tmp_path / "gap_cap.png")
+    gap_plain = frame_at(plain, 2.0, tmp_path / "gap_plain.png")
+    assert changed_box(gap_cap, gap_plain) is None
+    # the second caption appears later with different pixels
+    second = frame_at(capped, 2.7, tmp_path / "second.png")
+    assert changed_box(second, frame_at(plain, 2.7, tmp_path / "p2.png")) is not None
+    assert changed_box(with_cap, second) is not None
+
+
+def test_karaoke_highlight_moves_between_word_windows_in_the_export(
+    client: TestClient, auth: Hdr, clip: dict[str, str], data_dir: Path, tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:  # fmt: skip
+    monkeypatch.setattr(get_settings(), "caption_renderer", "pillow")  # explicit setting
+    tl = caption_timeline(clip["asset"], "9:16", "karaoke", False)
+    tl.tracks.captions = [cap(1, 0.4, 3.2, "one two three four")]  # 0.7 s per word
+    path = render_path(client, auth, clip, tl, "tiktok", data_dir)
+
+    def yellow_columns(t: float) -> tuple[int, int]:
+        px = frame_at(path, t, tmp_path / f"k{t}.png").load()
+        assert px is not None
+        xs = [
+            x for x in range(0, 1080, 2) for y in range(1450, 1530, 4)
+            if px[x, y][0] > 235 and px[x, y][1] > 235 and px[x, y][2] < 90
+        ]  # fmt: skip
+        return (min(xs), max(xs)) if xs else (-1, -1)
+
+    first, third = yellow_columns(0.7), yellow_columns(2.1)
+    assert first[0] >= 0 and third[0] >= 0 and first != third  # a different word is yellow
+
+
+def test_forced_libass_setting_is_honoured(
+    client: TestClient, auth: Hdr, clip: dict[str, str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from app.media import caption_support
+
+    if not caption_support.libass_available():
+        pytest.skip("ffmpeg here has no libass")
+    monkeypatch.setattr(get_settings(), "caption_renderer", "libass")
+    assert caption_support.resolve_caption_renderer() == "libass"
+    health = client.get(f"{V1}/health").json()["features"]["captions"]
+    assert health == {"renderer": "libass", "libass": True}
+
+
+def test_health_reports_the_caption_renderer(client: TestClient, no_libass: None) -> None:
+    features = client.get(f"{V1}/health").json()["features"]
+    assert features["captions"] == {"renderer": "pillow", "libass": False}

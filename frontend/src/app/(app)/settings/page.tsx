@@ -237,6 +237,19 @@ function PipelineCard() {
             />
             <Row ok title="Transcription (ASR)" detail={`Sidecar transcripts always. Groq Whisper: ${f.asr.groq ? 'on' : 'off'}. Local faster-whisper: ${f.asr.faster_whisper ? 'installed' : 'missing'}.`} />
             <Row ok={f.ffmpeg.present} title="ffmpeg" detail={f.ffmpeg.present ? (f.ffmpeg.version ?? 'installed') : 'Not found. Install ffmpeg to process and render video.'} />
+            {f.ffmpeg.present && f.captions && (
+              <Row
+                ok
+                title="Caption burn-in"
+                detail={
+                  f.captions.renderer === 'libass'
+                    ? 'libass (ffmpeg subtitles filter)'
+                    : f.captions.libass
+                      ? 'Built-in renderer (forced by CAPTION_RENDERER)'
+                      : 'Built-in renderer (this ffmpeg has no libass; works everywhere, libass is slightly crisper)'
+                }
+              />
+            )}
           </>
         ) : null}
       </div>
