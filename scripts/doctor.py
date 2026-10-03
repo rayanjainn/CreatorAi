@@ -17,6 +17,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import tempfile
 import urllib.request
 from pathlib import Path
 
@@ -133,6 +134,72 @@ def check_node() -> None:
         )
 
 
+def check_libass(ffmpeg: str) -> None:
+    """Burned-in captions need the ``subtitles`` filter (libass). Only exports depend on it, so a
+    miss is a warning: ingest, search, the board and the editor all work without it.
+
+    Probes by really running the filter instead of grepping ``-filters`` (listing formats vary).
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        Path(tmp, "t.ass").write_text(
+            "[Script Info]\nScriptType: v4.00+\nPlayResX: 64\nPlayResY: 64\n\n"
+            "[V4+ Styles]\nFormat: Name, Fontname, Fontsize, PrimaryColour\n"
+            "Style: Default,Arial,12,&H00FFFFFF\n\n"
+            "[Events]\nFormat: Layer, Start, End, Style, Text\n"
+            "Dialogue: 0,0:00:00.00,0:00:01.00,Default,hi\n",
+            encoding="utf-8",
+        )
+        try:
+            proc = subprocess.run(
+                [
+                    ffmpeg,
+                    "-hide_banner",
+                    "-loglevel",
+                    "error",
+                    "-f",
+                    "lavfi",
+                    "-i",
+                    "color=c=black:s=64x64:d=0.2",
+                    "-vf",
+                    "subtitles=t.ass",
+                    "-f",
+                    "null",
+                    "-",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=30,
+                cwd=tmp,
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            warn(f"could not test ffmpeg's subtitles filter ({exc})")
+            return
+    if proc.returncode == 0:
+        ok("ffmpeg has libass (burned-in captions will render)")
+        return
+    err = (proc.stderr or "").strip().splitlines()
+    detail = err[-1] if err else "no error output"
+    others = [
+        str(Path(d, "ffmpeg"))
+        for d in os.environ.get("PATH", "").split(os.pathsep)
+        if d and Path(d, "ffmpeg").exists() and str(Path(d, "ffmpeg")) != ffmpeg
+    ]
+    hint = (
+        f"  ffmpeg said: {detail}\n"
+        f"  binary tested: {ffmpeg}\n"
+        "  Fix: use a build with libass (macOS: `brew install ffmpeg`, first on\n"
+        "  PATH; Ubuntu/Debian: `sudo apt install ffmpeg`; static: a full/GPL build), or point\n"
+        "  FFMPEG_BIN / FFPROBE_BIN at one.\n"
+        "  Everything except caption burn-in on EXPORT works without it, so setup continues."
+    )
+    if others:
+        hint += "\n  Other ffmpeg binaries on PATH: " + ", ".join(others)
+    warn(
+        "ffmpeg cannot run the `subtitles` filter (no libass): exports with captions will fail",
+        hint,
+    )
+
+
 def check_ffmpeg() -> None:
     ffmpeg, ffprobe = (
         shutil.which(os.environ.get("FFMPEG_BIN", "ffmpeg")),
@@ -145,17 +212,8 @@ def check_ffmpeg() -> None:
         )
         return
     first = run([ffmpeg, "-version"]).splitlines()[0:1]
-    ok(first[0] if first else "ffmpeg found")
-    filters = run([ffmpeg, "-hide_banner", "-filters"])
-    if re.search(r"\bsubtitles\b", filters):
-        ok("ffmpeg has libass (burned-in captions will render)")
-    else:
-        fail(
-            "ffmpeg was built WITHOUT libass (no `subtitles` filter): captions cannot be burned in",
-            "  macOS:          brew reinstall ffmpeg   (the default formula includes libass)\n"
-            "  Ubuntu/Debian: sudo apt install ffmpeg  (the distro build includes libass)\n"
-            "  static builds: use a full/GPL build (e.g. johnvansickle.com or BtbN)",
-        )
+    ok(f"{first[0] if first else 'ffmpeg found'}  [{ffmpeg}]")
+    check_libass(ffmpeg)
     if "libx264" in run([ffmpeg, "-hide_banner", "-encoders"]):
         ok("ffmpeg has libx264 (H.264 proxies and renders)")
     else:

@@ -14,7 +14,7 @@ help: ## Show this help
 	@echo "  First time:  make setup && make seed && make dev   (then open http://localhost:3000)"
 	@echo "  Ports:       make dev API_PORT=8010 WEB_PORT=3010   (CORS is adjusted automatically)"
 
-doctor: ## Check prerequisites (Python 3.11+, Node 20+, ffmpeg with libass, ports, network)
+doctor: ## Check prerequisites (Python 3.11+, Node 20+, ffmpeg (libass optional), ports, network)
 	@$(PYTHON) scripts/doctor.py
 
 setup: ## One-time (re-runnable): doctor, venv, deps, .env, migrations, model download

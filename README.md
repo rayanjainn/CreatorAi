@@ -45,7 +45,7 @@ a match report and two clips. A 5 to 7 minute tour is in [docs/DEMO_GUIDE.md](do
 | Ubuntu / Debian | `sudo apt update && sudo apt install -y python3 python3-venv ffmpeg git make` and Node 22: `curl -fsSL https://deb.nodesource.com/setup_22.x \| sudo -E bash - && sudo apt install -y nodejs` (Ubuntu 24.04 and Debian 12/13 ship Python 3.11+. Ubuntu 22.04 ships 3.10: `sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt install python3.12 python3.12-venv`, then `make setup PYTHON=python3.12`) |
 | Windows | Use **WSL2**: `wsl --install` in an admin PowerShell, open the Ubuntu shell, clone the repo **inside the Linux filesystem** (`~/...`, not `/mnt/c`), then follow the Ubuntu line. Native Windows is not supported (the Makefile needs bash). Open the app in your Windows browser at `http://localhost:3000` |
 
-FFmpeg from Homebrew and from the Debian/Ubuntu archives includes libass and libx264. Minimal static builds may not.
+FFmpeg from Homebrew and from the Debian/Ubuntu archives normally includes libass and libx264. Without libass only caption burn-in on export fails; `make doctor` warns and setup continues. If it warns although you installed the full build, check that the binary it prints (`[/path/to/ffmpeg]`) is the one you expect, or set `FFMPEG_BIN` / `FFPROBE_BIN` in `.env`.
 
 ## AI keys
 
