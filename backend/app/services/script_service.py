@@ -590,7 +590,16 @@ def update_script(
     if patch.get("scenes") is not None:
         old = list(script.scenes or [])
         intents = {b["text"]: b.get("intent", "") for s in old for b in s.get("beats") or []}
-        new = normalize_scenes(patch["scenes"], intents)
+        by_old_text = {s["text"]: s for s in old}
+        raw_scenes = []
+        for pos, raw in enumerate(patch["scenes"]):
+            prior = by_old_text.get(_clean(raw.get("text", ""))) or (
+                old[pos] if pos < len(old) and old[pos]["title"] == raw.get("title") else None
+            )
+            if prior is not None and not raw.get("intent"):
+                raw = {**raw, "intent": prior.get("intent", "")}
+            raw_scenes.append(raw)
+        new = normalize_scenes(raw_scenes, intents)
         by_text = {s["text"]: s for s in old}
         new_flags: list[int] = []
         new_prov: dict[str, Any] = {}

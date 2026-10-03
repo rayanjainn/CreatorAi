@@ -21,8 +21,8 @@ def test_every_model_table_exists() -> None:
 def test_migrate_is_idempotent_and_tracked() -> None:
     assert migrate() == []
     with session_scope() as db:
-        names = db.execute(text("select name from schema_migrations order by name")).scalars()
-        assert list(names)[0] == "001_init.sql"
+        names = db.execute(text("select name from schema_migrations order by name")).scalars().all()
+        assert names[0] == "001_init.sql"
 
 
 def test_fresh_database_applies_in_order(tmp_path: Path) -> None:
