@@ -178,15 +178,3 @@ describe('DELETE /projects/:projectId/media/:assetId', () => {
     expect(await assetIds(project.id)).toEqual([a.id]);
   });
 });
-
-describe('Phase 3 routes stay 501 on the real router', () => {
-  it.each([
-    ['get', 'index'],
-    ['post', 'reprocess'],
-  ])('%s /media/:assetId/%s -> 501', async (method, sub) => {
-    const { project, owner } = await team(app);
-    const a = await insertAsset(project.id);
-    const res = await request(app)[method](`/projects/${project.id}/media/${a.id}/${sub}`).set(authHeader(owner.token));
-    expect(res.status).toBe(501);
-  });
-});

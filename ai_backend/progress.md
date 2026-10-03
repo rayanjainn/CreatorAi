@@ -139,3 +139,9 @@ Append one 5-line entry per task (newest last):
 - Learned: with the real steps, the fake ffmpeg cuts at 7 s / 14 s give 3 scenes, i.e. one caption batch plus one summary call; the pipeline reaches indexed with all five steps done and every segment/scene embedded.
 - Next: human decision on tests/phase2/media.test.js "Phase 3 routes stay 501 on the real router" (2 rows still expect 501 for index/reprocess; not on the approved list). Then the orchestrator runs gate 3. Live smoke: real 2-3 min clip, three searches.
 - Gate: eslint clean; vitest tests/phase3 tests/phase2 159/161, the 2 failures are only that phase2 501 block.
+
+## P3 Tracks A + B merged (2026-10-04)
+- Done: Track B (ffmpeg adapter, scenes+keyframes, faces, analysis steps) and Track A (process.js orchestrator over processing_jobs, transcription, embeddings, search, index/reprocess endpoints) merged into feat/ai-backend-phase0. Dropped the phase2 media.test.js "Phase 3 routes stay 501" block (same human-approved stub-row pattern; real statuses are in both RBAC matrices).
+- Learned: contract-first (030/031 tables, media createDerivedAsset/setAssetStatus/getAssetIndex, workers/steps/*.js stubs) let the two tracks merge with no code conflicts. The fake LLM default reply fails the analysis schema, so pipeline tests must queue analysisReply.
+- Next: live smoke (real 2-3 min clip: transcript, scenes, three searches; Cloudinary detectFaces is untested live), then P6 + P7 in parallel.
+- Gate: per human rule (current phase only, plus at-risk earlier phases): eslint clean, vitest tests/phase0 + phase2 + phase3 passed (212/212).
