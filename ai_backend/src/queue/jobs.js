@@ -34,6 +34,8 @@ export const PAYLOADS = {
   [JOBS.MEDIA_EMBEDDINGS]: StepPayload(),
   // P4: run one queued agent_runs row (the run row carries the agent name and input).
   [JOBS.AGENT_RUN]: z.object({ runId: z.uuid() }).strict(),
+  // P7: run one queued renders row (the row pins the timeline version and kind).
+  [JOBS.RENDER_RUN]: z.object({ renderId: z.uuid() }).strict(),
 };
 
 export function parsePayload(name, data) {
