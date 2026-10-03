@@ -24,7 +24,16 @@ export const Resource = z.object({
   height: z.number().int().positive().optional(),
 });
 
-export const DestroyInput = z.object({ resourceType: ResourceType.default('video') });
+// detectFaces(publicId) -> face boxes in pixels of the image.
+export const FaceBox = z.object({
+  x: z.number().int().nonnegative(),
+  y: z.number().int().nonnegative(),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+});
+export const FaceBoxes = z.array(FaceBox);
+
+export const DestroyInput =z.object({ resourceType: ResourceType.default('video') });
 export const DestroyOutput = z.object({ result: z.enum(['ok', 'not found']) });
 
 // ---- helpers shared by real.js and fake.js, so both sign and verify the same way ----

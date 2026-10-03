@@ -2,6 +2,7 @@
 // destroyed records every destroy() call; reset() clears both.
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { hash32 } from '../pick.js';
 import { notificationSignature, signParams, verifyNotificationWith } from './contract.js';
 
 const BASE = 'https://res.fake-cloudinary.test/demo';
@@ -15,6 +16,7 @@ export function reset() {
   resources.clear();
   destroyed.length = 0;
   nextDestroyError = null;
+  faces.clear();
 }
 
 export function putResource({ publicId, resourceType = 'video', format = 'mp4', bytes = 1_000_000, ...rest }) {
@@ -74,6 +76,23 @@ export async function destroy(publicId, _options = {}) {
   }
   destroyed.push(publicId);
   return { result: resources.delete(publicId) ? 'ok' : 'not found' };
+}
+
+// Face detection on an image. setFaces(publicId, boxes | Error) pins the reply (an Error
+// is thrown); otherwise one box derived from the public id (deterministic).
+const faces = new Map();
+export function setFaces(publicId, boxes) {
+  faces.set(publicId, boxes);
+}
+
+export async function detectFaces(publicId) {
+  if (faces.has(publicId)) {
+    const reply = faces.get(publicId);
+    if (reply instanceof Error) throw reply;
+    return reply.map((b) => ({ ...b }));
+  }
+  const h = hash32(publicId);
+  return [{ x: h % 400, y: (h >>> 9) % 200, width: 60 + (h % 80), height: 60 + ((h >>> 7) % 80) }];
 }
 
 export function signNotification(body, timestamp) {

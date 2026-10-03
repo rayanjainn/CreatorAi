@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { getEnv } from '../../config/env.js';
-import { DestroyInput, Resource, signParams, verifyNotificationWith } from './contract.js';
+import { DestroyInput, FaceBoxes, Resource, signParams, verifyNotificationWith } from './contract.js';
 
 const API = 'https://api.cloudinary.com/v1_1';
 const DELIVERY = 'https://res.cloudinary.com';
@@ -116,6 +116,33 @@ export async function destroy(publicId, options = {}) {
   if (!res.ok) throw await failure(res, 'destroy');
   const { result } = await res.json();
   return { result: result === 'ok' ? 'ok' : 'not found' };
+}
+
+// Face detection on an uploaded image: signed explicit call with faces=true, whose
+// response carries `faces: [[x, y, width, height], ...]` in pixels. -> FaceBoxes
+export async function detectFaces(publicId) {
+  const { cloudName, apiKey, apiSecret } = creds();
+  const params = { faces: 'true', public_id: publicId, timestamp: nowS(), type: 'upload' };
+  const body = new URLSearchParams({
+    ...Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)])),
+    api_key: apiKey,
+    signature: signParams(params, apiSecret),
+  });
+  const res = await fetch(`${API}/${cloudName}/image/explicit`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body: body.toString(),
+  });
+  if (!res.ok) throw await failure(res, 'detectFaces');
+  const { faces } = await res.json();
+  return FaceBoxes.parse(
+    (Array.isArray(faces) ? faces : []).map(([x, y, width, height]) => ({
+      x: Math.round(x),
+      y: Math.round(y),
+      width: Math.round(width),
+      height: Math.round(height),
+    })),
+  );
 }
 
 export function verifyNotification(input) {
