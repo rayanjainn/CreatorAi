@@ -10,6 +10,7 @@ npm run dev | build | start   # web only; API base URL = NEXT_PUBLIC_API_URL (de
 npm run typecheck             # next typegen && tsc --noEmit
 npm run lint                  # eslint (next core-web-vitals + typescript)
 npm run gen:api               # regenerate src/lib/api/schema.d.ts from openapi.json (use `make gen-api` from the root)
+npm run test:unit             # vitest: timeline ops (golden + randomized), captions, playback engine, history, merge
 npm run e2e                   # Playwright against an already running stack (E2E_WEB_URL / E2E_API_URL)
 make e2e                      # (root) throwaway DATA_DIR + seed + API :8100 + built web :3100 + the suite
 ```
@@ -112,3 +113,28 @@ asserts the MOCK banner and badges). `UPLOAD_CHUNK_SIZE=65536` is set so the upl
 
 Token in `localStorage` (`creatorai.token`), `AuthProvider` + `useAuth()`. `RequireAuth` rules: anonymous -> `/login?next=`,
 signed in but not onboarded -> `/onboarding`, onboarded visiting `/onboarding` -> `/dashboard` (unless `?redo=1`). Any 401 signs out.
+
+## Clip editor (`/editor/[clipId]`)
+
+Full-bleed workspace (the shell hides sidebar/topbar for `/editor/*`): header (back, editable title, Edit/Preview, save status,
+undo/redo, revision menu, Accept all, stale-render hint, shortcuts, Export), left **Agent & history** panel, centre **monitor**,
+right **inspector** (Selection / Project tabs) and the bottom **timeline** with its tool column. Below 1024 px it shows an
+"open on a larger screen" notice, a read-only summary and Export. Only Edit and Preview exist as modes (Audio/Color/Structure have no backend).
+
+Architecture
+- `src/lib/timeline/*`: pure, DOM-free mirror of `backend/app/services/timeline_service.py` (`ops`, `validate`, `captions`, `merge`,
+  `history`, `playback`, `edit` = editor-only moves/resizes/adds). `golden.json` is generated from the real Python service
+  (`python backend/scripts/dump_timeline_golden.py`; a backend test fails when it is stale) and replayed by vitest together with
+  150 seeded randomized op sequences that re-check every invariant.
+- `src/stores/editor.ts` (Zustand): timeline, base revision, server copy (merge base), selection, playhead, zoom, tool, locks/mutes,
+  undo/redo with coalescing (drags = one step), dirty/version, save status, conflict, revision preview.
+- `src/lib/editor/controller.ts`: debounced autosave (`PUT /edit` with `base_revision`), server ops (`tighten_pauses`, `rebuild_captions`
+  fallback), revisions (preview/restore), `REVISION_CONFLICT` handling: reload, safe three-way merge (only when edits touch different
+  layers and neither re-cut the video) or explicit overwrite (their revision stays in history).
+- `src/lib/editor/engine.ts`: playback engine. The clock is the master, two `<video>` slots pre-buffer/swap at cuts (gapless; a split keeps
+  one element), audio layers use HTMLAudio (preview caps at 0 dB), crop_x becomes `object-position`. Decode errors/stalls fall back to
+  clock-only playback and the monitor says so. Unit-tested with fake media elements.
+- Accept/Reject/Restore set `status` (`accepted`/`rejected`), which the server logs as `layer_accepted`/`layer_rejected` (checked in e2e via `/activity`).
+
+Shortcuts: Space/K play, arrows frame (Shift = 1 s), J/L +-1 s, Home/End, V select, T trim, S split, `[` `]` trim to playhead, Delete,
+Ctrl/Cmd+Z / Shift+Z / Y, Ctrl+S, +/- zoom (Ctrl+wheel), N snapping, Esc, `?` help.

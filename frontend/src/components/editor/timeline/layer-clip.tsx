@@ -68,7 +68,7 @@ export const LayerClip = memo(function LayerClip({
         <Icon size={11} aria-hidden />
         <span className="tl-layer-label">{label}</span>
         {isAudio(item) && width > 110 && <span className="tl-chip mono">{item.gain_db > 0 ? '+' : ''}{item.gain_db} dB</span>}
-        {width > 70 && <LayerBadge source={item.source} status={item.status} reason={item.reason} compact />}
+        {width > 96 && <LayerBadge source={item.source} status={item.status} reason={item.reason} compact />}
       </div>
       {!locked && (
         <>
