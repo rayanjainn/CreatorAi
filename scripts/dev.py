@@ -9,6 +9,7 @@ from __future__ import annotations
 import contextlib
 import os
 import signal
+import socket
 import subprocess
 import sys
 import threading
@@ -29,6 +30,27 @@ def backend_python() -> str:
     """The backend virtualenv's interpreter if `make setup` created one, else the current one."""
     candidate = BACKEND / ".venv" / ("Scripts/python.exe" if IS_WINDOWS else "bin/python")
     return str(candidate) if candidate.exists() else sys.executable
+
+
+def port_in_use(port: str) -> bool:
+    with socket.socket() as sock:
+        sock.settimeout(0.5)
+        return sock.connect_ex(("127.0.0.1", int(port))) == 0
+
+
+def preflight() -> str | None:
+    """Return a friendly reason why the stack cannot start, or None."""
+    if not (BACKEND / ".venv").exists():
+        return "backend/.venv is missing. Run `make setup` first."
+    if (FRONTEND / "package.json").exists() and not (FRONTEND / "node_modules").exists():
+        return "frontend/node_modules is missing. Run `make setup` first."
+    for name, var, port in (("API", "API_PORT", API_PORT), ("web", "WEB_PORT", WEB_PORT)):
+        if port_in_use(port):
+            return (
+                f"Port {port} ({name}) is already in use. Stop the other process or choose "
+                f"another port: make dev {var}={int(port) + 1}"
+            )
+    return None
 
 
 def pump(name: str, proc: subprocess.Popen[str]) -> None:
@@ -74,8 +96,23 @@ def stop(proc: subprocess.Popen[str]) -> None:
                 os.killpg(proc.pid, signal.SIGKILL)
 
 
+def _raise_interrupt(signum: int, frame: object) -> None:
+    raise KeyboardInterrupt
+
+
 def main() -> int:
+    problem = preflight()
+    if problem:
+        print(f"[dev] {problem}", file=sys.stderr)
+        return 1
     env = {**os.environ, "PYTHONUNBUFFERED": "1", "FORCE_COLOR": "0"}
+    if WEB_PORT != "3000":
+        # The browser origin must be allowed by the API: follow a non-default web port.
+        env.setdefault("CORS_ORIGINS", f"http://localhost:{WEB_PORT},http://127.0.0.1:{WEB_PORT}")
+        env.setdefault("FRONTEND_URL", f"http://localhost:{WEB_PORT}")
+    # `kill <pid>` / a closed terminal must stop the children too (they run in their own sessions).
+    signal.signal(signal.SIGTERM, _raise_interrupt)
+    signal.signal(signal.SIGINT, signal.default_int_handler)  # also when started in the background
     procs: dict[str, subprocess.Popen[str]] = {}
     api_cmd = [
         backend_python(), "-m", "uvicorn", "app.main:app",

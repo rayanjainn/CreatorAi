@@ -1,7 +1,8 @@
 """Model preloading (``make models``): download the embedder and optionally an ASR model.
 
-Downloads need internet on first use; everything is cached afterwards (Hugging Face cache), so the
-app works offline once these have run.
+Downloads need internet on first use. The embedder is cached under ``data/models/fastembed``
+(``FASTEMBED_CACHE_PATH`` overrides it) and Whisper in the Hugging Face cache, so the app works
+offline once these have run.
 """
 
 from __future__ import annotations
@@ -15,7 +16,7 @@ from app.config import Settings, get_settings
 def _fastembed_loader(model: str) -> Any:
     from fastembed import TextEmbedding
 
-    return TextEmbedding(model_name=model)
+    return TextEmbedding(model_name=model, cache_dir=str(get_settings().fastembed_cache_dir))
 
 
 def _whisper_downloader(name: str) -> str:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import os
 import secrets
 from functools import lru_cache
 from hashlib import sha256
@@ -174,6 +175,13 @@ class Settings(BaseSettings):
     @property
     def tmp_dir(self) -> Path:
         return self.data_dir / "tmp"
+
+    @property
+    def fastembed_cache_dir(self) -> Path:
+        """Where the ONNX embedding model lives (fastembed would default to the OS temp dir,
+        which is purged on reboot). ``FASTEMBED_CACHE_PATH`` overrides it."""
+        override = os.environ.get("FASTEMBED_CACHE_PATH")
+        return Path(override) if override else self.data_dir / "models" / "fastembed"
 
     @property
     def cors_origin_list(self) -> list[str]:

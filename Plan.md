@@ -2,6 +2,34 @@
 
 > **Local-first override:** infrastructure in this plan (Docker, Supabase/Postgres, Redis/RQ) is replaced by a zero-dependency local stack — see [`docs/LOCAL_FIRST.md`](docs/LOCAL_FIRST.md). Where they conflict, LOCAL_FIRST wins. §7.4 (token budget) is a planning estimate only and is intentionally not built. UI details live in [`docs/UI_SPEC.md`](docs/UI_SPEC.md).
 
+## Implementation status
+
+Snapshot of what exists in the repository (details: [docs/HANDOFF.md](docs/HANDOFF.md), open work: [docs/TODO.md](docs/TODO.md)).
+
+| Plan section | Status | Notes and docs |
+|---|---|---|
+| 1.1 Asset management, 8.1 `asset.process` | implemented | [ARCHITECTURE](docs/ARCHITECTURE.md#asset-ingest-pipeline), [API](docs/API.md#uploads-apiv1uploadspy) |
+| 1.2 Script and hook generation, 8.6 hook signals | implemented | [API](docs/API.md#scripts-apiv1scriptspy) |
+| 1.3 / 8.4 Semantic search | implemented | hashing fallback until `make models`; [RUNBOOK](docs/RUNBOOK.md#4-models) |
+| 1.4 / 8.5 Script-to-video matching | implemented | thresholds tuned on demo footage only ([TODO 2](docs/TODO.md)) |
+| 1.5 / 8.7 AI Director (plan, review) | implemented | review scores are deterministic |
+| 1.6 / 8.8 Smart clips | implemented | |
+| 1.7 / 6.1 Editable timeline (API + editor UI) | implemented | Edit and Preview modes; Audio/Color/Structure not built ([TODO 15](docs/TODO.md)) |
+| 1.8 / 8.9 Repurposing, render and export | implemented | presets `yt_short`, `reels`, `tiktok`, `yt_long` |
+| 1.9 / 8.11 Creative Digital Twin | not built | only the approval event registry (`twin_events`); tables, prompts and mock exist ([TODO 7](docs/TODO.md)) |
+| 1.10 / 8.10 Sponsorship and monetization | not built | tables, prompt and mock exist ([TODO 4](docs/TODO.md)) |
+| 1.11 Workflow board and jobs | implemented | publishing not built ([TODO 5](docs/TODO.md)) |
+| 1.11 YouTube OAuth and publish (`publish.upload`) | not built | [TODO 5](docs/TODO.md) |
+| 1.12 / 8.12 Creator intelligence | not built | synthetic demo analytics are seeded but unused ([TODO 6](docs/TODO.md)) |
+| 3 Architecture (Docker, Redis, Supabase) | replaced | [LOCAL_FIRST](docs/LOCAL_FIRST.md): SQLite, in-process jobs, local auth |
+| 3.3 Job system, SSE | implemented | in-process runner; [ARCHITECTURE](docs/ARCHITECTURE.md#job-flow) |
+| 5 Database schema | implemented (SQLite dialect) | all tables migrated, including unused ones |
+| 6 JSON contracts | implemented for 6.1, 6.3, 6.4, 6.5, 6.6, 6.7, 6.10 | 6.2, 6.8, 6.9 (Twin, Insights) not built |
+| 7.1 to 7.3 LLM layer | implemented | Gemini, Groq, Ollama; real providers verified against recorded HTTP only |
+| 7.4 Token budget | intentionally not built | planning estimate only |
+| 8.2 Transcription | implemented | per-chunk checkpointing not built ([TODO 9](docs/TODO.md)) |
+| 4 Repository layout | implemented with edits | see LOCAL_FIRST; frontend lives in `frontend/` |
+
 > **How to use this file:** it is the map for coding. Schema, folder layout, API, JSON contracts, pipelines and thresholds here are the fixed reference. If code and plan disagree, fix the plan in the same commit.
 > External free-tier limits were checked in October 2026 and change often; items that must be re-checked on day 1 are listed in section 18.
 

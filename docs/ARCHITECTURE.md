@@ -36,13 +36,12 @@ CreatorAi runs as **two processes** on one machine: a FastAPI API on :8000 and t
 | `deps.py` | `DbDep`, `CtxDep` (`Ctx(user_id, workspace_id)`), `PageDep` |
 | `security.py` | scrypt passwords, HS256 JWT, signed media URLs, Fernet token crypto |
 | `api/v1/` | HTTP layer. `__init__.py` lists router modules; `media.py` is mounted at `/media` |
-| `services/` | Use-cases, plain Python (`accounts.py` today) |
 | `repositories/` | Workspace-scoped queries (`base.py` pattern) |
 | `workers/` | `runner.py` (pools, registry, `enqueue`), `pubsub.py`, `events.py`, `scheduler.py` |
 | `llm/` | `gateway.py`, `tasks.py` (routes), `schemas.py`, `prompts/*.md`, `providers/`, `ratelimit.py`, `cache.py`, `context.py` |
-| `ml/` | `embedder.py` (auto backend), `vectors.py` (pack/unpack/top-k), `asr/` (providers), `transcripts.py` (sidecars), `segments.py`, `shots.py`, `silence.py`, `energy.py` |
+| `ml/` | `embedder.py` (auto backend), `vectors.py` (pack/unpack/top-k), `models.py` (model preload), `asr/` (providers), `transcripts.py` (sidecars), `segments.py`, `shots.py`, `silence.py`, `energy.py`, `alignment.py` (matching DP), `scoring.py` (clip windows), `faces.py` (Haar reframing), `hooks.py`, `review_metrics.py` |
 | `media/` | `ffmpeg.py` (`run()` with progress + cancel, `probe()`), `audio.py` (extract, chunk planning), `frames.py` (proxy, thumb, keyframes), `kinds.py` (kind detection); render: `presets.py`, `captions_ass.py`, `cards.py`, `fonts.py`, `render_graph.py` |
-| `services/` | `assets.py`, `uploads.py`, `search_service.py`, `hooks.py`, `ingest/` (the `asset.process` stages) |
+| `services/` | Use-cases, plain Python, no FastAPI: `accounts.py`, `assets.py`, `uploads.py`, `search_service.py`, `hooks.py`, `ingest/` (the `asset.process` stages), plus the content, script, Director, match, clip, timeline, edit and render services described below |
 | `storage/` | `StorageBackend` interface and `LocalStorage` rooted at `DATA_DIR` |
 
 ## Request flow
@@ -237,6 +236,7 @@ faces are copied into the work dir's `fonts/`.
 data/
   creatorai.db            SQLite (+ -wal/-shm)
   .secret                 generated APP_SECRET (chmod 600)
+  models/fastembed/       embedding model cache (FASTEMBED_CACHE_PATH overrides)
   media/{workspace_id}/{asset_id}/original.<ext>, proxy.mp4, thumb.jpg, audio/full.mp3 (+chunk_NNN.mp3),
                                   keyframes/shot_NNN.jpg, transcript.json, sidecar.(words.json|srt|vtt)
   tmp/uploads/{workspace}/{upload}/NNNNNN.part   chunks of unfinished uploads

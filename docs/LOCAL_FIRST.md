@@ -53,16 +53,16 @@ add `backend/app/workers/runner.py` (thread pools), `backend/app/workers/pubsub.
 ```
 creatorai/
 ├── Makefile  .env.example  README.md  Plan.md
-├── docs/            LOCAL_FIRST.md  UI_SPEC.md  ARCHITECTURE.md  API.md  HANDOFF.md  RUNBOOK.md ...
-├── scripts/dev.py   # cross-platform "run everything" (used by make dev)
+├── docs/            README.md (index)  HANDOFF.md  RUNBOOK.md  TODO.md  DEMO_GUIDE.md  ARCHITECTURE.md  API.md ...
+├── scripts/         dev.py (run both servers), e2e.py, doctor.py
 ├── backend/         FastAPI + SQLite + workers (python 3.11+)
-├── frontend/        Next.js 14 App Router + Tailwind + TanStack Query + Zustand
+├── frontend/        Next.js 16 App Router + Tailwind + TanStack Query + Zustand
 └── data/            (git-ignored) creatorai.db, media/, renders/, tmp/
 ```
 
 ## Dev experience contract (every agent must keep this true)
 
-1. `make setup` – creates `backend/.venv`, installs backend deps, `npm ci` in frontend, copies `.env.example` → `.env`, runs migrations.
+1. `make setup` – checks prerequisites (`make doctor`), creates `backend/.venv`, installs backend deps, `npm ci` in frontend, copies `.env.example` → `.env`, runs migrations, downloads the embedding model (non-fatal offline). Safe to re-run.
 2. `make seed` – demo user `demo@creatorai.local` / `demo1234`, demo profile, board cards, seed YouTube videos + metrics, twin memories, a **hero project** with generated footage + sidecar transcript + script.
 3. `make dev` – API (reload) + web together; prints URLs. Ctrl-C stops both.
 4. `make test` – backend pytest + frontend typecheck/lint/tests.

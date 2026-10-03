@@ -24,6 +24,27 @@ sections below: endpoint table, then notes).
 - **Pagination**: list endpoints that need totals return `{items, total, limit, offset}` (`limit` 1-200,
   default 50; `offset` >= 0).
 
+## System: health, auth, profile, jobs, LLM (`health.py`, `auth.py`, `me.py`, `jobs.py`, `llm.py`)
+
+| Method and path | Purpose |
+|---|---|
+| `GET /health` | Public. `{status, version, time, python, auth_mode, signup_open, data_mode, features}`; `features` = `llm {data_mode, order, providers{name:{configured, healthy}}, mock}`, `asr {sidecar, groq, faster_whisper}`, `embedder {backend, real, provenance, model, dim, match_ok, match_weak}`, `ffmpeg {present, version}`, `youtube {configured}` |
+| `POST /auth/signup` | `{email, password (8-200 chars), display_name?}` -> `201 {access_token, token_type, user, workspace_id, workspace_name, profile}`. `403 SIGNUP_CLOSED` once a user exists (unless `AUTH_ALLOW_MULTI`); `409 EMAIL_TAKEN` |
+| `POST /auth/login` | `{email, password}` -> same body; `401 INVALID_CREDENTIALS` |
+| `GET /auth/me`, `GET /me` | `{user, workspace_id, workspace_name, profile}` |
+| `GET /profile`, `PUT /profile` | creator profile: `display_name, domain, audience, tone, language, platforms, style_profile`; PUT accepts any subset |
+| `POST /onboarding` | `{display_name, domain, audience?, tone?, language?, platforms?, channel_name?, caption_style?, preferred_aspect?, sample_scripts?}`; sets `onboarding_done` |
+| `GET /jobs` | filters `status`, `entity_type`, `entity_id`, `limit`, `offset`. Job: `{id, type, entity_type, entity_id, status queued|running|succeeded|failed|canceled, progress 0-100, stage, error, result, attempts, created_at, started_at, finished_at}` |
+| `GET /jobs/{id}` | one job |
+| `GET /jobs/{id}/events` | SSE: `event: progress` with `{job_id, type, status, progress, stage, message, result}` (the latest event is replayed first), `: keepalive` comments every 15 s, then `event: done`. Authenticate with `?access_token=` |
+| `POST /jobs/{id}/cancel` | `409 JOB_NOT_CANCELABLE` unless queued/running |
+| `POST /jobs/{id}/retry` | only failed jobs, else `409 JOB_NOT_RETRYABLE` |
+| `GET /llm/status` | `{providers{name:{configured, healthy, circuit_open_sec, usage_today{calls, cache_hits}}}, cache_hits_today, allow_mock, data_mode, provider_order, models, tasks}` |
+| `POST /llm/test` | one tiny real round trip per configured provider: `{data_mode, results{name:{configured, ok, latency_ms, model, error}}}`; errors are key-redacted |
+
+`data_mode` is `real` (a real provider is configured), `unconfigured` (none, mock off: AI endpoints answer
+`LLM_NOT_CONFIGURED`) or `mock` (`LLM_ALLOW_MOCK=true`).
+
 ## Uploads (`api/v1/uploads.py`)
 
 Resumable, chunked, idempotent. Chunks are stored in `data/tmp/uploads/<workspace>/<upload>/`; the
