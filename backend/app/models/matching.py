@@ -29,4 +29,5 @@ class BeatMatch(Base):
     score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     status: Mapped[str] = mapped_column(String, nullable=False)
     alternatives: Mapped[list[dict[str, Any]]] = mapped_column(JSON, nullable=False, default=list)
+    provenance: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     updated_at: Mapped[str] = updated_at_col()
