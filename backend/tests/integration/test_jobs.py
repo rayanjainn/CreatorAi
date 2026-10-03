@@ -297,3 +297,19 @@ def test_sse_live_updates_from_running_job(
 @pytest.mark.parametrize("queue", ["media", "llm", "io"])
 def test_named_pools_exist(queue: str) -> None:
     assert queue in get_runner()._pools
+
+
+def test_non_retryable_error_is_not_retried(workspace_id: str) -> None:
+    from app.errors import AppError
+
+    get_settings().job_max_retries = 2
+    calls: list[int] = []
+
+    def handler(ctx: JobContext) -> dict[str, object]:
+        calls.append(ctx.attempt)
+        raise AppError("ASR_UNAVAILABLE", "no asr", retryable=False)
+
+    register_job("twin.update", handler)
+    job_id = enqueue("twin.update", "workspace", None, {}, workspace_id=workspace_id)
+    assert get_job(job_id).status == "failed"
+    assert calls == [1]
