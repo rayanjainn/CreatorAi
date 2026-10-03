@@ -118,6 +118,36 @@ Search (`services/search_service.py`) caches per-workspace numpy matrices of seg
 (invalidated by `search_service.invalidate(ws)` on every write), fuses vector and FTS5 ranks with RRF
 (k = 60) and merges hits within 8 s. See `docs/API.md`.
 
+## Content workflow (board, scripts, Director)
+
+```
+idea ──► script ──► shoot ──► edit ──► review ──► published        (board columns, content_items.stage)
+ │         │          ▲
+ │         │          └─ approve: POST /scripts/{id}/approve  or  move to shoot  ──► twin_events.emit
+ │         └─ hooks (script.hooks) ► generate (script.generate) ► scene tools / PATCH ► meta (script.meta)
+ └─ Director plan (director.plan) ─ structure feeds script.generate; Director review (director.review) needs footage
+```
+
+* `services/content_service.py` owns ordering (`move_item` renumbers both columns 0..n-1 inside the request
+  transaction), stage rules, cascade delete and idea suggestions. `services/activity.py` appends
+  `activity_log` rows.
+* `services/script_service.py` owns versions (`scripts.is_current`, a partial unique index), the hook rule,
+  `script_beats` sync with embeddings, per-part provenance and the scene tools. Pure helpers
+  (`split_beats`, `normalize_scenes`, `ensure_hook`, `word_count_check`) are unit-tested.
+* `services/director_service.py` loads the domain template, post-processes plans (`fix_durations`,
+  `fit_shot_list`), exports CSV/Markdown and builds reviews. `ml/review_metrics.py` is the pure Plan 8.7
+  implementation; `ml/hooks.py` is Plan 8.6.
+* **LLM before writes**: every handler reads, calls the gateway, then writes, so the request transaction never
+  holds SQLite's writer lock while the gateway logs its own usage row.
+* **Twin approval events**: `services/twin_events.py` is a tiny registry. The workflow *emits*
+  `script_approved` (payload `{content_item_id, script_id, version, title}`) when an item moves to `shoot`; the
+  Twin feature *registers* a listener (`twin_events.register("script_approved", fn)`, signature
+  `fn(event, workspace_id, payload)`). Delivery happens **after the request's commit** (so a listener may open
+  its own session and write) and a failing listener is logged, never raised. Nothing is registered by default.
+  The Twin agent should call `register` from its own module's import / startup code and count the approval
+  (Plan 8.11); `GET /activity?action=script_approved` shows the history.
+* New LLM tasks: `content.ideas`, `script.regenerate_scene`, `script.tighten` (see `llm/tasks.py`).
+
 ## Data layout
 
 ```
@@ -139,7 +169,8 @@ route serves with full HTTP Range support.
 
 - Schema lives in `backend/migrations/*.sql` (SQLite dialect) and is applied at startup by `app.db.migrate()`
   or manually with `make migrate`. Deviations from Plan.md section 5: `jobs.payload` and `jobs.attempts`
-  columns (needed for retries); `users` table and `workspaces.owner_id -> users(id)`.
+  columns (needed for retries); `users` table and `workspaces.owner_id -> users(id)`;
+  `idea_suggestions.provenance` (migration `002_idea_provenance.sql`, provenance of generated ideas).
 - Embeddings are little-endian float32 BLOBs; search is brute-force cosine in numpy (`ml/vectors.py`).
 - `asset_segments_fts` is an external-content FTS5 table kept in sync by triggers. After a `VACUUM`, run
   `insert into asset_segments_fts(asset_segments_fts) values('rebuild');`.
