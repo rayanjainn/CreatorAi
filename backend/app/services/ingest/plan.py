@@ -53,7 +53,15 @@ def stages_for(kind: str, *, has_audio: bool = True) -> list[str]:
     return [s for s in STAGES if s in wanted]
 
 
+def stage_of(entry: str) -> str:
+    """Stage named by a ``stages_done`` entry (a bare stage or a ``"stage: note"`` string)."""
+    return entry.split(":", 1)[0].strip()
+
+
 def invalidate_from(done: list[str], stage: str) -> list[str]:
-    """``done`` minus ``stage`` and every later stage (re-running invalidates downstream work)."""
+    """``done`` minus ``stage`` and every later stage (re-running invalidates downstream work).
+
+    Notes such as ``"caption: skipped (llm unavailable)"`` follow their stage.
+    """
     cut = STAGES.index(stage)
-    return [s for s in done if s in STAGES and STAGES.index(s) < cut]
+    return [s for s in done if stage_of(s) in STAGES and STAGES.index(stage_of(s)) < cut]

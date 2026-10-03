@@ -24,11 +24,15 @@ def load_handlers() -> list[str]:
     loaded: list[str] = []
     for name in HANDLER_MODULES:
         try:
-            importlib.import_module(name)
+            module = importlib.import_module(name)
         except ModuleNotFoundError as exc:
             if exc.name not in (name, name.rpartition(".")[0]):
                 raise
             continue
+        # Import registers once; ``register()`` makes loading repeatable (tests clear the registry).
+        register = getattr(module, "register", None)
+        if callable(register):
+            register()
         loaded.append(name)
     log.debug("job handler modules loaded: %s", loaded)
     return loaded
