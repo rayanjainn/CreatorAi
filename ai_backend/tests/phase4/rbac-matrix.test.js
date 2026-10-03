@@ -9,10 +9,11 @@ import { createApp } from '../../src/app.js';
 import { getLlm } from '../../src/adapters/llm/index.js';
 import { runAgent } from '../../src/modules/agents/service.js';
 import { directorAgent } from '../../src/modules/agents/director/service.js';
+import { researchAgent } from '../../src/modules/agents/research/service.js';
 import { authHeader, createUser } from '../helpers/auth.js';
 import { closeAll, resetDb } from '../helpers/db.js';
 import { clearQueues } from '../helpers/queue.js';
-import { directorBody, planReply } from './fixtures.js';
+import { briefReply, directorBody, planReply } from './fixtures.js';
 
 export const ACTORS = ['owner', 'editor', 'viewer', 'nonMember', 'anonymous'];
 
@@ -39,6 +40,22 @@ export const MATRIX = [
   {
     method: 'get',
     path: '/projects/:projectId/plans/:planId',
+    expect: { owner: 200, editor: 200, viewer: 200, nonMember: 404, anonymous: 401 },
+  },
+  {
+    method: 'post',
+    path: '/projects/:projectId/agents/research',
+    body: () => ({ topic: 'espresso grind size' }),
+    expect: { owner: 202, editor: 202, viewer: 403, nonMember: 404, anonymous: 401 },
+  },
+  {
+    method: 'get',
+    path: '/projects/:projectId/briefs',
+    expect: { owner: 200, editor: 200, viewer: 200, nonMember: 404, anonymous: 401 },
+  },
+  {
+    method: 'get',
+    path: '/projects/:projectId/briefs/:briefId',
     expect: { owner: 200, editor: 200, viewer: 200, nonMember: 404, anonymous: 401 },
   },
 ];
@@ -82,7 +99,16 @@ async function freshProject() {
     input: directorBody(),
   });
   expect(planned.run.status).toBe('succeeded');
-  return { project, params: { runId: planned.run.id, planId: planned.artifact.id } };
+  const run = (def, name, input) => runAgent({ ...def, name, projectId: project.id, userId: owner.user.id, input });
+
+  llm.queueResponse((req) => briefReply(req.prompt.match(/https:\/\/example\.com\/[^\s"]+/g).slice(0, 1)));
+  const researched = await run(researchAgent, 'research', { topic: 'espresso grind size' });
+  expect(researched.run.status).toBe('succeeded');
+
+  return {
+    project,
+    params: { runId: planned.run.id, planId: planned.artifact.id, briefId: researched.artifact.id },
+  };
 }
 
 const cells = MATRIX.flatMap((row) => ACTORS.map((actor) => [row.method.toUpperCase(), row.path, actor, row]));
