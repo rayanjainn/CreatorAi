@@ -89,7 +89,6 @@ describe('error handling', () => {
 
 describe('module routers are mounted as 501 stubs', () => {
   const planned = [
-    ['post', '/webhooks/cloudinary', 2],
     ['get', '/projects/p1/media/a1/index', 2],
     ['post', '/projects/p1/search', 3],
     ['post', '/projects/p1/agents/director/plan', 4],

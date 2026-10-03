@@ -10,6 +10,19 @@ export const AssetId = z.uuid();
 // The folder is always chosen by the server; the client sends nothing.
 export const SignBody = z.strictObject({});
 
+// Register after a direct upload: the Cloudinary public_id the upload returned.
+export const RegisterBody = z.strictObject({
+  publicId: z.string().trim().min(1).max(512),
+});
+
+// Cloudinary notification (webhook). Cloudinary sends many more fields than these, and
+// their set varies by notification type, so unknown keys are allowed through.
+export const CloudinaryNotification = z.looseObject({
+  notification_type: z.string().min(1),
+  public_id: z.string().min(1).optional(),
+  resource_type: z.string().optional(),
+});
+
 export const ListQuery = z.strictObject({
   kind: Kind.default('original'),
   parentAssetId: AssetId.optional(),

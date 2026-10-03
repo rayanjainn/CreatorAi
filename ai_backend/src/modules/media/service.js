@@ -1,9 +1,12 @@
 // media service: the module's public API. Other modules import this file and nothing
 // else from here.
 import { getStorage } from '../../adapters/storage/index.js';
-import { notFound } from '../../lib/errors.js';
+import { withTransaction } from '../../db/pool.js';
+import { badRequest, notFound } from '../../lib/errors.js';
+import { enqueue } from '../../queue/boss.js';
+import { JOBS } from '../../queue/jobs.js';
 import * as repo from './repo.js';
-import { Asset, AssetId, ListQuery } from './schemas.js';
+import { Asset, AssetId, ListQuery, RegisterBody } from './schemas.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -53,6 +56,81 @@ export async function getAssetsByIds(projectId, ids) {
 // originals folder. The folder is part of the signature, so the client cannot change it.
 export async function signUpload(projectId) {
   return getStorage().signUpload({ folder: originalsFolder(projectId), resourceType: 'video' });
+}
+
+const FOLDER_RE = /^proj\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/originals\/(.+)$/;
+
+// The project id of a public_id inside some project's originals folder, else null.
+// Empty, '.' and '..' path segments are refused.
+export function projectOfOriginal(publicId) {
+  const m = typeof publicId === 'string' ? FOLDER_RE.exec(publicId) : null;
+  if (!m || m[2].split('/').some((s) => s === '' || s === '.' || s === '..')) return null;
+  return m[1];
+}
+
+// registerUpload(projectId, { publicId }, { createdBy? }) -> { asset, created }.
+// The single register path, used by POST /media and the Cloudinary webhook:
+// - publicId must be inside proj/<projectId>/originals/ -> else 400;
+// - already registered in this project -> the existing asset, created false, no job;
+// - verified with storage.getResource (unknown upload -> 400), duration/dimensions stored,
+//   kind original, status uploaded;
+// - the row and its one media.process job are written in one transaction.
+// A project that does not exist -> 404.
+export async function registerUpload(projectId, input, { createdBy = null } = {}) {
+  const { publicId } = RegisterBody.parse(input);
+  if (projectOfOriginal(publicId) !== projectId) {
+    throw badRequest(`publicId must be inside ${originalsFolder(projectId)}/`);
+  }
+
+  const existing = await repo.findByPublicId(projectId, publicId);
+  if (existing) return { asset: toFullAsset(existing), created: false };
+
+  const resource = await getStorage().getResource(publicId, { resourceType: 'video' });
+  if (!resource) throw badRequest('No uploaded video with that publicId');
+
+  try {
+    return await withTransaction(async (client) => {
+      const row = await repo.insertOriginal(client, {
+        projectId,
+        publicId,
+        url: resource.url,
+        durationMs: resource.durationMs ?? null,
+        width: resource.width ?? null,
+        height: resource.height ?? null,
+        meta: { format: resource.format, bytes: resource.bytes, resourceType: resource.resourceType },
+        createdBy,
+      });
+      if (!row) return { asset: toFullAsset(await repo.findByPublicId(projectId, publicId, client)), created: false };
+      // Same transaction: the job exists if and only if the asset does.
+      const db = { executeSql: (text, values) => client.query(text, values) };
+      await enqueue(JOBS.MEDIA_PROCESS, { assetId: row.id, projectId }, { db });
+      return { asset: toFullAsset(row), created: true };
+    });
+  } catch (err) {
+    if (err?.code === '23503') throw notFound('Project not found');
+    throw err;
+  }
+}
+
+// Cloudinary webhook: verifies the signature through the storage adapter.
+export function verifyNotification({ body, timestamp, signature }) {
+  return getStorage().verifyNotification({ body, timestamp, signature });
+}
+
+// handleNotification(notification) -> { registered, assetId? }. Upload notifications for a
+// project's originals folder go through registerUpload; anything else (other types,
+// other folders, unknown projects or uploads) is acknowledged and ignored.
+export async function handleNotification(notification) {
+  if (notification.notification_type !== 'upload') return { registered: false };
+  const projectId = projectOfOriginal(notification.public_id);
+  if (!projectId) return { registered: false };
+  try {
+    const { asset } = await registerUpload(projectId, { publicId: notification.public_id });
+    return { registered: true, assetId: asset.id };
+  } catch (err) {
+    if (err?.status === 400 || err?.status === 404) return { registered: false };
+    throw err;
+  }
 }
 
 // listAssets(projectId, { kind = 'original', parentAssetId? }) -> assets, newest first.

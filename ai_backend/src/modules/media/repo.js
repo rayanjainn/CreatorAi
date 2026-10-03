@@ -45,6 +45,28 @@ export async function findTree(projectId, assetId) {
   return rows;
 }
 
+export async function findByPublicId(projectId, publicId, db = { query }) {
+  const { rows } = await db.query(
+    `SELECT ${COLUMNS} FROM assets WHERE project_id = $1 AND cloudinary_public_id = $2`,
+    [projectId, publicId],
+  );
+  return rows[0] ?? null;
+}
+
+// Inserts an uploaded original. Returns the row, or null when this project already has
+// an asset with that public_id (the unique index makes concurrent inserts wait, then
+// do nothing).
+export async function insertOriginal(client, { projectId, publicId, url, durationMs, width, height, meta, createdBy }) {
+  const { rows } = await client.query(
+    `INSERT INTO assets (project_id, kind, cloudinary_public_id, url, duration_ms, width, height, status, meta, created_by)
+     VALUES ($1, 'original', $2, $3, $4, $5, $6, 'uploaded', $7, $8)
+     ON CONFLICT (project_id, cloudinary_public_id) DO NOTHING
+     RETURNING ${COLUMNS}`,
+    [projectId, publicId, url, durationMs, width, height, meta, createdBy],
+  );
+  return rows[0] ?? null;
+}
+
 // Children cascade through parent_asset_id ON DELETE CASCADE.
 export async function deleteOne(projectId, assetId) {
   const { rowCount } = await query('DELETE FROM assets WHERE project_id = $1 AND id = $2', [projectId, assetId]);

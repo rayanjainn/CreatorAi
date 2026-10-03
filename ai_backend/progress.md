@@ -43,3 +43,9 @@ Append one 5-line entry per task (newest last):
 - Learned: delete destroys in storage before touching rows, so a storage outage is a 500 with the rows intact and the delete retryable; keyframes are destroyed as resource_type image, everything else as video. Phase0 http.test.js row 'POST /projects/p1/media/sign' dropped (stub replaced).
 - Next: P2.T3 register flow + media.process job + Cloudinary webhook.
 - Gate: `npm run gate -- 2` passed (lint + 234/234 tests).
+
+## P2.T3 register flow, media.process, Cloudinary webhook (2026-10-04)
+- Done: media.process payload { assetId, projectId } (strict uuids) in jobs.js, no handler (P3); service registerUpload (folder check -> 400, existing -> same asset with no job, storage.getResource -> 400 if unknown, insert ON CONFLICT DO NOTHING + enqueue in ONE transaction via pg-boss send({ db })), projectOfOriginal, verifyNotification, handleNotification; POST /media (editor+, 201 new / 200 already registered); POST /webhooks/cloudinary (X-Cld-Signature/X-Cld-Timestamp -> 401, loose Zod notification, non-project uploads acked with registered:false); tests/phase2/register.test.js and rbac-matrix.test.js (own MATRIX, 8 routes x 5 actors).
+- Learned: the webhook signs the raw body but app.js (frozen) runs express.json first, so the body is re-serialized with JSON.stringify; fine for Cloudinary's compact JSON, but a raw-body capture (express.json verify) would be more robust if app.js is ever reopened. Importing ACTORS from the phase1 test file re-runs its suite, so ACTORS is copied. Phase0 row 'POST /webhooks/cloudinary' dropped.
+- Next: Phase 3 registers the media.process handler and replaces the /media/:assetId/index and /reprocess stubs (update their 501 rows in tests/phase2/rbac-matrix.test.js and phase0 http.test.js). Live smoke: sign -> upload fixture -> register against real Cloudinary.
+- Gate: `npm run gate -- 2` passed (lint + 288/288 tests).
