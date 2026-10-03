@@ -5,6 +5,7 @@ import { noop } from './noop.js';
 import { agentRun } from './agents.js';
 import { processAsset, stepHandlers } from './process.js';
 import { mediaMoments } from './moments.js';
+import { editingReels, editingRevise } from './editing.js';
 
 export const handlers = {
   [JOBS.NOOP]: noop,
@@ -12,6 +13,8 @@ export const handlers = {
   [JOBS.MEDIA_PROCESS]: processAsset,
   ...stepHandlers,
   [JOBS.AGENT_RUN]: agentRun,
-  // P6: moments (one editing_jobs row each).
+  // P6: moments, reels and revisions (one editing_jobs row each).
   [JOBS.MEDIA_MOMENTS]: mediaMoments,
+  [JOBS.EDITING_REELS]: editingReels,
+  [JOBS.EDITING_REVISE]: editingRevise,
 };

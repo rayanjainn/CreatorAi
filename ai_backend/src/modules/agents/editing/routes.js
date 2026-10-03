@@ -3,8 +3,8 @@
 import { Router } from 'express';
 import { validate } from '../../../lib/http.js';
 import { requireRole } from '../../projects/service.js';
-import { MomentsBody } from './schemas.js';
-import { getJob, listMoments, requestMoments } from './service.js';
+import { MomentsBody, ReelsBody, ReviseBody } from './schemas.js';
+import { getJob, listMoments, requestMoments, requestReels, requestRevise } from './service.js';
 
 export const router = Router({ mergeParams: true });
 
@@ -22,10 +22,10 @@ router.get('/agents/editing/jobs/:jobId', requireRole('viewer'), async (req, res
   res.json({ job: await getJob(req.project.id, req.params.jobId) });
 });
 
-// P6.T3 replaces these two.
-const planned = (method, path) => (req, res) =>
-  res.status(501).json({
-    error: { code: 'not_implemented', message: `${method} ${path} is planned for phase 6`, requestId: req.id },
-  });
-router.post('/agents/editing/reels', planned('POST', '/agents/editing/reels'));
-router.post('/agents/editing/revise', planned('POST', '/agents/editing/revise'));
+router.post('/agents/editing/reels', requireRole('editor'), validate(ReelsBody), async (req, res) => {
+  accepted(res, await requestReels(req.project.id, req.user.id, req.body));
+});
+
+router.post('/agents/editing/revise', requireRole('editor'), validate(ReviseBody), async (req, res) => {
+  accepted(res, await requestRevise(req.project.id, req.user.id, req.body));
+});

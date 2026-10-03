@@ -7,9 +7,13 @@ import { conflict, notFound } from '../../../lib/errors.js';
 import { JOBS } from '../../../queue/jobs.js';
 import { getAsset } from '../../media/service.js';
 import { queueJob, runJob, toJob } from './jobs.js';
+import { getScript } from '../script/service.js';
 import { generateMoments } from './moments.js';
+import { getHead } from '../../timeline/service.js';
+import { generateReels } from './reels.js';
 import * as repo from './repo.js';
-import { Moment, MomentsBody, Uuid } from './schemas.js';
+import { generateRevision } from './revision.js';
+import { Moment, MomentsBody, ReelsBody, ReviseBody, Uuid } from './schemas.js';
 
 export { configureEditing, getEditingConfig, resetEditing } from './config.js';
 export { SCORE_KEYS, buildWindows, scoreMoment, selectCandidates } from './selection.js';
@@ -69,6 +73,45 @@ export async function runMomentsJob(jobId) {
       jobId: job.id,
       runIds,
     }),
+  );
+}
+
+// ---- reels ------------------------------------------------------------------------------
+
+// requestReels(projectId, userId, { assetId, count, targetSeconds, scriptId? }) -> queued
+// job. 404 unknown asset or script, 409 asset not indexed.
+export async function requestReels(projectId, userId, body) {
+  const input = ReelsBody.parse(body);
+  const asset = await indexedAsset(projectId, input.assetId);
+  if (input.scriptId) await getScript(projectId, input.scriptId);
+  return queueJob(JOBS.EDITING_REELS, { projectId, userId, kind: 'reels', assetId: asset.id, input });
+}
+
+export async function runReelsJob(jobId) {
+  return runJob(jobId, (job, runIds) =>
+    generateReels({ ...job.input, projectId: job.projectId, userId: job.createdBy, jobId: job.id, runIds }),
+  );
+}
+
+// ---- revise -----------------------------------------------------------------------------
+
+// requestRevise(projectId, userId, { timelineId, instruction }) -> queued job. The head
+// at request time is the base the revision is made on. 404 unknown timeline.
+export async function requestRevise(projectId, userId, body) {
+  const { timelineId, instruction } = ReviseBody.parse(body);
+  const { timeline, head } = await getHead(projectId, timelineId);
+  return queueJob(JOBS.EDITING_REVISE, {
+    projectId,
+    userId,
+    kind: 'revise',
+    timelineId: timeline.id,
+    input: { timelineId: timeline.id, instruction, baseVersion: head.version, sourceAssetId: timeline.sourceAssetId },
+  });
+}
+
+export async function runReviseJob(jobId) {
+  return runJob(jobId, (job, runIds) =>
+    generateRevision({ ...job.input, projectId: job.projectId, userId: job.createdBy, runIds }),
   );
 }
 
