@@ -31,15 +31,18 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  // the clip editor is a full-bleed workspace with its own header: no sidebar, topbar or banner
+  const focus = pathname.startsWith('/editor/')
+
   return (
-    <div className="app-shell">
+    <div className="app-shell" data-focus={focus || undefined}>
       <a href="#main" className="sr-only">
         Skip to content
       </a>
-      <Sidebar />
+      {!focus && <Sidebar />}
       <div className="app-main">
-        <Topbar />
-        <DataModeBanner />
+        {!focus && <Topbar />}
+        {!focus && <DataModeBanner />}
         <main id="main" className="app-content">
           {children}
         </main>

@@ -1,5 +1,9 @@
-import { ComingNext } from '@/components/common/coming-next'
+'use client'
+
+import { useParams } from 'next/navigation'
+import { EditorPage } from '@/components/editor/editor-page'
 
 export default function Page() {
-  return <ComingNext eyebrow="CreatorAI / Editor" title="Editor" description="The clip editor: preview, timeline, captions and export." />
+  const { clipId } = useParams<{ clipId: string }>()
+  return <EditorPage clipId={clipId} />
 }

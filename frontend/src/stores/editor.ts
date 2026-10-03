@@ -37,6 +37,7 @@ export interface EditorState {
   serverTimeline: Timeline
   revision: number
   assets: EditAssets
+  provenance: EditPayload['provenance'] | null
   selection: string[]
   playhead: number
   playing: boolean
@@ -61,6 +62,7 @@ export interface EditorState {
   pendingNote: string
   /** Name of a server operation in flight (the timeline is locked meanwhile). */
   busy: string | null
+  helpOpen: boolean
 
   load: (payload: EditPayload) => void
   reset: () => void
@@ -90,6 +92,7 @@ export interface EditorState {
   setPreview: (p: RevisionDetail | null) => void
   setMode: (m: 'edit' | 'preview') => void
   setBusy: (b: string | null) => void
+  setHelpOpen: (o: boolean) => void
 }
 
 const initial = () => ({
@@ -99,6 +102,7 @@ const initial = () => ({
   serverTimeline: emptyTimeline(),
   revision: 0,
   assets: {} as EditAssets,
+  provenance: null as EditPayload['provenance'] | null,
   selection: [] as string[],
   playhead: 0,
   playing: false,
@@ -118,6 +122,7 @@ const initial = () => ({
   mode: 'edit' as const,
   pendingNote: '',
   busy: null as string | null,
+  helpOpen: false,
 })
 
 const ids = (t: Timeline): Set<string> => {
@@ -138,6 +143,7 @@ export const useEditor = create<EditorState>((set, get) => ({
       serverTimeline: p.timeline,
       revision: p.revision,
       assets: p.assets,
+      provenance: p.provenance,
       // keep per-viewer view prefs across reloads of the same clip
       zoom: get().clipId === p.clip_id ? get().zoom : initial().zoom,
       locked: get().clipId === p.clip_id ? get().locked : initial().locked,
@@ -253,6 +259,7 @@ export const useEditor = create<EditorState>((set, get) => ({
   setPreview: (preview) => set({ preview, mode: get().mode, selection: preview ? [] : get().selection }),
   setMode: (mode) => set({ mode }),
   setBusy: (busy) => set({ busy }),
+  setHelpOpen: (helpOpen) => set({ helpOpen }),
 }))
 
 /** The timeline the UI shows: an older revision while previewing, else the working copy. */

@@ -6,7 +6,9 @@ import { isApiError } from '@/lib/api/errors'
 import { rebase, recordChange, validateAll, type Timeline, type Violation } from '@/lib/timeline'
 import { useEditor, type EditorState } from '@/stores/editor'
 import { toast } from '@/stores/toasts'
-import { applyServerOp, fetchEdit, restoreRevision, saveEdit } from './api'
+import { api, unwrap } from '@/lib/api/client'
+import { applyServerOp, assetToEditAsset, fetchEdit, fetchRevision, restoreRevision, saveEdit } from './api'
+import { getEngine } from './engine-store'
 import type { OpResult } from './types'
 
 export const AUTOSAVE_MS = 1200
@@ -243,5 +245,44 @@ export async function refreshAssets(): Promise<void> {
     useEditor.setState((x) => ({ assets: { ...x.assets, ...p.assets } }))
   } catch {
     /* the next interval tries again */
+  }
+}
+
+/** Make sure the editor knows the assets a timeline refers to (an old revision may use ones the editor never loaded). */
+export async function ensureAssets(timeline: Timeline): Promise<void> {
+  const known = get().assets
+  const ids = new Set<string>()
+  for (const v of timeline.tracks.video) if (v.asset_id) ids.add(v.asset_id)
+  for (const a of timeline.tracks.audio) ids.add(a.asset_id)
+  const missing = [...ids].filter((id) => !known[id])
+  if (!missing.length) return
+  const found = await Promise.all(
+    missing.map(async (id) => {
+      try {
+        const d = await unwrap(api.GET('/api/v1/assets/{asset_id}', { params: { path: { asset_id: id }, query: { include_energy: true } } }))
+        return [id, assetToEditAsset(d)] as const
+      } catch {
+        return null
+      }
+    }),
+  )
+  get().mergeAssets(Object.fromEntries(found.filter((x): x is NonNullable<typeof x> => !!x)))
+}
+
+/** Show an older revision read-only in the monitor and timeline (nothing is changed on the server). */
+export async function previewRevision(revision: number): Promise<boolean> {
+  const s = get()
+  if (!s.clipId) return false
+  try {
+    const detail = await fetchRevision(s.clipId, revision)
+    await ensureAssets(detail.timeline)
+    get().setPreview(detail)
+    const eng = getEngine()
+    if (eng) eng.seek(0)
+    else get().setPlayhead(0)
+    return true
+  } catch (e) {
+    toast.error('Could not open that revision', e instanceof Error ? e.message : undefined)
+    return false
   }
 }

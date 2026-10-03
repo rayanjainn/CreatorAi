@@ -24,6 +24,7 @@ export function useFrames(assetIds: string[], assets: EditAssets): Frames {
       staleTime: 5 * 60_000,
     })),
   })
+  const stamp = results.map((r) => r.dataUpdatedAt).join(',')
   const shots = useMemo(() => {
     const m = new Map<string, { s: number; e: number; url: string }[]>()
     results.forEach((r, i) => {
@@ -32,7 +33,7 @@ export function useFrames(assetIds: string[], assets: EditAssets): Frames {
     })
     return m
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [results.map((r) => r.dataUpdatedAt).join(','), ids])
+  }, [stamp, ids])
   const frameAt = useCallback(
     (assetId: string | null, t: number) => {
       if (!assetId) return null
