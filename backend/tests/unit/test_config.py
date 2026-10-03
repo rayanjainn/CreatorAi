@@ -101,3 +101,13 @@ def test_provider_order_parsing_and_validation(tmp_path: Path) -> None:
 )
 def test_ollama_local_detection(tmp_path: Path, url: str, local: bool) -> None:
     assert Settings(DATA_DIR=str(tmp_path), OLLAMA_BASE_URL=url).ollama_is_local is local
+
+
+def test_fastembed_cache_lives_in_the_data_dir_unless_overridden(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.delenv("FASTEMBED_CACHE_PATH", raising=False)
+    settings = Settings(data_dir=tmp_path)
+    assert settings.fastembed_cache_dir == tmp_path / "models" / "fastembed"
+    monkeypatch.setenv("FASTEMBED_CACHE_PATH", str(tmp_path / "elsewhere"))
+    assert settings.fastembed_cache_dir == tmp_path / "elsewhere"

@@ -124,7 +124,10 @@ class FastEmbedEmbedder:
         from fastembed import TextEmbedding
 
         self.model = model.removeprefix("sentence-transformers/")
-        self._model: Any = TextEmbedding(model_name=f"sentence-transformers/{self.model}")
+        self._model: Any = TextEmbedding(
+            model_name=f"sentence-transformers/{self.model}",
+            cache_dir=str(get_settings().fastembed_cache_dir),
+        )
 
     def embed(self, texts: list[str]) -> Matrix:
         return normalize(np.asarray(list(self._model.embed(texts)), dtype=np.float32))
