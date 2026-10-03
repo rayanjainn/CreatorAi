@@ -57,6 +57,32 @@ def test_generate_requires_processed_video(client: TestClient, auth: Hdr) -> Non
     assert bad.status_code == 422
 
 
+def test_list_all_clips_across_items_with_filters(
+    client: TestClient, auth: Hdr, demo_media: Any, workspace_id: str
+) -> None:
+    item, _ = ready_item(client, auth, demo_media, workspace_id)
+    generate(client, auth, item, count=2, include_full_cut=True)
+    own = clips_of(client, auth, item)
+    empty = client.post(f"{V1}/content", json={"title": "No clips"}, headers=auth).json()["id"]
+
+    res = client.get(f"{V1}/clips", headers=auth)
+    assert res.status_code == 200, res.text
+    everything = res.json()
+    assert {c["id"] for c in everything} == {c["id"] for c in own}
+    assert [c["score"] for c in everything] == sorted(
+        (c["score"] for c in everything), reverse=True
+    )
+    assert all(c["content_item_id"] == item and c["preview"]["url"] for c in everything)
+
+    assert client.get(f"{V1}/clips", params={"content_item_id": empty}, headers=auth).json() == []
+    full = client.get(f"{V1}/clips", params={"kind": "full"}, headers=auth).json()
+    assert [c["kind"] for c in full] == ["full"]
+    assert client.get(f"{V1}/clips", params={"status": "accepted"}, headers=auth).json() == []
+    assert len(client.get(f"{V1}/clips", params={"limit": 1}, headers=auth).json()) == 1
+    assert client.get(f"{V1}/clips", params={"status": "bogus"}, headers=auth).status_code == 422
+    assert client.get(f"{V1}/clips").status_code == 401
+
+
 def test_full_pipeline_with_mock_llm_edits_and_music(
     client: TestClient, auth: Hdr, demo_media: Any, workspace_id: str
 ) -> None:

@@ -92,3 +92,53 @@ export function actionLabel(action: string): string {
   const text = action.replace(/_/g, ' ')
   return text.charAt(0).toUpperCase() + text.slice(1)
 }
+
+/** `m:ss` (or `m:ss.t` with `fine`) for media positions. */
+export function formatTimecode(sec: number | null | undefined, fine = false): string {
+  if (sec == null || !Number.isFinite(sec)) return '0:00'
+  const total = Math.max(0, sec)
+  const m = Math.floor(total / 60)
+  const s = total - m * 60
+  return fine ? `${m}:${s.toFixed(1).padStart(4, '0')}` : `${m}:${String(Math.floor(s)).padStart(2, '0')}`
+}
+
+export function formatRange(a: number | null | undefined, b: number | null | undefined): string {
+  return `${formatTimecode(a)}–${formatTimecode(b)}`
+}
+
+export function formatSpeed(bytesPerSec: number): string {
+  return bytesPerSec > 0 ? `${formatBytes(bytesPerSec)}/s` : ''
+}
+
+export function formatEta(sec: number | null | undefined): string {
+  if (sec == null || !Number.isFinite(sec) || sec <= 0) return ''
+  if (sec < 60) return `${Math.ceil(sec)}s left`
+  const m = Math.floor(sec / 60)
+  return `${m}m ${Math.round(sec - m * 60)}s left`
+}
+
+export function plural(n: number, one: string, many = `${one}s`): string {
+  return `${n} ${n === 1 ? one : many}`
+}
+
+/** Copy text to the clipboard; resolves false when the browser refuses (no permission, insecure context). */
+export async function copyText(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch {
+    try {
+      const ta = document.createElement('textarea')
+      ta.value = text
+      ta.style.position = 'fixed'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.select()
+      const ok = document.execCommand('copy')
+      ta.remove()
+      return ok
+    } catch {
+      return false
+    }
+  }
+}

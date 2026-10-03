@@ -900,9 +900,9 @@ export interface paths {
         /** Get Transcript */
         get: operations["get_transcript_api_v1_assets__asset_id__transcript_get"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
+        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
+        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1041,6 +1041,26 @@ export interface paths {
          * @description Enqueue ``clips.generate`` (``409 ASSET_NOT_READY`` without a processed video).
          */
         post: operations["generate_clips_api_v1_content__item_id__clips_generate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clips": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List All Clips
+         * @description Clips across every content item, best score first (feeds the Smart Clips hub).
+         */
+        get: operations["list_all_clips_api_v1_clips_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1241,6 +1261,26 @@ export interface paths {
          *     preset allows; ``409 ASSET_NOT_READY`` when a source file is missing or still processing.
          */
         post: operations["create_render_api_v1_clips__clip_id__renders_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/renders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Renders
+         * @description Every render of every clip, newest first (feeds the Repurpose hub).
+         */
+        get: operations["list_renders_api_v1_renders_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -5100,7 +5140,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_put: {
+    _put_transcript_api_v1_assets__asset_id__transcript_post: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -5133,7 +5173,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_put: {
+    _put_transcript_api_v1_assets__asset_id__transcript_post: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -5417,6 +5457,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ClipsEnqueued"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_all_clips_api_v1_clips_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                kind?: string | null;
+                content_item_id?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClipOut"][];
                 };
             };
             /** @description Validation Error */
@@ -5845,6 +5920,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RenderEnqueued"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_renders_api_v1_renders_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RenderOut"][];
                 };
             };
             /** @description Validation Error */

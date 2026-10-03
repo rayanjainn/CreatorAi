@@ -1,0 +1,207 @@
+import { expect, test } from '@playwright/test'
+import { API, apiGet, authHeaders, createItem, heroId, login } from './helpers'
+
+test.describe.configure({ mode: 'serial' })
+
+test('project header: rename, stage advance and the NO_SCRIPT refusal', async ({ page, request }) => {
+  const id = await createItem(request, `E2E header ${Date.now()}`)
+  await login(page)
+  await page.goto(`/projects/${id}/plan`)
+  await page.getByTestId('rename-project').click()
+  await page.getByTestId('title-input').fill('E2E renamed project')
+  await page.getByTestId('title-input').press('Enter')
+  await expect(page.getByTestId('project-title')).toHaveText('E2E renamed project')
+  await expect.poll(async () => (await apiGet<{ title: string }>(request, `/content/${id}`)).title).toBe('E2E renamed project')
+  await page.getByTestId('advance-stage').click() // idea -> script is allowed
+  await expect(page.getByTestId('project-header').locator('.stage-badge')).toHaveText('Script')
+  await page.getByTestId('advance-stage').click() // script -> shoot needs a script with scenes
+  await expect(page.getByTestId('no-script-warning')).toContainText('needs')
+  expect((await apiGet<{ stage: string }>(request, `/content/${id}`)).stage).toBe('script')
+  // the switcher lists other projects and keeps the tab
+  await page.getByTestId('project-switcher').click()
+  await page.getByRole('menuitem', { name: /My whole editing workflow/ }).click()
+  await page.waitForURL('**/plan')
+})
+
+test('key-less: the director, hooks and review show the inline LLM_NOT_CONFIGURED state', async ({ page, request }) => {
+  const id = await createItem(request, `E2E nokeys ${Date.now()}`)
+  await login(page)
+  await page.goto(`/projects/${id}/plan`)
+  await page.getByTestId('generate-plan').click()
+  await expect(page.getByTestId('llm-not-configured')).toContainText('GEMINI_API_KEY')
+  await expect(page.getByTestId('llm-not-configured')).toContainText('GROQ_API_KEY')
+  await page.goto(`/projects/${id}/script`)
+  await page.getByTestId('generate-hooks').click()
+  await expect(page.getByTestId('llm-not-configured')).toBeVisible()
+  await expect(page.getByTestId('hook-list')).toHaveCount(0)
+  // /ai-studio shows the same flow for any project
+  await page.goto(`/ai-studio?project=${id}`)
+  await page.getByTestId('generate-hooks').click()
+  await expect(page.getByTestId('llm-not-configured')).toBeVisible()
+})
+
+test('plan page: hero plan, editable shot list (PATCH) and export', async ({ page, request }) => {
+  const id = await heroId(request)
+  await login(page)
+  await page.goto(`/projects/${id}/plan`)
+  await expect(page.getByTestId('plan-angle')).toContainText('complete edit')
+  await expect(page.getByTestId('plan-view').locator('.prov[data-source=demo]').first()).toBeVisible()
+  await expect(page.getByTestId('shot-row')).toHaveCount(5)
+  const framing = page.getByLabel('Scene 1 framing')
+  await framing.fill('face, eye-level, window light')
+  await expect(page.getByText('Unsaved changes')).toBeVisible()
+  await page.getByTestId('save-shots').click()
+  await expect(page.getByText(/Saved/)).toBeVisible()
+  const plan = await apiGet<{ plan: { shot_list: { framing: string }[] }; edited_by_user: { shot_list: number[] } }>(request, `/content/${id}/director/plan`)
+  expect(plan.plan.shot_list[0].framing).toBe('face, eye-level, window light')
+  expect(plan.edited_by_user.shot_list).toContain(1)
+  await expect(page.getByTestId('shot-row').first().locator('.prov[data-source=user]')).toBeVisible()
+  const download = page.waitForEvent('download')
+  await page.getByTestId('export-csv').click()
+  expect((await download).suggestedFilename()).toMatch(/\.csv$/)
+  // review: no review yet in a fresh seed (or an existing one), the card is there either way
+  await expect(page.getByTestId('review-report')).toBeVisible()
+})
+
+test('script page: hero script scenes, per-scene provenance, metadata copy and versions', async ({ page, request }) => {
+  const id = await heroId(request)
+  await login(page)
+  await page.goto(`/projects/${id}/script`)
+  await expect(page.getByTestId('scene-item')).toHaveCount(8)
+  await expect(page.getByTestId('approved-chip')).toBeVisible()
+  await expect(page.getByTestId('script-bar').locator('.prov[data-source=demo]')).toBeVisible()
+  await expect(page.getByTestId('twin-banner')).toHaveCount(0) // style_applied is false
+  await expect(page.getByTestId('beats')).toContainText('B1')
+  await expect(page.getByTestId('est-counter')).toContainText('37s target')
+  await page.getByTestId('scene-item').nth(2).click()
+  await expect(page.getByLabel('Scene title')).toHaveValue('Trim')
+  await expect(page.getByTestId('meta-block').first()).toBeVisible()
+  await expect(page.getByTestId('script-version')).toHaveCount(1)
+})
+
+test('footage page lists the hero asset, primary video and matching entry point', async ({ page, request }) => {
+  const id = await heroId(request)
+  await login(page)
+  await page.goto(`/projects/${id}/footage`)
+  const card = page.getByTestId('project-assets').getByTestId('asset-card')
+  await expect(card).toHaveCount(1)
+  await expect(card.getByTestId('primary-radio')).toBeChecked()
+  await expect(page.getByTestId('run-matching')).toBeEnabled()
+  await expect(page.getByTestId('dropzone')).toBeVisible()
+  await card.getByRole('button', { name: /^Open hero_demo/ }).first().click()
+  await expect(page.getByTestId('asset-drawer')).toBeVisible()
+})
+
+test('match page: coverage, the seeded gap with a reshoot suggestion, swap and confirm', async ({ page, request }) => {
+  const id = await heroId(request)
+  await login(page)
+  await page.goto(`/projects/${id}/match`)
+  await expect(page.getByTestId('coverage-pct')).toHaveText('75%')
+  await expect(page.getByTestId('coverage').locator('.prov[data-source=heuristic]')).toBeVisible()
+  const gap = page.getByTestId('missing-card').filter({ hasText: 'Sound' })
+  await expect(gap).toContainText('No footage')
+  await expect(gap.getByTestId('reshoot')).toContainText('Record about')
+  await expect(page.getByTestId('flag-out-of-order').first()).toBeVisible()
+  // play inline
+  const first = page.getByTestId('beat-row').first()
+  await first.getByTestId('beat-play').click()
+  await expect(first.getByTestId('player')).toBeVisible()
+  // swap in an alternative on the missing beat, then confirm another beat
+  const missing = page.getByTestId('beat-row').filter({ hasText: 'I keep the music low' })
+  await expect(missing.getByTestId('beat-status')).toHaveText('Missing')
+  await missing.getByTestId('swap-toggle').click()
+  await missing.getByTestId('use-alternative').first().click()
+  await expect(missing.getByTestId('beat-status')).toHaveText('Confirmed')
+  await expect(page.getByTestId('cov-confirmed')).toBeVisible()
+  const matched = page.getByTestId('beat-row').filter({ hasText: 'Next I trim the dead air' })
+  await matched.getByTestId('confirm-beat').click()
+  await expect(matched.getByTestId('beat-status')).toHaveText('Confirmed')
+  const match = await apiGet<{ coverage: { confirmed: number } }>(request, `/content/${id}/match`)
+  expect(match.coverage.confirmed).toBeGreaterThanOrEqual(2)
+})
+
+test('clips: generate key-less (fallback copy), edit, accept, render, download, delete', async ({ page, request }) => {
+  const id = await heroId(request)
+  await login(page)
+  await page.goto(`/projects/${id}/clips`)
+  await page.getByTestId('generate-clips-btn').click()
+  await expect(page.getByTestId('clips-progress').or(page.getByTestId('clip-card').first())).toBeVisible()
+  await expect(page.getByTestId('clips-warnings')).toContainText('fallback copy', { timeout: 60_000 })
+  const card = page.getByTestId('clip-card').first()
+  await expect(card.locator('.prov[data-source=heuristic]').first()).toBeVisible()
+  await expect(card.getByTestId('clip-warning').first()).toContainText('Fallback copy')
+  // inline edit of the title becomes provenance "You"
+  await card.getByRole('button', { name: 'Edit title' }).click()
+  await card.getByLabel('Title', { exact: true }).fill('My punchy title')
+  await card.getByLabel('Title', { exact: true }).press('Enter')
+  await expect(card.getByTestId('clip-title')).toContainText('My punchy title')
+  await expect(card.getByTestId('clip-title').locator('.prov[data-source=user]')).toBeVisible()
+  await card.getByTestId('accept-clip').click()
+  await expect(card.getByTestId('clip-status')).toHaveText('accepted')
+  await expect(card.getByTestId('open-editor')).toHaveAttribute('href', /\/editor\//)
+  // render
+  await card.getByTestId('render-clip').click()
+  await page.getByTestId('preset-yt_short').click()
+  await page.getByTestId('start-render').click()
+  const dl = page.getByTestId('download-render')
+  await expect(dl).toBeVisible({ timeout: 120_000 })
+  const href = await dl.getAttribute('href')
+  const res = await request.get(href!, { headers: { Range: 'bytes=0-99' } })
+  expect(res.status()).toBe(206)
+  expect(res.headers()['content-type']).toContain('video/mp4')
+  expect(res.headers()['content-disposition']).toContain('attachment')
+  await page.getByRole('button', { name: 'Close' }).last().click()
+  // renders section + hubs
+  const row = page.getByTestId('renders-section').getByTestId('render-row').first()
+  await expect(row).toContainText('My punchy title')
+  await expect(row.getByTestId('render-download')).toBeVisible()
+  await page.goto('/repurpose')
+  await expect(page.getByTestId('all-renders').getByTestId('render-row').first()).toContainText('YouTube Short')
+  await page.goto('/smart-clips')
+  await expect(page.getByTestId('all-clips').getByTestId('clip-card').first()).toBeVisible()
+  // delete the render
+  await page.goto(`/projects/${id}/clips`)
+  await page.getByTestId('delete-render').first().click()
+  await page.getByRole('button', { name: 'Delete render' }).click()
+  await expect(page.getByText('No renders yet')).toBeVisible()
+})
+
+test('render dialog shows the duration cap warning from the API error', async ({ page, request }) => {
+  const id = await heroId(request)
+  await login(page)
+  await page.route('**/api/v1/clips/*/renders', async (route) => {
+    if (route.request().method() !== 'POST') return route.continue()
+    await route.fulfill({
+      status: 422,
+      contentType: 'application/json',
+      body: JSON.stringify({ error: { code: 'DURATION_EXCEEDS_PRESET', message: 'Clip is too long for tiktok', details: { preset: 'tiktok', max_duration: 60, duration: 72.5, over_by: 12.5 } } }),
+    })
+  })
+  await page.goto(`/projects/${id}/clips`)
+  await page.getByTestId('render-clip').first().click()
+  await page.getByTestId('preset-tiktok').click()
+  await page.getByTestId('start-render').click()
+  await expect(page.getByTestId('duration-warning')).toContainText('too long')
+  await expect(page.getByTestId('over-by')).toHaveText('12.5s')
+})
+
+test('hubs: director, script match and smart clips list the hero project with deep links', async ({ page, request }) => {
+  const id = await heroId(request)
+  await login(page)
+  await page.goto('/creative-director')
+  const row = page.getByTestId('hub-row').filter({ hasText: 'My whole editing workflow' })
+  await expect(row).toContainText('complete edit')
+  await expect(row.getByRole('link', { name: 'Open plan' })).toHaveAttribute('href', `/projects/${id}/plan`)
+  await page.goto('/script-match')
+  await expect(page.getByTestId('match-hub').getByTestId('hub-row').filter({ hasText: 'My whole editing workflow' }).getByTestId('hub-coverage')).toHaveText(/\d+%/)
+  await page.goto('/ai-studio')
+  await expect(page.getByText('Choose a project to start')).toBeVisible()
+  await page.getByTestId('studio-project').selectOption(id)
+  await expect(page.getByTestId('studio-script')).toContainText('Hook')
+})
+
+test('the API list endpoints behind the hubs answer', async ({ request }) => {
+  const h = await authHeaders(request)
+  expect((await request.get(`${API}/api/v1/clips`, { headers: h })).ok()).toBeTruthy()
+  expect((await request.get(`${API}/api/v1/renders`, { headers: h })).ok()).toBeTruthy()
+})

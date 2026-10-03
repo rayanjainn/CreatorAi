@@ -114,8 +114,6 @@ test('deferred features render the honest not-available state', async ({ page })
     await page.goto(route)
     await expect(page.getByTestId('not-available')).toContainText('not built yet')
   }
-  await page.goto('/assets')
-  await expect(page.getByTestId('coming-next')).toContainText('Coming in the next build step')
   await page.goto('/board')
   await page.waitForURL('**/calendar')
   await page.goto('/does-not-exist')

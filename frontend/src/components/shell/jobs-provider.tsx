@@ -93,12 +93,4 @@ export function JobsProvider() {
   return null
 }
 
-/** Call right after enqueueing a job (e.g. after an upload) so progress shows up immediately. */
-export async function trackJob(jobId: string) {
-  try {
-    const job = await unwrap<Job>(api.GET('/api/v1/jobs/{job_id}', { params: { path: { job_id: jobId } } }))
-    useJobs.getState().upsertJob(job)
-  } catch {
-    /* the poller will find it */
-  }
-}
+export { trackJob } from '@/lib/track-job'

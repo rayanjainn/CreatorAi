@@ -168,6 +168,22 @@ def test_render_9x16_with_captions_transitions_sponsor_card_and_audio(
     assert client.get(f"{V1}/renders/{done['id']}", headers=auth).status_code == 404
 
 
+def test_list_all_renders_with_status_filter(
+    client: TestClient, auth: Hdr, clip: dict[str, str]
+) -> None:
+    assert client.get(f"{V1}/renders", headers=auth).json() == []
+    created = request_render(client, auth, clip["clip"], "reels")
+    rid = created["render"]["id"]
+    everything = client.get(f"{V1}/renders", headers=auth).json()
+    assert [r["id"] for r in everything] == [rid]
+    assert everything[0]["clip_title"] and everything[0]["content_item_id"] == clip["item"]
+    done = client.get(f"{V1}/renders", params={"status": "done"}, headers=auth).json()
+    assert [r["id"] for r in done] == [rid] and done[0]["download_url"]
+    assert client.get(f"{V1}/renders", params={"status": "failed"}, headers=auth).json() == []
+    assert client.get(f"{V1}/renders", params={"status": "nope"}, headers=auth).status_code == 422
+    assert client.get(f"{V1}/renders").status_code == 401
+
+
 def test_render_16x9_minimal_captions_from_the_generated_clip(
     client: TestClient, auth: Hdr, clip: dict[str, str], data_dir: Path
 ) -> None:

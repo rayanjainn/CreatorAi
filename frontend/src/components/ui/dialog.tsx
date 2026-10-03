@@ -13,7 +13,7 @@ type ModalProps = {
   description?: ReactNode
   children?: ReactNode
   footer?: ReactNode
-  size?: 'md' | 'sm'
+  size?: 'md' | 'sm' | 'lg'
   /** Block closing (while a request is in flight). */
   dismissible?: boolean
 }
@@ -25,7 +25,7 @@ export function Modal({ open, onOpenChange, title, eyebrow, description, childre
       <Dialog.Portal>
         <Dialog.Backdrop className="modal-backdrop" />
         <div className="modal-wrap">
-          <Dialog.Popup className={cn('modal', size === 'sm' && 'modal-sm')}>
+          <Dialog.Popup className={cn('modal', size === 'sm' && 'modal-sm', size === 'lg' && 'modal-lg')}>
             <div className="modal-head">
               <div>
                 {eyebrow && <div className="eyebrow violet-text">{eyebrow}</div>}

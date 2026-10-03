@@ -207,6 +207,7 @@ HERO_PLAN = {
         "One idea per sentence",
         "End by repeating the promise",
     ],
+    # One entry per structure section (the API enforces exactly one shot per scene of the plan).
     "shot_list": [
         {
             "scene": 1,
@@ -218,44 +219,30 @@ HERO_PLAN = {
         {
             "scene": 2,
             "shot_type": "screen",
-            "framing": "timeline overview",
-            "b_roll": "bin full of clips",
-            "note": "",
+            "framing": "timeline: import, trim, b-roll, color",
+            "b_roll": "bin full of clips, razor tool, before / after split",
+            "note": "One sentence per step.",
         },
         {
             "scene": 3,
-            "shot_type": "screen",
-            "framing": "razor tool trimming",
-            "b_roll": "waveform with gaps",
-            "note": "",
-        },
-        {
-            "scene": 4,
-            "shot_type": "screen",
-            "framing": "b-roll track",
-            "b_roll": "cutaway clips",
-            "note": "",
-        },
-        {
-            "scene": 5,
-            "shot_type": "screen",
-            "framing": "color panel",
-            "b_roll": "before / after split",
-            "note": "",
-        },
-        {
-            "scene": 6,
             "shot_type": "close-up",
             "framing": "face, eye-level",
             "b_roll": "mixer sliders",
             "note": "",
         },
         {
-            "scene": 7,
+            "scene": 4,
             "shot_type": "screen",
             "framing": "export dialog",
             "b_roll": "two export presets",
             "note": "",
+        },
+        {
+            "scene": 5,
+            "shot_type": "medium",
+            "framing": "face, eye-level",
+            "b_roll": "",
+            "note": "Repeat the promise.",
         },
     ],
     "hook_ideas": [h[0] for h in HERO_HOOKS],

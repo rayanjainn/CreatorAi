@@ -24,3 +24,22 @@ Backend gaps and oddities hit while wiring the frontend. Each is worked around i
 12. Next.js `next dev` writes `AGENTS.md`/`CLAUDE.md` into `frontend/`; disabled with `agentRules: false` and git-ignored.
 13. **Empty `OLLAMA_BASE_URL=` counts as a configured Ollama provider** (data_mode becomes `real` with no key). Leave the variable
     unset (default `https://ollama.com`, which needs `OLLAMA_API_KEY`) to be "unconfigured".
+14. **Seeded hero plan was not editable**: `HERO_PLAN` had 5 structure sections but 7 shot rows, so `PATCH .../director/plan`
+    answered `422 (exactly one entry per scene)` for every edit. `scripts/demo_data.py` now seeds 5 shots.
+15. **`GET /clips` and `GET /renders` added** (plain lists, filters, `limit` 1-200) so Smart Clips and Repurpose do not do N+1 per project.
+16. **`GET /content/{id}` returns the full card** (`progress`, `running_jobs`, `thumbnail_url`) but the OpenAPI response model is
+    `ContentItemOut`; the frontend casts to `Card`. Declaring `response_model=CardOut` would fix the types.
+17. **Open-object payloads** (`PlanOut.plan`, `ReviewOut.issues/scores`, `ScriptOut.scenes/meta`, `AssetDetail.analysis`) are `object` in
+    OpenAPI, so their shapes are hand-typed in `lib/api/types.ts` and can drift. Typed sub-models would let `gen:api` cover them.
+18. **Hooks are not stamped with provenance per option** (`HooksOut.hooks[]` has none; only the response does). The picker falls back to the
+    response provenance for fresh hooks; persisted ones carry it in `script.hook_options[].provenance`.
+19. **Expected 404/409 reads are avoided by gating** (card flags, version lists) because browsers log every failed fetch; a `204`/`null`
+    style "none yet" response would remove the need.
+20. **Review `missing_scenes` items use `text`** (not `title`/`beats`) while match `missing_scenes` use `title`/`beats`/`suggestion`; the
+    UI handles both.
+21. **No transcript endpoint for audio-less video**: `GET .../transcript` 404s until transcription ran, so the transcript tab falls back to
+    `segments` from the asset detail.
+22. **Playback in headless Chromium** is impossible for the H.264 proxy (see frontend/README). Seeking is verified through the player's
+    `data-seek-target`; real playback needs Chrome/Edge/Safari.
+23. **Job SSE only starts after the 4 s poll finds the job**, so an upload's pipeline checklist can lag one poll behind the real stage; the
+    asset query (`stages_done`, polled every 2.5 s while processing) keeps it correct.

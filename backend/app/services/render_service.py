@@ -383,6 +383,24 @@ def list_for_content(db: Session, workspace_id: str, item_id: str) -> list[dict[
     return _outs(db, workspace_id, list(rows))
 
 
+def list_all(
+    db: Session,
+    workspace_id: str,
+    *,
+    status: str | None = None,
+    limit: int = 200,
+    offset: int = 0,
+) -> list[dict[str, Any]]:
+    """Renders of every clip, newest first (the cross-project Repurpose / export hub)."""
+    stmt = select(Render).where(Render.workspace_id == workspace_id)
+    if status:
+        stmt = stmt.where(Render.status == status)
+    rows = db.execute(
+        stmt.order_by(Render.created_at.desc(), Render.id).limit(limit).offset(offset)
+    ).scalars()
+    return _outs(db, workspace_id, list(rows))
+
+
 def delete_render(db: Session, workspace_id: str, render_id: str) -> None:
     render = db.get(Render, render_id)
     if render is None or render.workspace_id != workspace_id:
