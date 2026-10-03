@@ -19,3 +19,9 @@ Append one 5-line entry per task (newest last):
 - Learned: login compares against a dummy hash when the email is unknown so the 401 is the same in timing and message; jwt.verify is pinned to HS256 so alg=none is rejected; getUserById returns null for non-uuid ids instead of a PG cast error.
 - Next: P1.T2 projects CRUD. The phase0 "501 stubs" table listed the four phase-1 routes; with human approval those rows were removed (each phase drops its own rows when it replaces its stubs).
 - Gate: `npm run gate -- 1` passed (lint + 90/90 tests).
+
+## P1.T2 projects CRUD (2026-10-04)
+- Done: 011_projects.sql (projects, project_members with role CHECK + PK(project_id,user_id), index on user_id); real projects Router with POST/GET/GET :id/PATCH/DELETE, requireAuth per route, members/activity kept as 501 via a merged stubRouter; service.js exports ROLES, hasRole, isProjectId, getMembership, assertRole, createProject (project + owner in one transaction), listProjects, getProject, updateProject (editor+), deleteProject (owner); 39 tests in tests/phase1/projects.test.js.
+- Learned: the projects router runs before the /projects/:projectId module routers, so no path-less middleware on it; a malformed :projectId is 404 (projectIdParam), non-member 404, member below role 403. Body validation runs before the membership check, so a bad body is 400 for anyone (independent of whether the project exists).
+- Next: P1.T3 requireRole(minRole) middleware built on getMembership/hasRole (assertRole already throws the right 404/403), members endpoints replacing the 501 stubs, last-owner protection, role matrix test.
+- Gate: `npm run gate -- 1` passed (lint + 129/129 tests).
