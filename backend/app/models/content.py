@@ -36,6 +36,7 @@ class IdeaSuggestion(Base):
     rationale: Mapped[str] = mapped_column(String, nullable=False, default="")
     source: Mapped[str] = mapped_column(String, nullable=False)
     status: Mapped[str] = mapped_column(String, nullable=False, default="suggested")
+    provenance: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     created_at: Mapped[str] = created_at_col()
 
 

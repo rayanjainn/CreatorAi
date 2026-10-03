@@ -31,6 +31,17 @@ SAMPLES: dict[str, dict[str, Any]] = {
     "script.generate": {"topic": "editing videos faster", "hook": "Stop editing the slow way.",
         "tone": "witty", "platform": "shorts", "length_sec": 45,
         "structure": [{"section": "Hook"}, {"section": "Problem"}, {"section": "Solution"}, {"section": "CTA"}]},
+    "script.regenerate_scene": {"topic": "editing videos faster", "hook": "Stop editing the slow way.",
+        "tone": "witty", "platform": "shorts", "is_opening": False, "target_words": 30,
+        "scene": {"idx": 2, "title": "Core idea", "intent": "teach", "text": "Do this. Then that.",
+                  "beats": [{"idx": 0, "text": "Do this.", "intent": "", "est_sec": 1.0}]},
+        "previous_scene": "Context text.", "next_scene": "Proof text.", "instruction": ""},
+    "script.tighten": {"topic": "editing videos faster", "hook": "Stop editing the slow way.",
+        "is_opening": False, "target_words": 12,
+        "scene": {"idx": 1, "title": "Context", "intent": "setup", "text": "Most people really just get stuck here. It is honestly quite hard.",
+                  "beats": [{"idx": 0, "text": "Most people really just get stuck here.", "intent": "", "est_sec": 3.0},
+                            {"idx": 1, "text": "It is honestly quite hard.", "intent": "", "est_sec": 2.0}]}},
+    "content.ideas": {"topic": "editing", "count": 3, "recent_titles": ["editing: the question version"], "domain": "technology"},
     "script.meta": {"script_text": "Stop editing the slow way. Here is my workflow.", "topic": "editing"},
     "assets.caption_keyframes": {"filename": "a.mp4", "shots": [
         {"id": "shot_0", "transcript": "Welcome to my studio setup today"},
@@ -53,7 +64,7 @@ SAMPLES: dict[str, dict[str, Any]] = {
 
 def test_every_task_has_route_schema_prompt_and_sample() -> None:
     assert set(TASK_ROUTES) == set(TASK_SCHEMAS) == set(SAMPLES)
-    assert len(TASK_ROUTES) == 12
+    assert len(TASK_ROUTES) == 15
 
 
 @pytest.mark.parametrize("task", sorted(TASK_SCHEMAS))

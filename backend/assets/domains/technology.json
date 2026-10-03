@@ -1,0 +1,201 @@
+{
+  "domain": "technology",
+  "summary": "Reviews, tutorials, workflows and tool comparisons. Viewers want a verdict or a result fast and proof that it works; screen footage and numbers carry credibility.",
+  "archetypes": [
+    {
+      "name": "Result first workflow",
+      "when_to_use": "Showing how you do something with a tool or setup.",
+      "structure": [
+        {
+          "section": "Hook",
+          "goal": "Show the end result and promise how long it takes",
+          "share": 0.1,
+          "notes": "Start on the finished output"
+        },
+        {
+          "section": "Setup",
+          "goal": "State what you need in one breath",
+          "share": 0.1,
+          "notes": ""
+        },
+        {
+          "section": "Step by step",
+          "goal": "Walk through the workflow in the order the viewer will do it",
+          "share": 0.5,
+          "notes": "Screen capture with a face cam inset"
+        },
+        {
+          "section": "Proof",
+          "goal": "Compare before and after with a number",
+          "share": 0.2,
+          "notes": "Time saved, speed, price"
+        },
+        {
+          "section": "CTA",
+          "goal": "Point to the template, link or next video",
+          "share": 0.1,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "name": "Quick review",
+      "when_to_use": "A product or tool verdict.",
+      "structure": [
+        {
+          "section": "Verdict hook",
+          "goal": "Give the verdict and who it is for",
+          "share": 0.12,
+          "notes": ""
+        },
+        {
+          "section": "What it does well",
+          "goal": "Two strongest features with footage",
+          "share": 0.3,
+          "notes": ""
+        },
+        {
+          "section": "What annoys me",
+          "goal": "One honest flaw",
+          "share": 0.2,
+          "notes": ""
+        },
+        {
+          "section": "Price and alternatives",
+          "goal": "Cost and the best alternative",
+          "share": 0.2,
+          "notes": ""
+        },
+        {
+          "section": "Final call",
+          "goal": "Buy, wait or skip, then CTA",
+          "share": 0.18,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "name": "Versus",
+      "when_to_use": "Comparing two tools.",
+      "structure": [
+        {
+          "section": "Hook",
+          "goal": "Ask which one wins and why it matters",
+          "share": 0.1,
+          "notes": ""
+        },
+        {
+          "section": "Round 1",
+          "goal": "First criterion with a side-by-side",
+          "share": 0.25,
+          "notes": ""
+        },
+        {
+          "section": "Round 2",
+          "goal": "Second criterion with a side-by-side",
+          "share": 0.25,
+          "notes": ""
+        },
+        {
+          "section": "Round 3",
+          "goal": "Deciding criterion",
+          "share": 0.25,
+          "notes": ""
+        },
+        {
+          "section": "Winner and CTA",
+          "goal": "Pick one and tell who should choose the other",
+          "share": 0.15,
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "hook_styles": [
+    {
+      "type": "number",
+      "pattern": "I [did X] in [N minutes / dollars / steps]",
+      "example": "I cut my editing time from 4 hours to 40 minutes"
+    },
+    {
+      "type": "bold_claim",
+      "pattern": "Stop using [tool]. Use [tool] instead.",
+      "example": "Stop exporting from your timeline. Do this instead"
+    },
+    {
+      "type": "question",
+      "pattern": "Is [product] actually worth [price]?",
+      "example": "Is the new laptop actually worth 400 dollars more?"
+    },
+    {
+      "type": "story",
+      "pattern": "I switched to [tool] last month and [surprising consequence]",
+      "example": "I switched my whole workflow last month and broke everything"
+    }
+  ],
+  "pacing": {
+    "wpm": [
+      155,
+      180
+    ],
+    "max_intro_sec": 6,
+    "scene_sec": [
+      5,
+      18
+    ],
+    "cut_every_sec": [
+      3,
+      6
+    ],
+    "pause_max_sec": 0.5,
+    "notes": "Fast cuts on screen recordings; zoom or highlight on every click."
+  },
+  "shot_conventions": [
+    {
+      "section": "Hook",
+      "shot_type": "close-up",
+      "framing": "face, eye-level, product in hand",
+      "b_roll": "the finished result on screen",
+      "note": "Cut to the result by second 2"
+    },
+    {
+      "section": "Setup",
+      "shot_type": "medium",
+      "framing": "desk view, product and screen visible",
+      "b_roll": "gear laid out or app home screen",
+      "note": ""
+    },
+    {
+      "section": "Step by step",
+      "shot_type": "screen recording",
+      "framing": "full screen with face cam inset",
+      "b_roll": "cursor close-ups, keyboard shortcuts overlay",
+      "note": "Zoom on each click; add step numbers"
+    },
+    {
+      "section": "Proof",
+      "shot_type": "split screen",
+      "framing": "before and after side by side",
+      "b_roll": "benchmark or timer graphic",
+      "note": "Show the number big"
+    },
+    {
+      "section": "CTA",
+      "shot_type": "close-up",
+      "framing": "face, eye-level",
+      "b_roll": "link or QR on screen",
+      "note": "Say the exact next action"
+    }
+  ],
+  "cta_patterns": [
+    "Grab the free template from the link below",
+    "Subscribe for the next workflow breakdown",
+    "Comment which tool I should test next"
+  ],
+  "common_risks": [
+    "Showing settings without saying why",
+    "Screen text too small on a phone",
+    "Burying the verdict at the end",
+    "Sponsor read before delivering any value"
+  ]
+}

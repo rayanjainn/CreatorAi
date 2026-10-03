@@ -1,0 +1,201 @@
+{
+  "domain": "entertainment",
+  "summary": "Comedy, challenges, stories, reactions and commentary. Viewers stay for tension and payoff; energy, surprise and a strong first line matter more than information.",
+  "archetypes": [
+    {
+      "name": "Setup, escalation, twist",
+      "when_to_use": "Sketches, stories and challenge videos.",
+      "structure": [
+        {
+          "section": "Cold open",
+          "goal": "Drop into the most intriguing moment",
+          "share": 0.08,
+          "notes": "No intro, no greeting"
+        },
+        {
+          "section": "Setup",
+          "goal": "Establish the situation and the stakes",
+          "share": 0.17,
+          "notes": ""
+        },
+        {
+          "section": "Escalation",
+          "goal": "Raise the stakes twice",
+          "share": 0.4,
+          "notes": "Each beat bigger than the last"
+        },
+        {
+          "section": "Twist or payoff",
+          "goal": "Deliver the surprise or punchline",
+          "share": 0.25,
+          "notes": ""
+        },
+        {
+          "section": "Button and CTA",
+          "goal": "One last laugh then a single ask",
+          "share": 0.1,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "name": "Reaction and commentary",
+      "when_to_use": "Reacting to a clip, trend or news.",
+      "structure": [
+        {
+          "section": "Hook",
+          "goal": "Play the wildest second of the clip",
+          "share": 0.1,
+          "notes": ""
+        },
+        {
+          "section": "Context",
+          "goal": "What this is in one line",
+          "share": 0.12,
+          "notes": ""
+        },
+        {
+          "section": "Takes",
+          "goal": "Three reactions with your angle",
+          "share": 0.55,
+          "notes": ""
+        },
+        {
+          "section": "Verdict",
+          "goal": "Your final take",
+          "share": 0.13,
+          "notes": ""
+        },
+        {
+          "section": "CTA",
+          "goal": "Ask the audience to pick a side",
+          "share": 0.1,
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "name": "Storytime",
+      "when_to_use": "Personal stories, 60 to 180 s.",
+      "structure": [
+        {
+          "section": "Hook",
+          "goal": "State the unbelievable outcome first",
+          "share": 0.1,
+          "notes": ""
+        },
+        {
+          "section": "Backstory",
+          "goal": "Quick context",
+          "share": 0.2,
+          "notes": ""
+        },
+        {
+          "section": "Rising action",
+          "goal": "Three escalating moments",
+          "share": 0.4,
+          "notes": ""
+        },
+        {
+          "section": "Climax",
+          "goal": "The moment everything changed",
+          "share": 0.2,
+          "notes": ""
+        },
+        {
+          "section": "Lesson and CTA",
+          "goal": "What it taught you, then the ask",
+          "share": 0.1,
+          "notes": ""
+        }
+      ]
+    }
+  ],
+  "hook_styles": [
+    {
+      "type": "story",
+      "pattern": "[Time] ago I [did something risky], and [consequence]",
+      "example": "Last year I accepted a dare I should never have taken"
+    },
+    {
+      "type": "bold_claim",
+      "pattern": "This is the [worst / best / funniest] [thing] I have ever [done]",
+      "example": "This is the worst idea I have ever filmed"
+    },
+    {
+      "type": "question",
+      "pattern": "What happens if [absurd premise]?",
+      "example": "What happens if you only say yes for 24 hours?"
+    },
+    {
+      "type": "contrast",
+      "pattern": "Everyone said [X]. I did [Y].",
+      "example": "Everyone said it was impossible. I did it in a day"
+    }
+  ],
+  "pacing": {
+    "wpm": [
+      165,
+      195
+    ],
+    "max_intro_sec": 3,
+    "scene_sec": [
+      3,
+      12
+    ],
+    "cut_every_sec": [
+      2,
+      5
+    ],
+    "pause_max_sec": 0.4,
+    "notes": "Keep pauses only when they are the joke; cut on action; sound design lifts every beat."
+  },
+  "shot_conventions": [
+    {
+      "section": "Cold open",
+      "shot_type": "close-up",
+      "framing": "face, tight, high energy",
+      "b_roll": "the peak moment, no context",
+      "note": "Start mid-action"
+    },
+    {
+      "section": "Setup",
+      "shot_type": "wide",
+      "framing": "full scene, subject centred",
+      "b_roll": "establishing shot of the location",
+      "note": ""
+    },
+    {
+      "section": "Escalation",
+      "shot_type": "handheld medium",
+      "framing": "subject and reaction in frame",
+      "b_roll": "cutaways to reactions and props",
+      "note": "Cut on movement"
+    },
+    {
+      "section": "Twist or payoff",
+      "shot_type": "close-up",
+      "framing": "reaction face, then reveal wide",
+      "b_roll": "the reveal in one clean shot",
+      "note": "Hold one beat after the reveal"
+    },
+    {
+      "section": "Button and CTA",
+      "shot_type": "medium",
+      "framing": "face, direct to camera",
+      "b_roll": "blooper or last reaction",
+      "note": "Keep the CTA under 4 seconds"
+    }
+  ],
+  "cta_patterns": [
+    "Follow for part two",
+    "Comment who should be next",
+    "Share this with the friend who would do it"
+  ],
+  "common_risks": [
+    "Slow setup before the first laugh",
+    "Explaining the joke",
+    "Ending after the payoff without a button",
+    "Audio levels uneven between takes"
+  ]
+}
