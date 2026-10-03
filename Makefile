@@ -5,7 +5,7 @@ PY := $(VENV)/bin/python
 HAS_WEB := $(wildcard frontend/package.json)
 
 .DEFAULT_GOAL := help
-.PHONY: help setup models models-asr dev seed migrate test lint reset clean gen-api
+.PHONY: help setup models models-asr dev seed demo-media migrate test lint reset clean gen-api
 
 help: ## Show this help
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-9s %s\n", $$1, $$2}'
@@ -32,6 +32,9 @@ dev: ## Start API (:8000) and web (:3000) together
 seed: ## Load the demo user, profile, board and hero project
 	@if [ -f backend/scripts/seed_demo.py ]; then cd backend && .venv/bin/python scripts/seed_demo.py; \
 	else echo "backend/scripts/seed_demo.py not found yet"; exit 1; fi
+
+demo-media: ## Generate synthetic DEMO footage + words.json sidecar in data/demo (needs ffmpeg)
+	$(PY) backend/scripts/make_demo_media.py --out data/demo
 
 migrate: ## Apply pending SQL migrations
 	$(PY) backend/scripts/migrate.py

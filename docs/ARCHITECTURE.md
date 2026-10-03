@@ -40,8 +40,9 @@ CreatorAi runs as **two processes** on one machine: a FastAPI API on :8000 and t
 | `repositories/` | Workspace-scoped queries (`base.py` pattern) |
 | `workers/` | `runner.py` (pools, registry, `enqueue`), `pubsub.py`, `events.py`, `scheduler.py` |
 | `llm/` | `gateway.py`, `tasks.py` (routes), `schemas.py`, `prompts/*.md`, `providers/`, `ratelimit.py`, `cache.py`, `context.py` |
-| `ml/` | `embedder.py` (auto backend), `vectors.py` (pack/unpack/top-k) |
-| `media/ffmpeg.py` | `run()` with progress/timeout, `probe()`, availability check |
+| `ml/` | `embedder.py` (auto backend), `vectors.py` (pack/unpack/top-k), `asr/` (providers), `transcripts.py` (sidecars), `segments.py`, `shots.py`, `silence.py`, `energy.py` |
+| `media/` | `ffmpeg.py` (`run()`, `probe()`), `audio.py` (extract, chunk planning), `frames.py` (proxy, thumb, keyframes), `kinds.py` (kind detection) |
+| `services/` | `assets.py`, `uploads.py`, `search_service.py`, `hooks.py`, `ingest/` (the `asset.process` stages) |
 | `storage/` | `StorageBackend` interface and `LocalStorage` rooted at `DATA_DIR` |
 
 ## Request flow
@@ -77,13 +78,55 @@ provider fails it raises `LLM_BUSY` (503, `retry_after`); with none configured i
 (never the default, never cached, always flagged). Each result carries `LLMMeta` (provider, model,
 is_mock, cache_hit, latency) which becomes the response `provenance`.
 
+## Asset ingest pipeline
+
+`POST /uploads/.../complete` (or `POST /assets/upload`) stores the file at
+`media/{ws}/{asset}/original.<ext>`, dedupes by sha256 and enqueues `asset.process` (queue `media`).
+`workers/tasks/asset_process.py` is a thin handler over `services/ingest/pipeline.py`, which runs the
+stages of Plan.md 3.3 / 8.1 in order and reports the cumulative progress of the plan
+(probe 5, audio 15, proxy 30, silence 38, transcribe 60, segments 66, shots 72, keyframes 78,
+caption 88, embed 97, finalize 100):
+
+```
+probe -> audio -> proxy -> silence(+energy) -> transcribe -> segments -> shots -> keyframes -> caption -> embed -> finalize
+```
+
+- **Kinds**: video = all stages; audio-only skips proxy/shots/keyframes/caption; image = probe, keyframes
+  (thumb + one shot), caption, embed; documents = probe (text of `.txt`/`.md` goes to `analysis.text`) and
+  finalize. A video without an audio track skips the audio and ASR stages.
+- **Checkpoints**: after each stage the stage name is appended to `assets.analysis.stages_done` in the same
+  transaction as its output. A stage runs when it is missing; running a stage invalidates every later one.
+  Retries, `POST /assets/{id}/reprocess` and "attach transcript" therefore resume instead of restarting.
+  A skipped stage is recorded as a note such as `"caption: skipped (llm unavailable)"` (not as done), so a
+  plain reprocess retries it. Cancel is checked between stages (and inside long loops); failure sets
+  `status='failed'`, `error`, `analysis.failed_stage`, `analysis.error_code`.
+- **Transcription**: sidecar (`user`/`demo`) -> Groq Whisper -> local faster-whisper -> `ASR_UNAVAILABLE`
+  (not retried). Audio is cut into ~600 s chunks at silences (+-30 s), word times are re-based by the chunk
+  offset, each chunk retries 429/5xx up to `ASR_MAX_TRIES` and falls through to the next provider.
+- **Captions**: one `assets.caption_keyframes` call (<= 12 keyframes + nearest transcript line); the other
+  shots inherit tags from the nearest captioned shot. With no LLM the asset still becomes `ready`; the
+  stage is skipped with a `CAPTIONS_UNAVAILABLE` warning and no provenance (nothing is fabricated).
+- **Embeddings**: segments and `caption + ". " + tags` of shots; `analysis.embedder` records backend and
+  model, and a changed backend re-embeds on the next reprocess (`POST /search/reindex` for the library).
+- **Provenance per stage** lives in `analysis.provenance` (`transcribe`, `caption`, `embed`, `shots`);
+  the asset-level `provenance` is the weakest of transcribe/caption/embed.
+- **Finalize** sets `ready` and calls `services.hooks.run_after_asset_ready`. The default hook enqueues
+  `project.match` when the content item has a current script and all its assets are ready, but only if that
+  job type is registered. Other features subscribe with `hooks.register_after_asset_ready(fn)`.
+
+Search (`services/search_service.py`) caches per-workspace numpy matrices of segment and shot embeddings
+(invalidated by `search_service.invalidate(ws)` on every write), fuses vector and FTS5 ranks with RRF
+(k = 60) and merges hits within 8 s. See `docs/API.md`.
+
 ## Data layout
 
 ```
 data/
   creatorai.db            SQLite (+ -wal/-shm)
   .secret                 generated APP_SECRET (chmod 600)
-  media/{workspace_id}/{asset_id}/original.<ext>, proxy.mp4, thumb.jpg, audio/, keyframes/
+  media/{workspace_id}/{asset_id}/original.<ext>, proxy.mp4, thumb.jpg, audio/full.mp3 (+chunk_NNN.mp3),
+                                  keyframes/shot_NNN.jpg, transcript.json, sidecar.(words.json|srt|vtt)
+  tmp/uploads/{workspace}/{upload}/NNNNNN.part   chunks of unfinished uploads
   renders/{render_id}.mp4 / .jpg
   tmp/                    uploads in progress, scratch files
 ```
