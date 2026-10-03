@@ -14,14 +14,17 @@ from tests.helpers import (
     V1,
     Hdr,
     make_item_with_script,
+    seed_demo_asset,
     upload_file,
     wipe_provider_keys,
 )
 
 
-def footage(client: TestClient, auth: Hdr, media: Any, item: str) -> dict[str, Any]:
-    body = upload_file(client, auth, media.video, sidecar=media.sidecar, content_item_id=item)
-    return dict(body["asset"])
+def footage(client: TestClient, auth: Hdr, media: Any, item: str, workspace_id: str) -> str:
+    """Seed processed footage and run matching (what the after-ready hook does on upload)."""
+    asset_id = seed_demo_asset(client, auth, media, item, workspace_id)
+    assert client.post(f"{V1}/content/{item}/match", headers=auth).status_code == 202
+    return asset_id
 
 
 def get_match(client: TestClient, auth: Hdr, item: str) -> dict[str, Any]:
@@ -56,7 +59,10 @@ def test_hook_matches_automatically_then_user_decisions_survive_a_rerun(
     client: TestClient, auth: Hdr, demo_media: Any
 ) -> None:
     item, script = make_item_with_script(client, auth)
-    asset = footage(client, auth, demo_media, item)  # after_asset_ready -> project.match
+    body = upload_file(
+        client, auth, demo_media.video, sidecar=demo_media.sidecar, content_item_id=item
+    )
+    asset = body["asset"]  # after_asset_ready -> project.match
     assert asset["status"] == "ready"
     runs = jobs_of(item)
     assert (
@@ -128,14 +134,14 @@ def test_hook_matches_automatically_then_user_decisions_survive_a_rerun(
 
 
 def test_swap_custom_range_validation_and_isolation(
-    client: TestClient, auth: Hdr, demo_media: Any
+    client: TestClient, auth: Hdr, demo_media: Any, workspace_id: str
 ) -> None:
     item, _ = make_item_with_script(client, auth)
-    asset = footage(client, auth, demo_media, item)
+    asset_id = footage(client, auth, demo_media, item, workspace_id)
     row = get_match(client, auth, item)["beats"][0]
     url = f"{V1}/beat-matches/{row['match_id']}/swap"
     ok = client.post(
-        url, json={"asset_id": asset["id"], "start_sec": 10.0, "end_sec": 14.5}, headers=auth
+        url, json={"asset_id": asset_id, "start_sec": 10.0, "end_sec": 14.5}, headers=auth
     )
     assert ok.status_code == 200, ok.text
     body = ok.json()
@@ -143,10 +149,10 @@ def test_swap_custom_range_validation_and_isolation(
     assert body["alternatives"][0]["start_sec"] == 10.0 and len(body["alternatives"]) <= 4
     for bad in (
         {},
-        {"alternative_index": 0, "asset_id": asset["id"]},
-        {"asset_id": asset["id"], "start_sec": 5},
-        {"asset_id": asset["id"], "start_sec": 9, "end_sec": 3},
-        {"asset_id": asset["id"], "start_sec": 1, "end_sec": 9999},
+        {"alternative_index": 0, "asset_id": asset_id},
+        {"asset_id": asset_id, "start_sec": 5},
+        {"asset_id": asset_id, "start_sec": 9, "end_sec": 3},
+        {"asset_id": asset_id, "start_sec": 1, "end_sec": 9999},
         {"asset_id": "nope", "start_sec": 1, "end_sec": 3},
         {"alternative_index": 9},
     ):
@@ -165,10 +171,14 @@ def test_swap_custom_range_validation_and_isolation(
 
 
 def test_script_edit_does_not_auto_match_and_beats_are_reembedded_on_backend_change(
-    client: TestClient, auth: Hdr, demo_media: Any, monkeypatch: pytest.MonkeyPatch
+    client: TestClient,
+    auth: Hdr,
+    demo_media: Any,
+    workspace_id: str,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     item, script = make_item_with_script(client, auth)
-    footage(client, auth, demo_media, item)
+    footage(client, auth, demo_media, item, workspace_id)
     assert len(jobs_of(item)) == 1
     edited = [{"title": "Intro", "text": "Here is how I edit a video from start to finish."}]
     assert (
@@ -195,11 +205,15 @@ def test_script_edit_does_not_auto_match_and_beats_are_reembedded_on_backend_cha
 
 
 def test_ambiguity_calls_the_llm_only_when_configured(
-    client: TestClient, auth: Hdr, demo_media: Any, monkeypatch: pytest.MonkeyPatch
+    client: TestClient,
+    auth: Hdr,
+    demo_media: Any,
+    workspace_id: str,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(match_service, "AMBIGUITY_MARGIN", 5.0)  # every close pair is ambiguous
     item, _ = make_item_with_script(client, auth)
-    footage(client, auth, demo_media, item)
+    footage(client, auth, demo_media, item, workspace_id)
     result = jobs_of(item)[-1].result
     assert 1 <= result["disambiguated"] <= 3  # mock LLM is enabled in tests
     body = get_match(client, auth, item)

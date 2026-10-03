@@ -12,16 +12,17 @@ from app.models import ActivityLog, Asset, Clip, Edit, EditRevision, Job
 from app.schemas.timeline import Timeline
 from app.services import timeline_service as ts
 from app.services import twin_events
-from tests.helpers import V1, Hdr, make_item_with_script, upload_file, wipe_provider_keys
+from tests.helpers import V1, Hdr, make_item_with_script, seed_demo_asset, wipe_provider_keys
 
 
-def ready_item(client: TestClient, auth: Hdr, media: Any, script: bool = True) -> tuple[str, str]:
+def ready_item(
+    client: TestClient, auth: Hdr, media: Any, workspace_id: str, script: bool = True
+) -> tuple[str, str]:
     if script:
         item, _ = make_item_with_script(client, auth)
     else:
         item = client.post(f"{V1}/content", json={"title": "Raw"}, headers=auth).json()["id"]
-    asset = upload_file(client, auth, media.video, sidecar=media.sidecar, content_item_id=item)
-    return str(item), str(asset["asset"]["id"])
+    return str(item), seed_demo_asset(client, auth, media, str(item), workspace_id)
 
 
 def generate(client: TestClient, auth: Hdr, item: str, **body: Any) -> dict[str, Any]:
@@ -59,7 +60,7 @@ def test_generate_requires_processed_video(client: TestClient, auth: Hdr) -> Non
 def test_full_pipeline_with_mock_llm_edits_and_music(
     client: TestClient, auth: Hdr, demo_media: Any, workspace_id: str
 ) -> None:
-    item, asset_id = ready_item(client, auth, demo_media)
+    item, asset_id = ready_item(client, auth, demo_media, workspace_id)
     with session_scope() as db:  # a library track tagged "music" (the file itself is not needed)
         db.add(
             Asset(
@@ -158,9 +159,13 @@ def test_full_pipeline_with_mock_llm_edits_and_music(
 
 
 def test_without_llm_falls_back_to_deterministic_copy_and_flags_it(
-    client: TestClient, auth: Hdr, demo_media: Any, monkeypatch: pytest.MonkeyPatch
+    client: TestClient,
+    auth: Hdr,
+    demo_media: Any,
+    workspace_id: str,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    item, _ = ready_item(client, auth, demo_media, script=False)
+    item, _ = ready_item(client, auth, demo_media, workspace_id, script=False)
     wipe_provider_keys(monkeypatch, allow_mock=False)
     result = generate(client, auth, item)
     assert any(w.startswith("COPY_FALLBACK: LLM_NOT_CONFIGURED") for w in result["warnings"])
@@ -179,9 +184,9 @@ def test_without_llm_falls_back_to_deterministic_copy_and_flags_it(
 
 
 def test_regenerating_replaces_untouched_suggestions_and_skips_decided_windows(
-    client: TestClient, auth: Hdr, demo_media: Any
+    client: TestClient, auth: Hdr, demo_media: Any, workspace_id: str
 ) -> None:
-    item, _ = ready_item(client, auth, demo_media)
+    item, _ = ready_item(client, auth, demo_media, workspace_id)
     generate(client, auth, item, count=2)
     first = clips_of(client, auth, item)
     keep, drop = first[0], first[-1]
@@ -205,7 +210,7 @@ def test_regenerating_replaces_untouched_suggestions_and_skips_decided_windows(
 def test_accept_emits_twin_event_after_commit_and_logs_activity(
     client: TestClient, auth: Hdr, demo_media: Any, workspace_id: str
 ) -> None:
-    item, _ = ready_item(client, auth, demo_media)
+    item, _ = ready_item(client, auth, demo_media, workspace_id)
     generate(client, auth, item, count=1)
     clip = clips_of(client, auth, item)[0]
     seen: list[tuple[str, str, dict[str, Any]]] = []

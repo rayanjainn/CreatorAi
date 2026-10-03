@@ -18,7 +18,7 @@ from tests.integration.test_clips_flow import clips_of, generate, ready_item
 
 @pytest.fixture
 def clip(client: TestClient, auth: Hdr, demo_media: Any, workspace_id: str) -> dict[str, Any]:
-    item, asset_id = ready_item(client, auth, demo_media)
+    item, asset_id = ready_item(client, auth, demo_media, workspace_id)
     with session_scope() as db:
         db.add(
             Asset(
