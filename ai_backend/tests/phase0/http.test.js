@@ -93,7 +93,6 @@ describe('module routers are mounted as 501 stubs', () => {
     ['post', '/webhooks/cloudinary', 2],
     ['get', '/projects/p1/media/a1/index', 2],
     ['post', '/projects/p1/search', 3],
-    ['post', '/projects/p1/agents/director/plan', 4],
     ['post', '/projects/p1/agents/research', 4],
     ['patch', '/projects/p1/scripts/s1', 4],
     ['post', '/projects/p1/timelines/t1/versions', 5],

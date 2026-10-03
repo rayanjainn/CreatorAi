@@ -81,7 +81,7 @@ function toRunError(err) {
 //            projectId, userId, runId? })
 //   tools:   [{ name, run(input) }], run before the model; results go into the prompt
 //   refine:  (output, { input, toolResults }) -> output; throw AgentOutputError to retry
-//   persist: (client, { output, input, toolResults, runId }) -> { type, id } | null
+//   persist: (client, { output, input, toolResults, runId, projectId, userId }) -> { type, id } | null
 //   runId:   finish an existing (queued) run; otherwise a new run row is created.
 // Never throws for agent failures: returns { run, output, artifact } with run.status
 // 'succeeded' or 'failed'.
@@ -141,7 +141,8 @@ export async function runAgent(opts) {
 
       const runId = row.id;
       return await withTransaction(async (client) => {
-        const artifact = persist ? ((await persist(client, { output, input, toolResults, runId })) ?? null) : null;
+        const ctx = { output, input, toolResults, runId, projectId: row.project_id, userId: row.created_by };
+        const artifact = persist ? ((await persist(client, ctx)) ?? null) : null;
         const done = await repo.finishRun(runId, { ...stats, status: 'succeeded', output, artifact, ms: elapsed() }, client);
         return { run: toRun(done), output, artifact };
       });

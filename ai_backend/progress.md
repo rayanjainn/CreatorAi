@@ -37,3 +37,9 @@ Append one 5-line entry per task (newest last):
 - Learned: the worktree started from main (no ai_backend/), so it was reset to feat/ai-backend-phase0. Agent failures are recorded on the run and the job completes, so pg-boss never retries a run whose outcome is already decided. Approved phase0 edits: removed the agents/runs 501 row (http.test.js) and the llm.completeJson "not implemented" row and its now-unused import (adapters.test.js).
 - Next: P4.T2 Director (content_plans, POST /agents/director/plan, GET /plans).
 - Gate: gate 4 needs tests/phase2 and phase3 (other tracks); `eslint . && vitest run tests/phase0 tests/phase1 tests/phase4` passed (231/231).
+
+## P4.T2 Director Agent (2026-10-04)
+- Done: 041_content_plans.sql; director schemas (DirectorInput {niche, audience, goals[], cadence, horizonDays, startDate?}, PlanDoc {ideas[] {title, angle, format, hook}, schedule[] {date, ideaIdx}} with ideaIdx bounds check, Plan); service exports directorAgent, requestPlan, listPlans, getPlan; routes POST /agents/director/plan (editor+, 202 { runId, status }), GET /plans, /plans/:planId (viewer+); registered in workers/agents.js; tests/phase4/director.test.js (8) and tests/phase4/rbac-matrix.test.js (director + runs rows).
+- Learned: persist() now also receives projectId and userId from the run row. The timeout test waits for the fake model to be called (not a fixed sleep) before probing /health, so it is not timing-flaky. The registry is built per call so the agents <-> queue import cycle never reads a binding during module evaluation.
+- Next: P4.T3 Research (research_briefs, real search adapter, citations restricted to search results).
+- Gate: `eslint . && vitest run tests/phase0 tests/phase1 tests/phase4` passed (259/259); director plan 501 row removed from http.test.js.
