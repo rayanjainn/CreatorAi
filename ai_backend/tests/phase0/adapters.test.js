@@ -9,10 +9,8 @@ import { getTranscription } from '../../src/adapters/transcription/index.js';
 import { getStorage } from '../../src/adapters/storage/index.js';
 import { getWebSearch } from '../../src/adapters/search/index.js';
 import { getFfmpeg } from '../../src/adapters/ffmpeg/index.js';
-import * as llmReal from '../../src/adapters/llm/real.js';
 import * as embeddingsReal from '../../src/adapters/embeddings/real.js';
 import * as transcriptionReal from '../../src/adapters/transcription/real.js';
-import * as searchReal from '../../src/adapters/search/real.js';
 import * as ffmpegReal from '../../src/adapters/ffmpeg/real.js';
 import { CompleteJsonOutput } from '../../src/adapters/llm/contract.js';
 import { embeddingsOutput } from '../../src/adapters/embeddings/contract.js';
@@ -126,10 +124,8 @@ describe('fake ffmpeg', () => {
 
 describe('real adapters are stubs until their phase', () => {
   it.each([
-    ['llm.completeJson', () => llmReal.completeJson({ prompt: 'x' })],
     ['embeddings.embedTexts', () => embeddingsReal.embedTexts(['x'])],
     ['transcription.transcribe', () => transcriptionReal.transcribe({ url: 'x' })],
-    ['search.search', () => searchReal.search('x')],
     ['ffmpeg.probe', () => ffmpegReal.probe('x')],
   ])('%s throws "not implemented"', async (_name, call) => {
     await expect(call()).rejects.toThrow(/not implemented/);

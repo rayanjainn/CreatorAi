@@ -1,7 +1,11 @@
-// agents routes: shared agent runner (run.js) and agent_runs.
-// Stubbed (501) until phase 4; replace stubRouter with a real Router then.
-import { stubRouter } from '../../lib/http.js';
+// agents routes: polling agent runs. Mounted at /projects/:projectId alongside other
+// routers, so no path-less middleware: requireRole goes on each route.
+import { Router } from 'express';
+import { requireRole } from '../projects/service.js';
+import { getRun } from './service.js';
 
-export const router = stubRouter(4, [
-  ['get', '/agents/runs/:runId'],
-]);
+export const router = Router({ mergeParams: true });
+
+router.get('/agents/runs/:runId', requireRole('viewer'), async (req, res) => {
+  res.json({ run: await getRun(req.project.id, req.params.runId) });
+});
