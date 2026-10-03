@@ -28,7 +28,7 @@ sections below: endpoint table, then notes).
 
 | Method and path | Purpose |
 |---|---|
-| `GET /health` | Public. `{status, version, time, python, auth_mode, signup_open, data_mode, features}`; `features` = `llm {data_mode, order, providers{name:{configured, healthy}}, mock}`, `asr {sidecar, groq, faster_whisper}`, `embedder {backend, real, provenance, model, dim, match_ok, match_weak}`, `ffmpeg {present, version}`, `youtube {configured}` |
+| `GET /health` | Public. `{status, version, time, python, auth_mode, signup_open, data_mode, features}`; `features` = `llm {data_mode, order, providers{name:{configured, healthy}}, mock}`, `asr {sidecar, groq, faster_whisper}`, `embedder {backend, real, provenance, model, dim, match_ok, match_weak}`, `ffmpeg {present, version}`, `captions {renderer: "libass"\|"pillow", libass}` (the caption burn-in renderer exports use; `libass` = whether this ffmpeg's `subtitles` filter works), `youtube {configured}` |
 | `POST /auth/signup` | `{email, password (8-200 chars), display_name?}` -> `201 {access_token, token_type, user, workspace_id, workspace_name, profile}`. `403 SIGNUP_CLOSED` once a user exists (unless `AUTH_ALLOW_MULTI`); `409 EMAIL_TAKEN` |
 | `POST /auth/login` | `{email, password}` -> same body; `401 INVALID_CREDENTIALS` |
 | `GET /auth/me`, `GET /me` | `{user, workspace_id, workspace_name, profile}` |

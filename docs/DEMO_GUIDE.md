@@ -83,7 +83,7 @@ The topbar chip and the banner under it show the data mode: no key = a yellow "A
 
 ### 10. Export (45 s)
 - Back on Clips (or in the editor header) click **Render**, pick **YouTube Short** (also Reels, TikTok and YouTube long; a clip longer than the preset's cap shows a duration warning), "Start render". A progress bar follows the job, then a **Download** button; the **Renders** list keeps history and `/repurpose` lists every render.
-- Say: captions are burned in with ffmpeg + libass; a render includes every layer that is not rejected.
+- Say: captions are burned in with ffmpeg (libass, or the built-in renderer when libass is missing); a render includes every layer that is not rejected.
 - Offline-safe, no key needed.
 
 ### 11. Jobs and Settings (30 s)
