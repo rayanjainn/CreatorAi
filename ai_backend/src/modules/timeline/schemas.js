@@ -155,3 +155,103 @@ export function validateTimeline(doc, assetsById = new Map(), { projectId } = {}
 
   return issues;
 }
+
+// ---- Versions, service inputs, request bodies and outputs ---------------------------
+
+export const AUTHOR_TYPES = ['ai', 'human'];
+export const AuthorType = z.enum(AUTHOR_TYPES);
+export const TimelineId = z.uuid();
+export const VersionNumber = z.number().int().min(1);
+
+const title = z.string().trim().min(1).max(200);
+const summary = z.string().trim().max(500);
+const nullableUuid = z.uuid().nullable().optional();
+
+// Who wrote a version. A human version must name its author; an ai version may carry the
+// user who triggered the run and the agent run id.
+const authorship = {
+  authorType: AuthorType,
+  authorId: nullableUuid,
+  agentRunId: nullableUuid,
+};
+const humanHasAuthor = [
+  (v) => v.authorType !== 'human' || Boolean(v.authorId),
+  { message: 'A human version needs an authorId', path: ['authorId'] },
+];
+
+// Service inputs. `doc` is checked by assertTimelineDoc (shape + semantics, with paths
+// under ['doc', ...]), so it is z.unknown() here.
+export const CreateTimelineInput = z
+  .strictObject({
+    title,
+    sourceAssetId: nullableUuid,
+    doc: z.unknown().optional(),
+    summary: summary.optional(),
+    ...authorship,
+  })
+  .refine(...humanHasAuthor);
+
+export const CreateVersionInput = z
+  .strictObject({
+    baseVersion: VersionNumber,
+    doc: z.unknown(),
+    summary,
+    ...authorship,
+  })
+  .refine(...humanHasAuthor);
+
+// baseVersion is optional for a revert: when omitted the revert applies on the current head.
+export const RevertInput = z
+  .strictObject({
+    toVersion: VersionNumber,
+    baseVersion: VersionNumber.optional(),
+    summary: summary.optional(),
+    ...authorship,
+  })
+  .refine(...humanHasAuthor);
+
+// HTTP request bodies (the author comes from req.user).
+export const CreateTimelineBody = z.strictObject({
+  title,
+  sourceAssetId: z.uuid().optional(),
+  doc: TimelineDoc.optional(),
+});
+
+export const CreateVersionBody = z.strictObject({
+  baseVersion: VersionNumber,
+  doc: TimelineDoc,
+  summary: summary.min(1),
+});
+
+export const RevertBody = z.strictObject({
+  toVersion: VersionNumber,
+  baseVersion: VersionNumber.optional(),
+  summary: summary.min(1).optional(),
+});
+
+const versionQuery = z.coerce.number().int().min(1);
+export const DiffQuery = z.strictObject({ from: versionQuery, to: versionQuery });
+
+// Outputs.
+export const Timeline = z.object({
+  id: z.uuid(),
+  projectId: z.uuid(),
+  title: z.string(),
+  sourceAssetId: z.uuid().nullable(),
+  headVersion: z.number().int(),
+  createdBy: z.uuid().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const TimelineVersionMeta = z.object({
+  version: VersionNumber,
+  parentVersion: VersionNumber.nullable(),
+  authorType: AuthorType,
+  authorId: z.uuid().nullable(),
+  agentRunId: z.uuid().nullable(),
+  summary: z.string(),
+  createdAt: z.string(),
+});
+
+export const TimelineVersion = TimelineVersionMeta.extend({ doc: TimelineDoc });

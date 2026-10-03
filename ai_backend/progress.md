@@ -37,3 +37,9 @@ Append one 5-line entry per task (newest last):
 - Learned: shape errors are returned alone (semantics only run on a well-shaped doc); through the service a foreign-project asset is asset_not_found (getAssetsByIds hides it), the pure validator reports asset_wrong_project when given projectId. An asset with null duration is rejected (asset_duration_unknown): the range can't be checked.
 - Next: P5.T2 timelines + timeline_versions tables, append-only trigger, createTimeline/createVersion/getHead with optimistic concurrency.
 - Gate: `npx eslint . && npx vitest run tests/phase0 tests/phase1 tests/phase5` passed (256/256); `gate -- 5` needs tests/phase2-4 from other tracks.
+
+## P5.T2 timelines + append-only versions + optimistic concurrency (2026-10-04)
+- Done: 050_timelines.sql (timelines with head_version; timeline_versions PK (timeline_id, version), CHECK parent = version - 1, human needs author_id, no FKs on author_id/agent_run_id; BEFORE UPDATE OR DELETE trigger raises "append-only" unless the parent timeline is already gone = the ON DELETE CASCADE path); repo.js; service.js createTimeline (always writes v1, empty doc when none given), createVersion (409 { headVersion } on stale base, SELECT ... FOR UPDATE + PK backstop mapped to 409), getHead, listTimelines, listVersions; tests/phase5/versions.test.js (15).
+- Learned: the RI cascade deletes child rows after the parent row is gone, so the trigger can tell a cascade from a direct DELETE by checking the parent; TRUNCATE (resetDb) skips row triggers. Version author_id has no FK because ON DELETE SET NULL would be an UPDATE the trigger refuses; versions keep the author id as an audit record.
+- Next: P5.T3 routes (replace the stub router), revert, diff, rbac matrix; drop the two phase-5 rows from the phase0 stub table.
+- Gate: `npx eslint . && npx vitest run tests/phase0 tests/phase1 tests/phase5` passed (271/271).
