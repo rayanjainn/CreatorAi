@@ -85,7 +85,7 @@ def test_large_file_streams_in_chunks(client: TestClient, data_dir: Path) -> Non
 def test_signature_checks(client: TestClient, media_file: str) -> None:
     path, _, query = media_file.partition("?")
     assert client.get(f"{path}?{query}x").status_code == 403
-    assert client.get(path).status_code == 422
+    assert client.get(path).status_code == 403
     other = sign_media("media/ws1/asset1/other.mp4")
     sig = other.split("sig=")[1]
     exp = other.split("exp=")[1].split("&")[0]

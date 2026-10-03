@@ -138,3 +138,10 @@ def test_error_shapes(client: TestClient, auth: dict[str, str]) -> None:
     res = client.get("/api/v1/does-not-exist", headers=auth)
     assert res.status_code == 404 and res.json()["error"]["code"] == "NOT_FOUND"
     assert client.delete("/api/v1/health").json()["error"]["code"] == "METHOD_NOT_ALLOWED"
+
+
+def test_db_dependency_commits_before_response_is_sent() -> None:
+    """A write must be visible to the next request even if the client is fast (real servers)."""
+    from app.deps import DbDep
+
+    assert DbDep.__metadata__[0].scope == "function"  # type: ignore[attr-defined]

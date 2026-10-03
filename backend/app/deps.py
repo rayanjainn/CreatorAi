@@ -48,7 +48,7 @@ def _extract_token(request: Request) -> str:
     raise AppError("UNAUTHORIZED", "Authentication required")
 
 
-def get_ctx(request: Request, db: Annotated[Session, Depends(get_db)]) -> Ctx:
+def get_ctx(request: Request, db: Annotated[Session, Depends(get_db, scope="function")]) -> Ctx:
     """Validate the bearer token and confirm the user and workspace still exist."""
     claims = verify_token(_extract_token(request))
     user_id, workspace_id = str(claims["sub"]), str(claims["ws"])
@@ -77,5 +77,7 @@ def pagination_params(
 
 
 CtxDep = Annotated[Ctx, Depends(get_ctx)]
-DbDep = Annotated[Session, Depends(get_db)]
+# scope="function" commits before the response is sent, so a client that reads its own write
+# immediately after a 2xx never races the transaction.
+DbDep = Annotated[Session, Depends(get_db, scope="function")]
 PageDep = Annotated[Pagination, Depends(pagination_params)]

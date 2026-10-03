@@ -90,9 +90,11 @@ def _iter_file(key: str, start: int, end: int) -> Iterator[bytes]:
 def serve_media(
     key: str,
     request: Request,
-    exp: Annotated[int, Query()],
-    sig: Annotated[str, Query()],
+    exp: Annotated[int | None, Query()] = None,
+    sig: Annotated[str | None, Query()] = None,
 ) -> Response:
+    if exp is None or not sig:
+        raise AppError("FORBIDDEN", "Missing media signature", details={"reason": "unsigned"})
     verify_media(key, exp, sig)
     storage = get_storage()
     if not storage.exists(key):
