@@ -33,7 +33,7 @@ from app.repositories.content import (
 from app.repositories.profiles import ProfileRepository
 from app.schemas.common import Provenance, weakest
 from app.services.activity import log_activity
-from app.services.assets import overall_provenance
+from app.services.assets import stage_provenance
 
 log = logging.getLogger(__name__)
 
@@ -440,7 +440,9 @@ def _gather(db: Session, workspace_id: str, item: ContentItem) -> dict[str, Any]
                 "segments": len(rows),
             }
         )
-        provenances.append(overall_provenance(asset.analysis or {}))
+        provenances.append(
+            stage_provenance(asset.analysis or {}).get("transcribe") or Provenance.user()
+        )
         offset += duration
     if not segments:
         raise AppError(
