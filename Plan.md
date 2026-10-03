@@ -836,6 +836,8 @@ type Timeline = {
 };
 ```
 
+> **Implementation notes:** `VideoItem` also has `kind: 'clip' | 'sponsor'` (default `clip`), `placeholder: bool`, `text?: string`; `asset_id` may be `null` only for a sponsor placeholder (section 8.10). Items are strict (unknown fields rejected). Rejected video items stay in the list but occupy no timeline time. `beat_matches` has an extra `provenance jsonb` column (migration `003`).
+
 **Invariants** (checked in `timeline_service.validate()` on every save):
 1. Video items are sorted by `tl_start`, gapless, non-overlapping; `tl_start[i+1] == tl_start[i] + (src_out - src_in)` (rejected items are skipped in this check).
 2. `0 ≤ src_in < src_out ≤ asset.duration`.

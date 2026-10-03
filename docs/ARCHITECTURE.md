@@ -148,6 +148,47 @@ idea ──► script ──► shoot ──► edit ──► review ──► 
   (Plan 8.11); `GET /activity?action=script_approved` shows the history.
 * New LLM tasks: `content.ideas`, `script.regenerate_scene`, `script.tighten` (see `llm/tasks.py`).
 
+## Matching, clips and timelines
+
+**Script-to-footage matching (`ml/alignment.py`, `services/match_service.py`).** Beats are ordered, transcript
+spans (1-4 consecutive segments of one asset, <= 45 s; 1-3 when there would be more than 3000) sit on one
+global timeline (asset offset = sum of earlier durations). With `S = cosine(beat, span)` and
+`g = S - MATCH_WEAK`, the DP finds the path of `(beat, span)` pairs with increasing beats and compatible
+spans (`end[prev] <= start[next] + 1 s`) that maximises the summed gain; only `g > 0` pairs take part and
+beats can be skipped. Spans are sorted by end, so for beat `i`
+`f[i][j] = g[i][j] + max(0, prefixmax(G)[cutoff[j]])` is one vectorised numpy pass (`G[k]` = best `f` of
+earlier beats on span `k`, `cutoff[j]` found with `searchsorted`), with back-pointers for the path:
+O(beats x spans). A span never follows itself (tolerance capped at half its length). Statuses follow Plan 8.5
+(matched / weak, off-path beats: weak + `out_of_order` if their best span >= `MATCH_OK`, else missing). The
+cross-check against an exhaustive search lives in `tests/unit/test_alignment.py`.
+
+**Clip scoring (`ml/scoring.py`, `services/clip_service.py`).** Windows start after a sentence end and close at
+the first segment boundary >= 20 s (<= 45 s). Six features (beat similarity, hook signals, speech rate, mean
+energy, VADER emphasis, shots per 10 s) are min-max normalised across the asset's windows and combined with
+0.30/0.20/0.15/0.15/0.10/0.10; unavailable features drop out and the rest are renormalised. NMS (IoU < 0.3)
+keeps 8, one `clips.rerank_copy` call picks and words the best 4 (deterministic fallback copy on any LLM
+failure). Heavy per-clip work (pause removal, `ml/faces.py` Haar sampling at 1 fps on the proxy, captions) runs
+*before* the write transaction because `ctx.progress` writes through its own session and SQLite allows one
+writer.
+
+**Timeline operations (`schemas/timeline.py`, `services/timeline_service.py`).** The timeline is a pure
+Pydantic value; every op takes one and returns a new one. The video track is re-laid out gapless after each op
+(rejected items take no time). Captions and overlays are timeline-positioned, so ops that move video retime
+them through *source time*: a caption is anchored to the source range under its start and re-placed wherever
+that range lives afterwards (parts whose footage is gone are dropped or clipped; split changes nothing).
+`validate()` returns every broken invariant of Plan 6.1 with a code and path; the property tests apply random
+op sequences and re-validate after each step.
+
+**Concurrency model for edits (`services/edit_service.py`).** `edits.revision` is the stored version. Writes
+(PUT, ops, restore) send `base_revision` and are one SQL compare-and-swap (`UPDATE ... WHERE revision = base`);
+losers get `409 REVISION_CONFLICT` with `details.current_revision`, reload and re-apply. History is linear
+(`edit_revisions`, one row per revision; restore appends). The Twin applies actions through the same ops
+endpoint, so an agent edit and a user edit can never silently overwrite each other.
+
+Deviations from Plan.md made here: `beat_matches.provenance` (migration 003); `shared_span` flag next to
+`out_of_order`; clip generation lowers the 20 s minimum for very short footage (flagged); the OpenCV pin is
+`<5` because OpenCV 5 ships neither `CascadeClassifier` nor the Haar XML files.
+
 ## Data layout
 
 ```
