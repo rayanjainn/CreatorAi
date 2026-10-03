@@ -77,5 +77,7 @@ class Render(Base):
     duration_sec: Mapped[float | None] = mapped_column(Float)
     size_bytes: Mapped[int | None] = mapped_column(Integer)
     error: Mapped[str | None] = mapped_column(String)
+    caption_style: Mapped[str | None] = mapped_column(String)
+    job_id: Mapped[str | None] = mapped_column(String)
     created_at: Mapped[str] = created_at_col()
     finished_at: Mapped[str | None] = mapped_column(String)
