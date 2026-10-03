@@ -91,3 +91,9 @@ Append one 5-line entry per task (newest last):
 - Learned: the chain test checks both the joined ids and pg_constraint, so the links are real FKs. Gate 4 needs tests/phase2 and tests/phase3 to exist; in this worktree they are empty, uncommitted placeholder dirs.
 - Next: merge Track B with Tracks A and C, then run the real gate 4 with their phase2/phase3 tests. Live smoke (HITL): run plan -> research -> script once on a real niche with ADAPTERS=real and read the script.
 - Gate: `npm run gate -- 4` passed (lint + 310/310; phase2/phase3 empty placeholders here). Last phase-4 501 row (PATCH scripts) removed from http.test.js.
+
+## P2 + P4 + P5 parallel tracks merged (2026-10-04)
+- Done: three worktree agents (P2 media, P4 agents, P5 timeline) merged into feat/ai-backend-phase0; conflicts only in progress.md, jobs.js (kept both payloads) and the phase0 stub tables (each track had removed its own rows).
+- Learned: parallel tracks need separate test databases (aivideo_p2_test / _p4_test / _p5_test) since resetDb truncates; the assets table + media getAssetsByIds were committed first as the P2/P5 contract. Webhook signature is checked against re-serialized JSON (app.js is frozen; raw-body capture needs approval).
+- Next: P3 processing workers + index (Track A). HITL live smokes: Cloudinary sign -> upload -> register; one real plan -> research -> script.
+- Gate: `npm run gate -- 5` needs tests/phase3; `eslint . --max-warnings=0` + `vitest run tests/phase0,1,2,4,5` passed twice (513/513).
