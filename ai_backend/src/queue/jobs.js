@@ -34,6 +34,10 @@ export const PAYLOADS = {
   [JOBS.MEDIA_EMBEDDINGS]: StepPayload(),
   // P4: run one queued agent_runs row (the run row carries the agent name and input).
   [JOBS.AGENT_RUN]: z.object({ runId: z.uuid() }).strict(),
+  // P6: run one queued editing_jobs row (the row carries the project, asset and input).
+  [JOBS.MEDIA_MOMENTS]: z.object({ jobId: z.uuid() }).strict(),
+  [JOBS.EDITING_REELS]: z.object({ jobId: z.uuid() }).strict(),
+  [JOBS.EDITING_REVISE]: z.object({ jobId: z.uuid() }).strict(),
 };
 
 export function parsePayload(name, data) {

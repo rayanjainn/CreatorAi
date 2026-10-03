@@ -4,6 +4,7 @@ import { JOBS } from '../queue/jobs.js';
 import { noop } from './noop.js';
 import { agentRun } from './agents.js';
 import { processAsset, stepHandlers } from './process.js';
+import { mediaMoments } from './moments.js';
 
 export const handlers = {
   [JOBS.NOOP]: noop,
@@ -11,4 +12,6 @@ export const handlers = {
   [JOBS.MEDIA_PROCESS]: processAsset,
   ...stepHandlers,
   [JOBS.AGENT_RUN]: agentRun,
+  // P6: moments (one editing_jobs row each).
+  [JOBS.MEDIA_MOMENTS]: mediaMoments,
 };
