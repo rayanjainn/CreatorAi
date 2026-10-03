@@ -87,3 +87,47 @@ export function withAccessToken(path: string): string {
   if (!token) return url
   return `${url}${url.includes('?') ? '&' : '?'}access_token=${encodeURIComponent(token)}`
 }
+
+/** Send a raw (non-JSON) body, e.g. an SRT/VTT/words.json transcript; the response is JSON. */
+export async function putRaw<T>(path: string, body: BodyInit, contentType = 'application/octet-stream'): Promise<T> {
+  const headers: Record<string, string> = { 'Content-Type': contentType }
+  const token = getTokenOrMemory()
+  if (token) headers.Authorization = `Bearer ${token}`
+  let res: Response
+  try {
+    res = await fetch(`${API_URL}${path}`, { method: 'PUT', headers, body })
+  } catch {
+    throw new ApiError(0, 'NETWORK_ERROR', `Cannot reach the API at ${API_URL}. Is it running? (make dev)`)
+  }
+  const json = await res.json().catch(() => null)
+  if (!res.ok) {
+    const err = toApiError(res.status, json)
+    if (res.status === 401) onUnauthorized?.()
+    throw err
+  }
+  return json as T
+}
+
+/** Fetch an authenticated file (CSV/MD export) and hand it to the browser as a download. */
+export async function downloadAuthed(path: string, fallbackName: string): Promise<void> {
+  const headers: Record<string, string> = {}
+  const token = getTokenOrMemory()
+  if (token) headers.Authorization = `Bearer ${token}`
+  let res: Response
+  try {
+    res = await fetch(`${API_URL}${path}`, { headers })
+  } catch {
+    throw new ApiError(0, 'NETWORK_ERROR', `Cannot reach the API at ${API_URL}. Is it running? (make dev)`)
+  }
+  if (!res.ok) throw toApiError(res.status, await res.json().catch(() => null))
+  const cd = res.headers.get('content-disposition') ?? ''
+  const name = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd)?.[1] ?? fallbackName
+  const url = URL.createObjectURL(await res.blob())
+  const a = document.createElement('a')
+  a.href = url
+  a.download = decodeURIComponent(name)
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 5000)
+}
