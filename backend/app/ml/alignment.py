@@ -21,6 +21,7 @@ share one span through the tolerance. Back-pointers (predecessor beat and span) 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from itertools import pairwise
 
 import numpy as np
 from numpy.typing import NDArray
@@ -112,7 +113,7 @@ def is_valid_path(
     tol: float = DEFAULT_TOLERANCE_SEC,
 ) -> bool:
     """Strictly increasing beats and compatible consecutive spans."""
-    for (b0, s0), (b1, s1) in zip(path, path[1:], strict=False):
+    for (b0, s0), (b1, s1) in pairwise(path):
         if b1 <= b0 or not compatible(float(ends[s0]), float(starts[s1]), float(ends[s1]), tol):
             return False
     return True
