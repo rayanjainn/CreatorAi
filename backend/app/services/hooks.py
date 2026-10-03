@@ -2,7 +2,7 @@
 
 Other features subscribe with ``register_after_asset_ready``; ingest never imports them. The default
 hook chains ``project.match`` (Plan.md section 3.3) but only when that job type is registered, so
-it is a no-op until the matching agent lands.
+it is a no-op while that handler is not registered.
 """
 
 from __future__ import annotations

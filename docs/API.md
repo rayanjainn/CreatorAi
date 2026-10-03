@@ -226,3 +226,124 @@ assets_used, provenance, provenance_by_part:{scores, text}}`.
 
 Error codes added by this workflow: `NO_SCRIPT` 409, `NO_PLAN` 409, `ASSET_NOT_READY` 409,
 `CONFIRMATION_REQUIRED` 409.
+
+## Matching (`api/v1/matching.py`, job `project.match`)
+
+Maps every script beat to the transcript span that says it (Plan 8.5). Matching is **never** run
+automatically after a script edit: the user presses "Run matching" (`POST /content/{id}/match`). The only
+automatic trigger is the `after_asset_ready` hook, which enqueues it when the item has a current script and
+every attached asset is ready (`job.payload.trigger = "asset_ready"`).
+
+| Method and path | Purpose |
+|---|---|
+| `POST /content/{id}/match` | `202 {job_id, pending_assets}`. `409 NO_SCRIPT` (no current script / no scenes), `409 ASSET_NOT_READY` (no ready video/audio asset with a transcript; `details.pending_assets`). An already active job is returned instead of starting another |
+| `GET /content/{id}/match` | `{script_id, script_version, ran, embedder, beats[], coverage, missing_scenes[], weak_scenes[], job, provenance}` |
+| `POST /beat-matches/{id}/swap` | Either `{alternative_index}` or `{asset_id, start_sec, end_sec}` (422 on both/neither, bad asset, or a range past the asset). Sets `status: confirmed`, provenance `user`; the previous span moves into `alternatives`. Returns the beat |
+| `POST /beat-matches/{id}/confirm` | `confirmed` (`409` when the beat has no footage) |
+| `POST /beat-matches/{id}/reject` | `rejected` (keeps the span so the UI can show what was refused) |
+
+Beat object: `{script_beat_id, scene_idx, beat_idx, text, est_sec, match_id, status, asset_id, filename,
+start_sec, end_sec, timecode ("00:12-00:18"), confidence (cosine), matched_text, out_of_order, shared_span,
+thumbnail_url (keyframe of the shot at start_sec), preview_url (signed proxy; seek to start_sec),
+alternatives[{index, asset_id, filename, start_sec, end_sec, timecode, score, text, out_of_order, is_current,
+thumbnail_url}], provenance, updated_at}`. `status` is `matched | weak | missing | confirmed | rejected`,
+or `unmatched` for a beat without a row yet (script edited after the last run). `coverage` =
+`{total, matched, weak, missing, confirmed, rejected, unmatched, coverage_pct, matched_sec}` with
+`coverage_pct = 100 * (matched + confirmed + 0.5 * weak) / beats` (the formula `ml/review_metrics.py` uses,
+so the Director review agrees). `missing_scenes` / `weak_scenes`: `{scene_idx, title, kind, beat_ids, beats,
+est_sec, suggestion, provenance}`; `suggestion` is a deterministic reshoot sentence built from the beat text
+(no LLM, provenance `heuristic`).
+
+Rules worth knowing:
+
+* **Provenance**: matching is algorithmic. Rows (and the response) report `heuristic` when the hashing
+  embedder produced the vectors and `ai` (provider `fastembed` / `sentence-transformers`) for a neural
+  embedder; a row that used `match.disambiguate` reports the weakest of both (e.g. `mock`); user decisions
+  are `user`. Stored in `beat_matches.provenance` (migration `003_beat_match_provenance.sql`).
+* **Thresholds** come from `Settings.match_thresholds(backend)` (neural 0.45 / 0.30, hashing 0.30 / 0.15) and
+  are echoed in `embedder.match_ok` / `match_weak`.
+* **Mixed backends are refused**: spans are always embedded with the current embedder; if the script's beats
+  were embedded with another backend/model they are re-embedded first (job `result.reembedded_beats`).
+* **Ambiguity**: when the best two spans are both >= `MATCH_OK` and within 0.03, `match.disambiguate` runs for
+  at most 3 beats per run, earliest first, only if an LLM is configured. Otherwise the beats stay as the
+  algorithm decided them and `job.notes` says so (the job never fails because of it).
+* **Re-runs** upsert `beat_matches` and never touch `confirmed` / `rejected` rows (`result.preserved`).
+* `out_of_order: true` on a `weak` beat: its best span is >= `MATCH_OK` but the order constraint put it off the
+  path (retake or reordered footage). `shared_span: true` additionally says the only reason is that a
+  neighbouring beat uses the same take (beats are finer than transcript segments).
+* Job `project.match` result: `{script_id, beats, spans, saved, preserved, counts, embedder, reembedded_beats,
+  disambiguated, notes[], provenance}`. Stages: load 10, embed spans 40, align 80, save 100.
+
+## Clips (`api/v1/clips.py`, job `clips.generate`)
+
+| Method and path | Purpose |
+|---|---|
+| `POST /content/{id}/clips/generate` | `{asset_id?, count? (1-8, default 4), include_full_cut?}` -> `202 {job_id, asset_id}`. Source = `asset_id` or the longest ready video of the item. `409 ASSET_NOT_READY` |
+| `GET /content/{id}/clips?status=&kind=` | Clips ordered by LLM/score rank (full cuts last) |
+| `GET /clips/{id}` / `PATCH /clips/{id}` | `PATCH {title?, hook?, caption?}`: edited fields become `user` |
+| `POST /clips/{id}/accept` / `reject` | Accept logs `clip_accepted` and emits the twin event `clip_accepted` `{clip_id, content_item_id}` after commit (once; idempotent). Reject logs `clip_rejected` |
+
+Clip object: `{id, content_item_id, source_asset_id, kind: short|full, title, hook, caption, reason, score (0-1),
+rank, start_sec, end_sec, duration_sec, status, features, warnings[], preview {url, start_sec, end_sec},
+thumbnail_url, edit_revision, timeline_duration, provenance, provenance_by_part}`. Play `preview.url` (signed
+proxy) from `start_sec` to `end_sec`; the editor timeline is `GET /clips/{id}/edit`.
+
+* `features` = `{raw, norm, weights, rank, relaxed_min, pause_removed_sec, embedder, edited_by_user}`:
+  `raw` are the six feature values (`beat_similarity`, `hook_signals`, `speech_rate`, `audio_energy`,
+  `emphasis`, `visual_change`), `norm` the min-max normalised values across the asset's windows, `weights`
+  the weights actually used (0.30/0.20/0.15/0.15/0.10/0.10, renormalised without a script or energy data).
+* **Provenance** (`provenance_by_part`: `title`, `hook`, `caption`, `scores`): scores are always `heuristic`
+  (rule-based); the copy is the model's provenance (`ai` / `mock`), `heuristic` for the deterministic
+  fallback, `user` once edited. `provenance` is the weakest part, so AI copy next to rule-based scores
+  reports `heuristic` (same convention as the Director review) - read `provenance_by_part` to badge the text.
+* **LLM failure**: no provider (`LLM_NOT_CONFIGURED`), `LLM_BUSY` or invalid output never fails the job: the
+  top `count` windows by score are kept with fallback copy (title = first 8 words, hook = first sentence,
+  caption = first 150 characters) and `warnings` contains `COPY_FALLBACK: <code>: <message>` (job result and
+  every clip).
+* **Short footage**: when nothing reaches the 20 s minimum the minimum is lowered to 12/6/3 s and the clips
+  carry `SHORT_FOOTAGE`. No speech at all: the job fails with `409 NO_CLIP_CANDIDATES`. Windows overlapping
+  (IoU >= 0.3) an accepted or rejected clip of the same asset are not proposed again (`NO_NEW_CLIPS` warning
+  when that leaves nothing).
+* Re-running replaces earlier `suggested` clips that were never edited (revision 1) or rendered; accepted,
+  rejected, edited and rendered clips stay.
+* Every clip gets an `edits` row (revision 1) and an `edit_revisions` row. The timeline has one video item per
+  piece after pause removal (`reason: "pause removed"` on pieces after a cut), `crop_x` from face detection,
+  captions from word timestamps, and an AI music item (`-18 dB`, `suggested`) only if the library has a ready
+  audio asset tagged `music`. `include_full_cut` adds a `kind: "full"` clip (16:9, `minimal_bottom`, all speech).
+  Caption style defaults to `style_profile.captions.style`, else `bold_center`.
+* Job stages: candidates 30, score 50, rerank+copy 85, timelines 100.
+
+## Edits and timelines (`api/v1/edits.py`)
+
+Timeline = Plan 6.1, validated by `schemas/timeline.py` + `services/timeline_service.validate`. All times are
+seconds. Routes live under `/clips/{id}/edit`:
+
+| Method and path | Purpose |
+|---|---|
+| `GET /edit` | `{clip_id, edit_id, revision, timeline, updated_at, assets, violations[], provenance}`. `assets[asset_id]` = `{filename, kind, duration_sec, width, height, proxy_url, audio_url, thumb_url, energy[] (dB per 0.5 s, waveform), energy_window_sec, silences[[s,e]], words[{word,start,end}] (only inside the ranges the timeline uses)}` for every referenced asset |
+| `PUT /edit` | `{timeline, base_revision, note?}` -> `{revision, timeline, updated_at}`. `409 REVISION_CONFLICT` with `details.current_revision` when `base_revision` is stale; `422 VALIDATION_ERROR` with `details.violations[{code, message, path, item_id}]` |
+| `POST /edit/ops` | `{op, params, base_revision, note?}` -> `{op, revision, timeline, changed_layers[], updated_at}`. Same conflict/validation behaviour |
+| `GET /edit/revisions` | `[{revision, note, created_at, duration, video_items}]`, newest first |
+| `GET /edit/revisions/{n}` | `{revision, note, created_at, timeline}` |
+| `POST /edit/revisions/{n}/restore` | Optional body `{base_revision}`. Creates a NEW revision holding the old content (history is never rewritten) |
+
+**Ops** (`params`, all deterministic; unknown ops/params -> 422 with `details.op`): `tighten_pauses {keep_sec
+0.05-0.4}`, `trim` / `trim_clip {start_delta, end_delta (+-10), item_id?}` (first/last video item by default;
+positive `start_delta` and negative `end_delta` shorten), `set_caption_style {style, clear_overrides?}`,
+`toggle_music {on}` (422 if there is no music layer), `split_item {at_tl, item_id?}`, `delete_item {item_id}`
+(video ripples gapless), `reorder {item_id, to_index}`, `set_status {item_id, status}`, `accept_all`,
+`rebuild_captions {max_words?}` (Plan 8.9 rules), `set_crop_x {item_id, crop_x}`, `ripple_insert {at_tl, item}`,
+`recompute_duration`. The Twin's action types map 1:1 (`tighten_pauses`, `set_caption_style`, `trim_clip`,
+`toggle_music`).
+
+**Invariants** (violation codes): `DIMENSIONS`, `VIDEO_START`/`VIDEO_ORDER`/`VIDEO_GAP`/`VIDEO_OVERLAP`
+(non-rejected video items are gapless from 0; rejected items take no time), `SRC_RANGE`, `SRC_BEYOND_ASSET`
+(`0 <= src_in < src_out <= asset.duration`), `LAYER_RANGE` (captions/overlays inside `[0, duration]`),
+`DUPLICATE_ID`, `ID_PREFIX` (`v_ c_ a_ o_`), `DURATION_MISMATCH`, `SPONSOR_PLACEHOLDER`, `UNKNOWN_ASSET`.
+
+**Activity**: every status change of a layer is logged per `(status, layer, kind)`: action `layer_accepted` /
+`layer_rejected`, `entity_type: "clip"`, `meta {clip_id, content_item_id, layer: video|captions|audio|overlays,
+kind, item_ids, count, sources[ai|user], revision}`. A `suggested` birth is not logged. The Twin reads
+`layer_rejected`.
+
+Error codes added: `REVISION_CONFLICT` 409, `NO_CLIP_CANDIDATES` 409.

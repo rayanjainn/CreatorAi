@@ -261,3 +261,36 @@ start_processing(db, ws, asset, from_stage="embed")           # payload: from_st
 - Demo footage: `make demo-media` writes `data/demo/hero_demo.mp4` and `hero_demo.words.json`
   (`"provenance": "demo"`). `make seed` should ingest it with
   `services.assets.register_file(..., sidecar=(text, name), sidecar_source="demo")` + `start_processing`.
+
+## Matching, clips and timelines (extension points)
+
+```python
+from app.schemas.timeline import Timeline, Tracks, VideoItem, CaptionItem, AudioItem, OverlayItem, Transition, new_item_id
+from app.services import timeline_service as ts
+from app.services.edit_service import apply_op, save_edit       # persisted, revisioned, conflict-checked
+
+tl = Timeline.model_validate(edit.timeline)          # strict (extra fields are rejected)
+tl2 = ts.split_item(tl, at_tl=12.0)                  # every op returns a NEW Timeline, input untouched
+ts.ensure_valid(tl2, {asset_id: duration})           # 422 VALIDATION_ERROR with details.violations
+edit.timeline = tl2.dump()                           # JSON-safe dict
+```
+
+Ops (all in `timeline_service`): `tighten_pauses(tl, silences, keep_sec=0.15)`, `trim(tl, start_delta, end_delta,
+*, item_id=None, asset_durations=None)`, `set_caption_style(tl, style, *, clear_overrides=False)`,
+`toggle_music(tl, on)`, `split_item(tl, at_tl, *, item_id=None)`, `delete_item(tl, item_id)`,
+`reorder(tl, item_id, to_index)`, `set_status(tl, item_id, status)`, `accept_all(tl)`,
+`rebuild_captions(tl, words_provider, *, max_words=None, source="ai", status="suggested")`,
+`ripple_insert(tl, at_tl, item)`, `recompute_duration(tl)`, plus `apply_op(tl, name, params, OpContext)` and
+`layer_changes(before, after)`. Sponsors: build `VideoItem(kind="sponsor", asset_id=None, placeholder=True,
+src_in=0, src_out=brief.duration_sec, text=script, ...)`, call `ripple_insert`, add the `lower_third`
+`OverlayItem`, then `rebuild_captions` (placeholder text becomes estimated captions at 2.5 words/s) and save
+through `edit_service.save_edit` / the `PUT /clips/{id}/edit` route so the revision and activity are recorded.
+Renders read `edits.timeline` (all non-rejected layers) and must pin the `edit.revision` they rendered.
+
+Twin events: `twin_events.CLIP_ACCEPTED = "clip_accepted"` (payload `{clip_id, content_item_id}`); layer
+decisions are in `activity_log` (`layer_accepted` / `layer_rejected`, see docs/API.md, Edits).
+
+Test helpers (`tests/helpers.py`): `make_item_with_script(client, auth, scenes=None)` (script whose beats
+paraphrase the demo footage, `DEMO_BEATS`) and `seed_demo_asset(client, auth, media, item_id, workspace_id)`
+(processed demo footage attached to an item; the pipeline runs once per session, later calls re-insert the
+rows). Use them instead of uploading the demo video in every test.

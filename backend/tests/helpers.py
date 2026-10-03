@@ -12,6 +12,7 @@ import httpx
 from fastapi.testclient import TestClient
 
 from app.config import Settings, get_settings
+from app.db import session_scope
 from app.llm import gateway as gateway_module
 from app.llm.gateway import Gateway
 from app.llm.providers.gemini import GeminiProvider
@@ -84,3 +85,71 @@ def wipe_provider_keys(monkeypatch: Any, *, allow_mock: bool) -> None:
     settings = get_settings()
     monkeypatch.setattr(settings, "llm_allow_mock", allow_mock)
     gateway_module.reset_gateway()
+
+
+# ── content item + script + footage helpers (matching, clips, edits tests) ────────────────────
+DEMO_BEATS = [
+    ("Intro", ["Here is how I edit a video from start to finish."]),
+    ("Import", ["The first step is to import every clip into one bin."]),
+    ("Trim", ["Next I trim the dead air and cut out the long pauses."]),
+    ("Missing", ["Quantum chromodynamics explains hadron confinement inside neutron stars."]),
+    ("Export", ["Finally I export a vertical version for shorts and a wide version for youtube."]),
+]
+
+
+def make_item_with_script(
+    client: TestClient,
+    auth: Hdr,
+    scenes: list[tuple[str, list[str]]] | None = None,
+    title: str = "Editing workflow",
+) -> tuple[str, dict[str, Any]]:
+    """A content item whose current script has the given ``(title, [beat text])`` scenes."""
+    item = client.post(
+        f"{V1}/content", json={"title": title, "target_duration_sec": 45}, headers=auth
+    ).json()["id"]
+    hooks = client.post(f"{V1}/content/{item}/hooks", headers=auth).json()
+    payload = [
+        {"title": name, "text": " ".join(beats), "beats": [{"text": t} for t in beats]}
+        for name, beats in (scenes or DEMO_BEATS)
+    ]
+    res = client.patch(f"{V1}/scripts/{hooks['script_id']}", json={"scenes": payload}, headers=auth)
+    assert res.status_code == 200, res.text
+    return str(item), res.json()
+
+
+_DEMO_ROWS: dict[str, list[dict[str, Any]]] = {}
+
+
+def seed_demo_asset(
+    client: TestClient, auth: Hdr, media: Any, item_id: str | None, workspace_id: str
+) -> str:
+    """A ready, fully processed copy of the demo footage attached to ``item_id``.
+
+    The first call per test session runs the real upload + ``asset.process`` pipeline and keeps the
+    resulting rows (media files stay on disk); later calls re-insert those rows for the new
+    workspace, which is ~100x faster than processing again. No after-ready hook runs on a re-seed.
+    """
+    from app.models import Asset, AssetSegment, AssetShot
+
+    models = {"asset": Asset, "segments": AssetSegment, "shots": AssetShot}
+    if not _DEMO_ROWS:
+        body = upload_file(client, auth, media.video, sidecar=media.sidecar)  # no item: no hook
+        asset_id = str(body["asset"]["id"])
+        with session_scope() as db:
+            _DEMO_ROWS["asset"] = [db.get(Asset, asset_id).to_dict()]  # type: ignore[union-attr]
+            for key in ("segments", "shots"):
+                rows = db.query(models[key]).filter(models[key].asset_id == asset_id).all()
+                _DEMO_ROWS[key] = [r.to_dict() for r in rows]
+            db.get(Asset, asset_id).content_item_id = item_id  # type: ignore[union-attr]
+        return asset_id
+    with session_scope() as db:
+        for key, rows in _DEMO_ROWS.items():
+            for row in rows:
+                values = {**row, "workspace_id": workspace_id}
+                if key == "asset":
+                    values["content_item_id"] = item_id
+                    db.add(models[key](**values))
+                    db.flush()
+                else:
+                    db.add(models[key](**values))
+    return str(_DEMO_ROWS["asset"][0]["id"])
