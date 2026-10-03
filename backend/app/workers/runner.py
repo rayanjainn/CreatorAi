@@ -247,7 +247,9 @@ class JobRunner:
                 return
             except Exception as exc:
                 message = str(exc) or exc.__class__.__name__
-                retries_left = attempt <= settings.job_max_retries
+                retries_left = attempt <= settings.job_max_retries and getattr(
+                    exc, "retryable", True
+                )
                 if not retries_left or cancel.is_set():
                     log.exception("job %s (%s) failed", job_id, row.type)
                     self._finish(job_id, "failed", error=message)

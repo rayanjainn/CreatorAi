@@ -49,6 +49,14 @@ class Settings(BaseSettings):
     google_client_secret: str = ""
     google_redirect_uri: str = "http://localhost:8000/api/v1/youtube/oauth/callback"
 
+    # --- Uploads and ingest ----------------------------------------------------------------
+    max_upload_bytes: int = 8 * 1024**3
+    upload_chunk_size: int = 8 * 1024 * 1024
+    min_free_disk_mb: int = 200  # kept free on top of 2x the upload size
+    upload_stale_hours: int = 24
+    keyframe_extract_max: int = 48
+    asr_max_tries: int = 3
+
     # --- Jobs ------------------------------------------------------------------------------
     jobs_inline: bool = False
     job_max_retries: int = 2

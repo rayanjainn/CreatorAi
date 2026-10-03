@@ -48,6 +48,7 @@ _STOPWORDS = frozenset(
     out off again more most some any all each other such only own same s t don
     """.split()
 )
+STOPWORDS = _STOPWORDS  # public alias (lexical search drops the same words)
 _SUFFIXES = ("ingly", "ations", "ation", "ing", "edly", "ies", "ied", "ed", "es", "ly", "s")
 
 

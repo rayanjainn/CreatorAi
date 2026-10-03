@@ -39,6 +39,10 @@ ERROR_CODES: dict[str, int] = {
     "LLM_NOT_CONFIGURED": 503,
     "ASR_UNAVAILABLE": 503,
     "MEDIA_FAILED": 500,
+    "UPLOAD_TOO_LARGE": 413,
+    "INSUFFICIENT_STORAGE": 507,
+    "UPLOAD_INCOMPLETE": 409,
+    "UPLOAD_CLOSED": 409,
 }
 
 
@@ -53,8 +57,10 @@ class AppError(Exception):
         status: int | None = None,
         details: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
+        retryable: bool = True,
     ) -> None:
         self.code = code
+        self.retryable = retryable  # False: the job runner will not retry a job that raised this
         self.status = status if status is not None else ERROR_CODES.get(code, 400)
         self.message = message or code.replace("_", " ").capitalize()
         self.details = details or {}

@@ -7,8 +7,11 @@ import pytest
 from app.config import Settings, _load_or_create_secret, get_settings
 
 
-def test_defaults_match_plan() -> None:
-    s = get_settings()
+def test_defaults_match_plan(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv(
+        "RENDER_X264_PRESET"
+    )  # the test env speeds up ffmpeg; check the real default
+    s = Settings(_env_file=None)  # type: ignore[call-arg]
     assert (s.clip_min_sec, s.clip_max_sec) == (20.0, 45.0)
     assert s.silence_min_sec == 0.6 and s.pause_keep_sec == 0.15
     assert s.render_x264_preset == "veryfast"
