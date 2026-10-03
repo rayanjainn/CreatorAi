@@ -91,8 +91,6 @@ describe('module routers are mounted as 501 stubs', () => {
   const planned = [
     ['post', '/projects/p1/media/a1/moments', 6],
     ['post', '/projects/p1/agents/editing/reels', 6],
-    ['post', '/projects/p1/timelines/t1/render', 7],
-    ['get', '/projects/p1/renders/r1', 7],
     ['post', '/mcp', 8],
   ];
 

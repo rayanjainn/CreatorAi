@@ -157,3 +157,9 @@ Append one 5-line entry per task (newest last):
 - Learned: render.run is sent with retryLimit 0, so a failed render is final and a new request makes a fresh one (failed rows leave the unique slot). With ADAPTERS=fake the fake ffmpeg writes no file, so any test that drains render.run must configureRender({ ffmpeg: real, resolveInput -> fixture, storage }) (tests/phase7/helpers.js useRealRender); P8 E2E needs the same. Tests keep a copy of the uploaded MP4 via a storage wrapper because the worker deletes its temp dir.
 - Next: P7.T3 routes (replace stubRouter), RBAC matrix, drop the phase-7 rows from the phase0 stub table.
 - Gate: `npx eslint . --max-warnings=0 && npx vitest run tests/phase0 tests/phase7` passed (78/78).
+
+## P7.T3 render routes, progress, failure handling (2026-10-04)
+- Done: real Router({ mergeParams: true }) on the 3 stub paths: POST /timelines/:timelineId/render (editor+, strict { version?, kind } -> 202 { renderId, render } new, 200 { renderId, render } existing live render), GET /timelines/:timelineId/renders (viewer+, newest first), GET /renders/:renderId (viewer+; status, progress, outputAssetId, outputUrl, error). tests/phase7/routes.test.js (status/progress/failure over HTTP, pinning, 400/404 cases, cross-project) and rbac-matrix.test.js (3 routes x 5 actors, exported MATRIX/ACTORS). Removed the two phase-7 501 rows from tests/phase0/http.test.js.
+- Learned: requireRole before validate keeps non-members at 404 whatever the body; a matrix cell seeds a queued preview render and POSTs kind final so START stays 202 rather than hitting the idempotent 200.
+- Next: P8 merges the phase-7 MATRIX rows and renders a Phase-6 reel end to end (configureRender with real FFmpeg when ADAPTERS=fake). Live smoke (HITL): render one reel at final quality against real Cloudinary, download and watch it.
+- Gate: `npx eslint . --max-warnings=0 && npx vitest run tests/phase7 tests/phase0` passed (107/107).
