@@ -14,6 +14,7 @@ export const FAKE_API_SECRET = 'fake-api-secret';
 export function reset() {
   resources.clear();
   destroyed.length = 0;
+  nextDestroyError = null;
 }
 
 export function putResource({ publicId, resourceType = 'video', format = 'mp4', bytes = 1_000_000, ...rest }) {
@@ -59,7 +60,18 @@ export async function uploadFile(filePath, { folder, resourceType = 'video' } = 
   });
 }
 
+// Makes the next destroy() call reject with `err` (to test storage outages).
+let nextDestroyError = null;
+export function failNextDestroy(err) {
+  nextDestroyError = err;
+}
+
 export async function destroy(publicId, _options = {}) {
+  if (nextDestroyError) {
+    const err = nextDestroyError;
+    nextDestroyError = null;
+    throw err;
+  }
   destroyed.push(publicId);
   return { result: resources.delete(publicId) ? 'ok' : 'not found' };
 }

@@ -37,3 +37,9 @@ Append one 5-line entry per task (newest last):
 - Learned: notification check is sha1(body + timestamp + secret) with a 2 h freshness window, compared in constant time. With orchestrator approval the 'storage.signUpload' row (and its now-unused import) was removed from phase0 adapters.test.js "real adapters are stubs".
 - Next: P2.T2 media routes + repo.
 - Gate: `npm run gate -- 2` passed (lint + 219/219 tests).
+
+## P2.T2 media routes + repo (2026-10-04)
+- Done: real media Router: POST /media/sign (editor+, folder proj/<id>/originals fixed by the server, strict empty body), GET /media (viewer+, ?kind= default original, ?parentAssetId=), GET /media/:assetId (viewer+), DELETE /media/:assetId (editor+, destroys the asset and every derived descendant in storage, then deletes the rows); POST /media, /media/:assetId/index and /reprocess left as 501 stubs on the real router; service adds signUpload, listAssets, getAsset, deleteAsset, originalsFolder, derivedFolder (getAssetsByIds unchanged); fake storage failNextDestroy(); tests/phase2/media.test.js + helpers.js.
+- Learned: delete destroys in storage before touching rows, so a storage outage is a 500 with the rows intact and the delete retryable; keyframes are destroyed as resource_type image, everything else as video. Phase0 http.test.js row 'POST /projects/p1/media/sign' dropped (stub replaced).
+- Next: P2.T3 register flow + media.process job + Cloudinary webhook.
+- Gate: `npm run gate -- 2` passed (lint + 234/234 tests).
