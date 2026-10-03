@@ -3,8 +3,12 @@
 import { JOBS } from '../queue/jobs.js';
 import { noop } from './noop.js';
 import { agentRun } from './agents.js';
+import { processAsset, stepHandlers } from './process.js';
 
 export const handlers = {
   [JOBS.NOOP]: noop,
+  // P3: media.process starts a pipeline run; one handler per step job (see process.js).
+  [JOBS.MEDIA_PROCESS]: processAsset,
+  ...stepHandlers,
   [JOBS.AGENT_RUN]: agentRun,
 };

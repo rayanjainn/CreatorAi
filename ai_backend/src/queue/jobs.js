@@ -17,10 +17,21 @@ export const JOBS = Object.freeze({
   RENDER_RUN: 'render.run', // P7
 });
 
+function StepPayload() {
+  return z.object({ assetId: z.uuid(), projectId: z.uuid(), runId: z.uuid() }).strict();
+}
+
 export const PAYLOADS = {
   [JOBS.NOOP]: z.object({ message: z.string().max(200).optional() }).strict(),
   // P2: enqueued once per registered original; the P3 orchestrator fans it out.
   [JOBS.MEDIA_PROCESS]: z.object({ assetId: z.uuid(), projectId: z.uuid() }).strict(),
+  // P3: one job per pipeline step (src/workers/process.js). runId is the pipeline run the
+  // job belongs to; a job from a superseded run (reprocess) is skipped.
+  [JOBS.MEDIA_TRANSCRIPTION]: StepPayload(),
+  [JOBS.MEDIA_SCENES]: StepPayload(),
+  [JOBS.MEDIA_FACES]: StepPayload(),
+  [JOBS.MEDIA_ANALYSIS]: StepPayload(),
+  [JOBS.MEDIA_EMBEDDINGS]: StepPayload(),
   // P4: run one queued agent_runs row (the run row carries the agent name and input).
   [JOBS.AGENT_RUN]: z.object({ runId: z.uuid() }).strict(),
 };

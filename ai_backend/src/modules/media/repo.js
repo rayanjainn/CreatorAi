@@ -118,6 +118,45 @@ export async function updateStatus(assetId, status) {
   return rows[0] ?? null;
 }
 
+export async function findFaces(assetId) {
+  const { rows } = await query(
+    `SELECT f.at_ms, f.bbox, s.idx AS scene_idx FROM faces f LEFT JOIN scenes s ON s.id = f.scene_id
+     WHERE f.asset_id = $1 ORDER BY f.at_ms, f.id`,
+    [assetId],
+  );
+  return rows;
+}
+
+export async function findAnalysis(assetId) {
+  const { rows } = await query('SELECT summary, topics, updated_at FROM asset_analysis WHERE asset_id = $1', [assetId]);
+  return rows[0] ?? null;
+}
+
+// processing_jobs rows of the asset (written by the P3 orchestrator, src/workers/process.js).
+export async function findSteps(assetId, db = { query }) {
+  const { rows } = await db.query(
+    `SELECT step, status, error, attempts, updated_at FROM processing_jobs WHERE asset_id = $1 ORDER BY step`,
+    [assetId],
+  );
+  return rows;
+}
+
+// Reprocess: every step back to queued under a new run id, so any job still pending from
+// the previous run is skipped by the orchestrator; the asset goes back to processing.
+export async function resetProcessing(client, assetId, runId) {
+  await client.query(
+    `UPDATE processing_jobs SET status = 'queued', error = NULL, attempts = 0, job_id = NULL, output = NULL,
+       run_id = $2, updated_at = now()
+     WHERE asset_id = $1`,
+    [assetId, runId],
+  );
+  const { rows } = await client.query(
+    `UPDATE assets SET status = 'processing', updated_at = now() WHERE id = $1 RETURNING ${COLUMNS}`,
+    [assetId],
+  );
+  return rows[0] ?? null;
+}
+
 // Children cascade through parent_asset_id ON DELETE CASCADE.
 export async function deleteOne(projectId, assetId) {
   const { rowCount } = await query('DELETE FROM assets WHERE project_id = $1 AND id = $2', [projectId, assetId]);
