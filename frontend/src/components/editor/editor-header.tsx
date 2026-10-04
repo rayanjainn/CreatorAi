@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useResettable } from '@/lib/editor/use-resettable'
 import Link from 'next/link'
 import { Popover } from '@base-ui/react/popover'
-import { AlertTriangle, ArrowLeft, Check, ChevronDown, Clapperboard, History, Keyboard, Loader2, Pencil, Redo2, Send, Undo2, X } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Check, ChevronDown, Clapperboard, History, Keyboard, Loader2, Pencil, PanelLeft, PanelRight, Redo2, RotateCcw, Send, Undo2, X } from 'lucide-react'
 import { Button, IconButton } from '@/components/ui/button'
 import { Tooltip } from '@/components/ui/tooltip'
 import { ProvenanceBadge } from '@/components/provenance/provenance-badge'
@@ -17,6 +17,7 @@ import type { Clip } from '@/lib/api/types'
 import { stripDemo, isDemoTitle } from '@/lib/format'
 import { totals } from '@/lib/timeline'
 import { useEditor, viewTimeline } from '@/stores/editor'
+import { useEditorLayout } from '@/stores/editor-layout'
 
 export function EditorHeader({ clip, onExport, exporting }: { clip: Clip; onExport: () => void; exporting: boolean }) {
   const mode = useEditor((s) => s.mode)
@@ -30,6 +31,7 @@ export function EditorHeader({ clip, onExport, exporting }: { clip: Clip; onExpo
   const suggested = useEditor((s) => totals(viewTimeline(s)).suggested)
   const helpOpen = useEditor((s) => s.helpOpen)
   const setHelpOpen = useEditor((s) => s.setHelpOpen)
+  const layout = useEditorLayout()
   return (
     <header className="ed-head" data-testid="editor-header">
       <div className="ed-head-left">
@@ -58,6 +60,20 @@ export function EditorHeader({ clip, onExport, exporting }: { clip: Clip; onExpo
       <div className="ed-head-right">
         <SaveStatus />
         <div className="ed-sep" />
+        {mode === 'edit' && (
+          <>
+            <IconButton label={layout.leftOpen ? 'Hide the side panel' : 'Show the side panel'} onClick={layout.toggleLeft} aria-pressed={layout.leftOpen} data-testid="toggle-left">
+              <PanelLeft size={15} />
+            </IconButton>
+            <IconButton label={layout.rightOpen ? 'Hide the inspector' : 'Show the inspector'} onClick={layout.toggleRight} aria-pressed={layout.rightOpen} data-testid="toggle-right">
+              <PanelRight size={15} />
+            </IconButton>
+            <IconButton label="Reset the panel layout" onClick={layout.reset} data-testid="reset-layout">
+              <RotateCcw size={14} />
+            </IconButton>
+            <div className="ed-sep" />
+          </>
+        )}
         <IconButton label="Undo (Ctrl+Z)" onClick={undo} disabled={!canUndo} data-testid="header-undo">
           <Undo2 size={15} />
         </IconButton>

@@ -235,15 +235,10 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr) 316px;
+  grid-template-columns: 300px 8px minmax(0, 1fr) 8px 316px; /* overridden inline by the resizable layout */
 }
 .editor[data-mode="preview"] .ed-body {
-  grid-template-columns: minmax(0, 1fr);
-}
-@media (max-width: 1279px) {
-  .ed-body {
-    grid-template-columns: 252px minmax(0, 1fr) 270px;
-  }
+  grid-template-columns: minmax(0, 1fr) !important;
 }
 .ed-center {
   min-width: 0;
@@ -1025,6 +1020,8 @@
 /* ---------- inspector (right) ---------- */
 .inspector {
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   border-left: 1px solid var(--ed-line);
@@ -1074,7 +1071,10 @@
 .insp-body {
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 14px 12px 24px;
   scrollbar-width: thin;
 }
@@ -1374,7 +1374,7 @@
 /* ---------- timeline ---------- */
 .tl {
   flex: none;
-  height: clamp(272px, 38vh, 420px);
+  height: var(--ed-timeline, 300px);
   display: flex;
   border-top: 1px solid var(--ed-line);
   background: #0f0f13;
@@ -2084,4 +2084,134 @@
 .tl-clip-top .layer-badge,
 .tl-layer-row .layer-badge {
   pointer-events: auto;
+}
+
+
+/* ---------- resizable layout ---------- */
+.splitter {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  touch-action: none;
+  outline: none;
+}
+.splitter[data-orientation="vertical"] {
+  cursor: col-resize;
+  width: 8px;
+}
+.splitter[data-orientation="horizontal"] {
+  cursor: row-resize;
+  height: 8px;
+  flex: none;
+  border-top: 1px solid var(--ed-line);
+  background: #0f0f13;
+}
+.splitter-grip {
+  border-radius: 99px;
+  background: var(--ed-line);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.splitter[data-orientation="vertical"] .splitter-grip {
+  width: 2px;
+  height: 36px;
+}
+.splitter[data-orientation="horizontal"] .splitter-grip {
+  height: 2px;
+  width: 44px;
+}
+.splitter:hover .splitter-grip,
+.splitter:focus-visible .splitter-grip,
+body[data-resizing] .splitter:active .splitter-grip {
+  background: var(--ed-sel);
+  transform: scale(1.25);
+}
+.splitter:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--ed-sel);
+}
+body[data-resizing] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+body[data-resizing="vertical"] {
+  cursor: col-resize;
+}
+body[data-resizing="horizontal"] {
+  cursor: row-resize;
+}
+body[data-resizing] iframe,
+body[data-resizing] video {
+  pointer-events: none;
+}
+
+/* ---------- left panel (changes | media) ---------- */
+.left-panel {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ed-panel);
+  border-right: 1px solid var(--ed-line);
+  overflow: hidden;
+}
+.lp-tabs {
+  flex: none;
+  display: flex;
+  gap: 2px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--ed-line);
+}
+.lp-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 10px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lp-tabs button:hover {
+  color: var(--foreground);
+}
+.lp-tabs button.active {
+  color: var(--foreground);
+  border-bottom-color: var(--ed-sel);
+}
+.lp-body {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.lp-body > .agent-panel {
+  flex: 1;
+  border-right: 0;
+}
+
+/* ---------- header at laptop widths: the clip title wins over the badges ---------- */
+.ed-head {
+  gap: 12px;
+}
+.ed-head-right {
+  gap: 6px;
+}
+.ed-title {
+  max-width: none;
+}
+@media (max-width: 1500px) {
+  .ed-title-row .prov {
+    display: none;
+  }
+  .ed-rev .mono + svg,
+  .ed-count {
+    display: none;
+  }
 }

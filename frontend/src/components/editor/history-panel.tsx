@@ -23,7 +23,7 @@ export function HistoryPanel({ clipId }: { clipId: string }) {
   const ai = t.ai
   const decided = groups.reduce((n, g) => n + g.items.filter((i) => i.source === 'ai' && i.status !== 'suggested').length, 0)
   return (
-    <aside className="agent-panel" aria-label="Agent and edit history" data-testid="history-panel">
+    <div className="agent-panel" aria-label="Agent and edit history" data-testid="history-panel">
       <div className="twin-card" data-testid="twin-unavailable">
         <div className="twin-card-head">
           <span className="twin-orb">
@@ -78,7 +78,7 @@ export function HistoryPanel({ clipId }: { clipId: string }) {
         </h4>
         <RevisionList clipId={clipId} limit={6} compact />
       </section>
-    </aside>
+    </div>
   )
 }
 
