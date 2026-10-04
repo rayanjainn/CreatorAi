@@ -176,12 +176,13 @@ Intentionally not built: it is a planning estimate. If wanted, a usage page can 
 
 ## Status update (latest)
 
-Done since the last list: teams and RBAC with invites, comments and presence; creator intelligence (production insights, `/analytics`);
-movable, styled text overlays; `make showcase` for real content; empty first run (no seed needed); landing page fixes.
+Done: teams and RBAC (invites, comments, presence, view-only); creator intelligence (`/analytics`, production insights computed from your own
+data); movable, styled text overlays; `make showcase` for real content; empty first run (no seed needed); landing page fixes; **Digital Twin**
+(style profile learned from approved scripts, memories from approved scripts and accepted clips, chat with suggested actions; in the editor
+the "Ask" tab applies pause tightening, caption style and music changes as new revisions); **calendar planner** (`scheduled_for`, month view).
 
-Still open, in priority order:
-1. **Digital Twin**: style profile, memories, chat (`twin.chat`), listeners on `script_approved` / `clip_accepted` / `layer_rejected`. The UI is a placeholder.
-2. **AI revise by instruction** in the editor (allow-listed ops) and a **research agent** with cited sources.
-3. **YouTube connection**: OAuth, publishing and real performance metrics (Insights shows none until this exists).
-4. **Calendar scheduling** for the board.
-5. Sponsors (Plan 8.10) were dropped on purpose.
+Still open:
+1. **Research agent** with cited web sources (needs a search API key such as Tavily or Serper; not built).
+2. **YouTube connection**: OAuth, publishing and real performance metrics (Insights shows none until this exists).
+3. Twin event `layer_rejected` and trim/hook actions are not wired (those open the editor instead of applying).
+4. Sponsors (Plan 8.10) were dropped on purpose.

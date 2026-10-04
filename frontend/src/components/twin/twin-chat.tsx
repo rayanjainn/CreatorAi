@@ -20,7 +20,7 @@ const ACTION_LABEL: Record<string, string> = {
 const STARTERS = ['Give me three video ideas in my voice', 'How should I open my next video?', 'What do I do too much in my scripts?']
 
 /** The Twin conversation. Replies come from a real model and carry a provenance badge; suggestions run only when you press them. */
-export function TwinChat({ contentItemId, clipId, compact }: { contentItemId?: string | null; clipId?: string | null; compact?: boolean }) {
+export function TwinChat({ contentItemId, clipId, compact, beforeApply, onApplied }: { contentItemId?: string | null; clipId?: string | null; compact?: boolean; beforeApply?: () => Promise<unknown> | unknown; onApplied?: () => void }) {
   const history = useTwinMessages()
   const chat = useTwinChat()
   const apply = useTwinApply()
@@ -83,7 +83,10 @@ export function TwinChat({ contentItemId, clipId, compact }: { contentItemId?: s
                       )}
                     </span>
                   ) : (
-                    <Button size="sm" variant="secondary" loading={apply.isPending} onClick={() => apply.mutate({ id: m.id, index: i }, { onSuccess: (res) => setDone((d) => ({ ...d, [key]: res })) })}>
+                    <Button size="sm" variant="secondary" loading={apply.isPending} onClick={async () => {
+                      await beforeApply?.()
+                      apply.mutate({ id: m.id, index: i }, { onSuccess: (res) => { setDone((d) => ({ ...d, [key]: res })); if ((res as { reload?: boolean }).reload) setTimeout(() => onApplied?.(), 900) } })
+                    }}>
                       {ACTION_LABEL[a.type] ?? a.type}
                     </Button>
                   )}

@@ -21,7 +21,7 @@ from app.llm import gateway as llm
 from app.llm.schemas import ALLOWED_ACTION_TYPES, StyleExtractOutput, TwinChatOutput
 from app.ml.embedder import embed_texts
 from app.ml.vectors import pack_vector
-from app.models import Clip, ContentItem, CreatorProfile, IdeaSuggestion, Script, TwinMemory
+from app.models import Clip, ContentItem, CreatorProfile, Edit, IdeaSuggestion, Script, TwinMemory
 from app.models.twin import TwinMessage
 from app.services import twin_events
 
@@ -157,6 +157,20 @@ def apply_action(db: Session, ws: str, message_id: str, index: int = 0) -> dict[
         )  # fmt: skip
         db.flush()
         return {"applied": True, "kind": kind, "message": f"Added “{title[:80]}” to your ideas."}
+    clip_id = action.get("clip_id")
+    op = {
+        "tighten_pauses": "tighten_pauses",
+        "set_caption_style": "set_caption_style",
+        "toggle_music": "toggle_music",
+    }.get(str(kind))
+    if op and clip_id:
+        edit = db.scalar(select(Edit).where(Edit.workspace_id == ws, Edit.clip_id == clip_id))
+        if edit is not None:
+            from app.services import edit_service
+
+            edit_service.apply_op(db, ws, clip_id, op, params, edit.revision, f"Twin: {kind}")
+            return {"applied": True, "kind": kind, "clip_id": clip_id, "reload": True,
+                    "message": "Done. It is a new revision, so you can undo it from the history."}  # fmt: skip
     return {
         "applied": False,
         "kind": kind,

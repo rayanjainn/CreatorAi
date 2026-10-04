@@ -79,7 +79,9 @@ test('the timeline renders the real tracks, layer badges and revision from the A
   await expect(page.getByText('Made by the Agent').first()).toBeVisible()
   // track labels, lock and mute controls, left panel and honest Twin card
   for (const t of ['overlays', 'captions', 'video', 'audio']) await expect(page.getByTestId(`lock-${t}`)).toBeVisible()
-  await expect(page.getByTestId('twin-unavailable')).toContainText("isn't available yet")
+  await page.getByTestId('tab-ask').click()
+  await expect(page.getByTestId('twin-chat')).toBeVisible()
+  await page.getByTestId('tab-changes').click()
   await expect(page.getByTestId('history-panel').getByTestId('layer-group')).toHaveCount(2) // video cuts + captions
   await expect(page.getByTestId('monitor-frame')).toHaveAttribute('data-aspect', api.timeline.aspect)
   // the demo clip's title carries the Demo + Heuristic provenance badges
