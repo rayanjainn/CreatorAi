@@ -3205,8 +3205,6 @@ function SponsorshipView() {
 }
 
 function TwinView() {
-  const [dnaValues, setDnaValues] = useState([82, 94, 62])
-
   return (
     <div className="twin-grid">
       <NeuralTwinPanel />
@@ -3247,35 +3245,30 @@ function TwinView() {
               <span className="text-xs font-bold text-white tracking-wide">Dynamic Editing Profile</span>
             </div>
             <span className="text-[11px] font-mono text-zinc-300 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10">
-              98.4% DNA Fidelity
+              Learned Preferences
             </span>
           </div>
         </div>
 
-        {/* CADENCE & STYLE SLIDERS */}
-        <div className="space-y-3 pt-1">
+        {/* LEARNED STYLE TRAITS (Clean badges without scrollbars or percentage stats) */}
+        <div className="space-y-2.5 pt-1">
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+            Active Creative Traits
+          </span>
+
           {[
-            { label: 'Cutting cadence', valText: 'Aggressive fast-cut', val: dnaValues[0], index: 0 },
-            { label: 'Hook urgency', valText: 'Contrarian provocative', val: dnaValues[1], index: 1 },
-            { label: 'B-roll saturation', valText: 'High frequency b-roll', val: dnaValues[2], index: 2 }
+            { label: 'Cutting Cadence', tag: 'Aggressive Fast-Cut', desc: 'Auto-cuts silent pauses under 120ms' },
+            { label: 'Hook Urgency', tag: 'Contrarian Provocative', desc: 'Opens with industry consensus contradiction' },
+            { label: 'B-Roll Saturation', tag: 'High Frequency B-Roll', desc: 'Overlays cinematic visuals every 2.4s' }
           ].map((item) => (
-            <div key={item.label} className="slider-row bg-[#181824] p-3.5 rounded-xl border border-[#242436] space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <b className="text-zinc-200 font-semibold">{item.label}</b>
-                <span className="text-violet-400 font-medium font-mono text-[11px]">{item.valText} ({item.val}%)</span>
+            <div key={item.label} className="bg-[#181824] p-3.5 rounded-xl border border-[#242436] flex items-center justify-between gap-3">
+              <div>
+                <span className="text-xs font-semibold text-zinc-200 block">{item.label}</span>
+                <span className="text-[11px] text-zinc-400 block mt-0.5">{item.desc}</span>
               </div>
-              <input 
-                type="range" 
-                min="0" 
-                max="100"
-                value={item.val} 
-                onChange={(e) => {
-                  const newVals = [...dnaValues]
-                  newVals[item.index] = Number(e.target.value)
-                  setDnaValues(newVals)
-                }}
-                className="w-full accent-violet-500 cursor-pointer h-1.5 bg-[#262638] rounded-lg"
-              />
+              <span className="text-[11px] font-bold px-3 py-1 rounded-lg bg-violet-500/15 text-violet-300 border border-violet-500/30 flex-none">
+                {item.tag}
+              </span>
             </div>
           ))}
         </div>
@@ -3286,7 +3279,6 @@ function TwinView() {
             <Badge tone="green" className="text-[10px] font-bold px-2.5 py-0.5">
               Approved Memory Rule
             </Badge>
-            <span className="text-[10px] text-emerald-400 font-mono font-semibold">+34.2% Retention Boost</span>
           </div>
 
           <div className="flex gap-3.5 items-start">
