@@ -48,7 +48,7 @@ The topbar chip and the banner under it show the data mode: no key = a yellow "A
 
 ### 3. Open the hero project (20 s)
 - Click **[DEMO] My whole editing workflow in under a minute** (Edit column). Tabs: Plan, Script, Footage, Match, Clips, Sponsors, Publish.
-- Say: "Sponsors and Publish are not built yet; those tabs say so" (they show a "not available" page, which is the honest state).
+- Say: "Publish is not built yet (no YouTube connection); that tab says so." Research needs a free Tavily or Serper key.
 
 ### 4. Plan, the AI Director (45 s)
 - **Plan** tab: angle, structure with durations, shot list. Badge: Demo (seeded). Edit a shot's framing, "Save", note the badge turns **You** on that row; try **Export CSV**.
@@ -73,7 +73,7 @@ The topbar chip and the banner under it show the data mode: no key = a yellow "A
 ### 8. Clips (60 s)
 - **Clips** tab: two `[DEMO]` clips with scores, hook, caption, reason, duration. Warning "Fallback copy": titles were not written by an LLM (heuristic).
 - Edit a title (turns **You**), **Accept** a clip. With a key, "Generate clips" runs scoring + LLM rerank/copy and the badge says **AI**.
-- Say what accept does: it is logged and will feed the Twin later (not built).
+- Say what accept does: it is logged and the Twin remembers it as an example of your taste.
 
 ### 9. Timeline editor (90 s)
 - On a clip click **Open in editor**. Full-screen editor: monitor, inspector, timeline with video, caption and audio tracks, history panel.

@@ -16,15 +16,17 @@ Snapshot of what exists in the repository (details: [docs/HANDOFF.md](docs/HANDO
 | 1.6 / 8.8 Smart clips | implemented | |
 | 1.7 / 6.1 Editable timeline (API + editor UI) | implemented | Edit and Preview modes; Audio/Color/Structure not built ([TODO 15](docs/TODO.md)) |
 | 1.8 / 8.9 Repurposing, render and export | implemented | presets `yt_short`, `reels`, `tiktok`, `yt_long` |
-| 1.9 / 8.11 Creative Digital Twin | not built | only the approval event registry (`twin_events`); tables, prompts and mock exist ([TODO 7](docs/TODO.md)) |
-| 1.10 / 8.10 Sponsorship and monetization | not built | tables, prompt and mock exist ([TODO 4](docs/TODO.md)) |
+| 1.9 / 8.11 Creative Digital Twin | implemented | style profile, memories (approved scripts, accepted clips), chat, suggested actions; `/twin`, editor Ask tab |
+| 1.10 / 8.10 Sponsorship and monetization | dropped | removed from the UI on purpose |
 | 1.11 Workflow board and jobs | implemented | publishing not built ([TODO 5](docs/TODO.md)) |
 | 1.11 YouTube OAuth and publish (`publish.upload`) | not built | [TODO 5](docs/TODO.md) |
-| 1.12 / 8.12 Creator intelligence | not built | synthetic demo analytics are seeded but unused ([TODO 6](docs/TODO.md)) |
+| 1.12 / 8.12 Creator intelligence | partly | `/insights/production` (counts from your own workspace); platform performance needs YouTube (not built) |
+| Research agent (Menil's design) | implemented | `/research`: web search (Tavily/Serper), brief cited only from the results |
+| Teams, RBAC, comments, presence | implemented | `/workspace/*`, `/invites/*`, `/content/{id}/comments`; see API.md |
 | 3 Architecture (Docker, Redis, Supabase) | replaced | [LOCAL_FIRST](docs/LOCAL_FIRST.md): SQLite, in-process jobs, local auth |
 | 3.3 Job system, SSE | implemented | in-process runner; [ARCHITECTURE](docs/ARCHITECTURE.md#job-flow) |
 | 5 Database schema | implemented (SQLite dialect) | all tables migrated, including unused ones |
-| 6 JSON contracts | implemented for 6.1, 6.3, 6.4, 6.5, 6.6, 6.7, 6.10 | 6.2, 6.8, 6.9 (Twin, Insights) not built |
+| 6 JSON contracts | implemented for 6.1, 6.3, 6.4, 6.5, 6.6, 6.7, 6.10 | 6.2, 6.9 (YouTube metrics) not built |
 | 7.1 to 7.3 LLM layer | implemented | Gemini, Groq, Ollama; real providers verified against recorded HTTP only |
 | 7.4 Token budget | intentionally not built | planning estimate only |
 | 8.2 Transcription | implemented | per-chunk checkpointing not built ([TODO 9](docs/TODO.md)) |
