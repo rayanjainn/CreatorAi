@@ -1,6 +1,17 @@
 data/
 .env
+.env*
 .env.local
+.env*.local
+.env.development
+.env.production
+.env.test
+
+# Build artifacts
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Python & Node ignores
 **/.venv/
 __pycache__/
 *.pyc
@@ -8,6 +19,5 @@ __pycache__/
 .ruff_cache/
 node_modules/
 .next/
-frontend/tsconfig.tsbuildinfo
 .DS_Store
 *.egg-info/

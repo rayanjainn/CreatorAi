@@ -73,7 +73,7 @@ const banks: Record<string, string[]> = {
   ]
 };
 
-const DIRECT_GROQ_KEY = process.env.NEXT_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY || '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';
+const DIRECT_GROQ_KEY = process.env.NEXT_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY || '';
 
 export async function generateResponse(
   userText: string,
