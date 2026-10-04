@@ -31,7 +31,9 @@ export function TwinChat({ contentItemId, clipId, compact, beforeApply, onApplie
   const end = useRef<HTMLDivElement>(null)
   const msgs = history.data ?? []
 
-  useEffect(() => end.current?.scrollIntoView({ block: 'end' }), [msgs.length, pending])
+  useEffect(() => {
+    end.current?.scrollIntoView({ block: 'end' })
+  }, [msgs.length, pending])
 
   const send = (message: string) => {
     const m = message.trim()

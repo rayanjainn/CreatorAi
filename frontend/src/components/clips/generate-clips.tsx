@@ -19,7 +19,9 @@ export function GenerateClips({ projectId, assets }: { projectId: string; assets
   const videos = assets.filter((a) => a.kind === 'video' && a.status === 'ready')
   const primary = useProjectUi((s) => s.primary[projectId])
   const hydrate = useProjectUi((s) => s.hydrate)
-  useEffect(() => hydrate(), [hydrate])
+  useEffect(() => {
+    hydrate()
+  }, [hydrate])
   const [count, setCount] = useState(4)
   const [full, setFull] = useState(false)
   const [source, setSource] = useState('')

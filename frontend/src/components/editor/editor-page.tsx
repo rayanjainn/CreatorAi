@@ -112,7 +112,9 @@ function Workspace({ clip }: { clip: Clip }) {
   }
 
   const layout = useEditorLayout()
-  useEffect(() => layout.hydrate(), [layout])
+  useEffect(() => {
+    layout.hydrate()
+  }, [layout])
   useEditorUploadWatcher()
   const centerDrop = useDropZone({
     disabled: !!preview || mode !== 'edit',
