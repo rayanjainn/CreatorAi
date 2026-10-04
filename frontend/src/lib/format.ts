@@ -142,3 +142,12 @@ export async function copyText(text: string): Promise<boolean> {
     }
   }
 }
+
+/** "90", "1:30" or "1:02:03" -> seconds. Empty or invalid -> null. */
+export function parseClock(text: string): number | null {
+  const t = text.trim()
+  if (!t) return null
+  const parts = t.split(':').map((x) => Number(x))
+  if (parts.length > 3 || parts.some((n) => !Number.isFinite(n) || n < 0)) return null
+  return parts.reduce((acc, n) => acc * 60 + n, 0)
+}

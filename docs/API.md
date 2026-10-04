@@ -429,3 +429,24 @@ sidecar through the real `asset.process`, a hand-written script and Director pla
 the real `project.match` and `clips.generate` with no LLM (clip copy provenance `heuristic`, titles prefixed
 `[DEMO]`). `--reset` deletes only rows it created. `--render` also renders the best clip with `yt_short`.
 
+
+
+## LumiClip cloud clipper (optional)
+
+Cuts short clips out of a video **link** (or a library video) in the cloud, then lets you save the clips to the library.
+Keys are server settings (`LUMICLIP_API_KEY`, and `CLOUDINARY_*` to send a *library* video, which needs a public URL); the
+browser never sees them. Without a key `GET /lumiclip/status` says `configured: false` and the UI shows a setup card. Every
+response carries `provenance: {source: "ai", provider: "lumiclip"}`.
+
+| Endpoint | Notes |
+|---|---|
+| `GET /lumiclip/status` | `{configured, cloudinary_configured, base_url}` |
+| `POST /lumiclip/projects` | Body: exactly one of `url` (http/https) or `asset_id` (ready library video, uploaded to Cloudinary first, `503 CLOUDINARY_NOT_CONFIGURED` otherwise), plus `aspect_ratio` (`9:16`/`16:9`), `start_time`, `end_time`, `language`, `subtitle_style`, `content_item_id`. `201` project. `503 LUMICLIP_NOT_CONFIGURED` without a key |
+| `GET /lumiclip/projects` | Newest first. `?content_item_id=` filters |
+| `GET /lumiclip/projects/{id}` | While the project runs this asks LumiClip for fresh progress (`step`: downloading, transcribing, analyzing, cutting, done); finished ones are final and cost no provider call. `error_category`: `source_auth`, `source_unavailable`, `api_auth`, `quota`, `unknown` |
+| `POST /lumiclip/projects/{id}/clips/{clip_id}/import` | Downloads a finished clip into the library (`mode` `light` by default: no transcript needed). Returns `{asset_id, duplicate, job_id, project}`; `409 ASSET_NOT_READY` while the clip is still being cut. Downloads only from public http(s) hosts |
+| `POST /lumiclip/projects/{id}/clips/{clip_id}/export` | `{quality: 720p|1080p}` -> LumiClip's `{status, url}` |
+| `DELETE /lumiclip/projects/{id}` | Removes it from the list (saved assets stay) |
+
+Errors: `LUMICLIP_AUTH` (bad key), `QUOTA_EXCEEDED` (402/429 from the provider), `LUMICLIP_UNREACHABLE`, `LUMICLIP_FAILED`.
+For local development and tests `scripts/fake_lumiclip.py` stands in for the provider (see `.env.example`).

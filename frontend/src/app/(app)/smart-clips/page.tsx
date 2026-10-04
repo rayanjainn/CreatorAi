@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Clapperboard } from 'lucide-react'
 import { PageHeader } from '@/components/common/page-header'
 import { EmptyState } from '@/components/common/empty-state'
@@ -11,12 +12,51 @@ import { RenderDialog } from '@/components/clips/render-dialog'
 import { useProjects } from '@/components/hubs/use-projects'
 import { LinkButton } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { LumiclipStudio } from '@/components/smart-clips/lumiclip-studio'
 import { useAllClips } from '@/lib/api/hooks'
 import { stripDemo } from '@/lib/format'
 import type { Clip, ClipStatus } from '@/lib/api/types'
 
-/** Hub: clips of every project, best score first (GET /clips). */
+type Tab = 'mine' | 'link'
+
+/** Smart Clips: your projects' clips (the local AI clipper), or clip a video link in the cloud (LumiClip). */
 export default function SmartClipsPage() {
+  return (
+    <Suspense fallback={<Skeleton style={{ height: 320 }} />}>
+      <SmartClips />
+    </Suspense>
+  )
+}
+
+function SmartClips() {
+  const router = useRouter()
+  const params = useSearchParams()
+  const tab: Tab = params.get('tab') === 'link' ? 'link' : 'mine'
+  const setTab = (t: Tab) => router.replace(t === 'link' ? '/smart-clips?tab=link' : '/smart-clips')
+  return (
+    <div className="page">
+      <PageHeader
+        eyebrow="CreatorAI / AI tools"
+        title="Smart Clips"
+        description={tab === 'mine' ? 'The best-scoring moments across all your projects. Accept, edit, open in the editor or render them here.' : 'Paste a video link and get ready-made short clips, cut in the cloud. Save the ones you like to your library.'}
+      />
+      <div className="toolbar">
+        <Segmented<Tab>
+          label="Clip source"
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'mine', label: 'Your projects' },
+            { value: 'link', label: 'Clip a video link' },
+          ]}
+        />
+      </div>
+      {tab === 'mine' ? <YourClips /> : <LumiclipStudio />}
+    </div>
+  )
+}
+
+function YourClips() {
   const [status, setStatus] = useState<'all' | ClipStatus>('all')
   const clips = useAllClips({ status: status === 'all' ? undefined : status })
   const { titles } = useProjects()
@@ -24,8 +64,7 @@ export default function SmartClipsPage() {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="page">
-      <PageHeader eyebrow="CreatorAI / AI tools" title="Smart Clips" description="The best-scoring moments across all your projects. Accept, edit, open in the editor or render them here." />
+    <>
       <div className="toolbar">
         <Segmented<'all' | ClipStatus>
           label="Filter clips"
@@ -67,6 +106,6 @@ export default function SmartClipsPage() {
         </div>
       )}
       <RenderDialog clip={renderClip} open={open} onOpenChange={setOpen} />
-    </div>
+    </>
   )
 }

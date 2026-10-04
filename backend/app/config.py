@@ -51,6 +51,16 @@ class Settings(BaseSettings):
     google_client_secret: str = ""
     google_redirect_uri: str = "http://localhost:8000/api/v1/youtube/oauth/callback"
 
+    # --- Optional cloud clipper (LumiClip) and its media host (Cloudinary) ----------------------
+    # Keys live only on the server; the browser never sees them.
+    lumiclip_api_key: str = ""
+    lumiclip_base_url: str = "https://api.lumiclip.ai"
+    # Tests against a local fake (scripts/fake_lumiclip.py) only: allow clip downloads from loopback.
+    lumiclip_allow_private_downloads: bool = False
+    cloudinary_cloud_name: str = ""
+    cloudinary_api_key: str = ""
+    cloudinary_api_secret: str = ""
+
     # --- Uploads and ingest ----------------------------------------------------------------
     max_upload_bytes: int = 8 * 1024**3
     upload_chunk_size: int = 8 * 1024 * 1024
@@ -124,6 +134,16 @@ class Settings(BaseSettings):
     caption_renderer: CaptionRenderer = "auto"
     ffmpeg_bin: str = "ffmpeg"
     ffprobe_bin: str = "ffprobe"
+
+    @property
+    def lumiclip_configured(self) -> bool:
+        return bool(self.lumiclip_api_key)
+
+    @property
+    def cloudinary_configured(self) -> bool:
+        return bool(
+            self.cloudinary_cloud_name and self.cloudinary_api_key and self.cloudinary_api_secret
+        )
 
     # --- Derived ---------------------------------------------------------------------------
     @model_validator(mode="after")

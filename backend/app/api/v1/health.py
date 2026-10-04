@@ -54,5 +54,9 @@ def health() -> dict[str, Any]:
             "ffmpeg": {"present": ffmpeg_available(), "version": ffmpeg_version()},
             "captions": caption_features(),
             "youtube": {"configured": settings.google_configured},
+            "integrations": {
+                "lumiclip": settings.lumiclip_configured,
+                "cloudinary": settings.cloudinary_configured,
+            },
         },
     }

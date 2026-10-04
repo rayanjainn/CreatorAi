@@ -226,3 +226,7 @@ export type ClipStatus = 'suggested' | 'accepted' | 'rejected'
 export type Render = S['RenderOut']
 export type RenderPreset = Render['preset']
 export type CaptionStyle = NonNullable<Render['caption_style']>
+
+export type LumiclipProject = S['LumiclipProjectOut']
+export type LumiclipClip = S['LumiclipClipOut']
+export type LumiclipStart = S['LumiclipStart']

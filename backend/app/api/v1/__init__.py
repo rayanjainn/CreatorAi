@@ -31,6 +31,7 @@ ROUTER_MODULES: list[str] = [
     "clips",
     "edits",
     "renders",
+    "lumiclip",
     "sponsors",
     "publish",
     "youtube",

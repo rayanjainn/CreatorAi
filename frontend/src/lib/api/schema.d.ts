@@ -902,9 +902,9 @@ export interface paths {
         /** Get Transcript */
         get: operations["get_transcript_api_v1_assets__asset_id__transcript_get"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
+        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
+        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1330,6 +1330,105 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/lumiclip/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Status */
+        get: operations["status_api_v1_lumiclip_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lumiclip/projects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List */
+        get: operations["list__api_v1_lumiclip_projects_get"];
+        put?: never;
+        /**
+         * Start
+         * @description Start clipping a public URL, or a library video (uploaded to Cloudinary first).
+         */
+        post: operations["start_api_v1_lumiclip_projects_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lumiclip/projects/{project_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get
+         * @description The project; while it is running this asks LumiClip for fresh progress first.
+         */
+        get: operations["get_api_v1_lumiclip_projects__project_id__get"];
+        put?: never;
+        post?: never;
+        /** Remove */
+        delete: operations["remove_api_v1_lumiclip_projects__project_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lumiclip/projects/{project_id}/clips/{clip_id}/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import Clip
+         * @description Save a finished clip into the library (then it can be edited and exported like any asset).
+         */
+        post: operations["import_clip_api_v1_lumiclip_projects__project_id__clips__clip_id__import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lumiclip/projects/{project_id}/clips/{clip_id}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Export Clip
+         * @description Ask LumiClip to render a clip at a quality; returns its ``{status, url, ...}``.
+         */
+        post: operations["export_clip_api_v1_lumiclip_projects__project_id__clips__clip_id__export_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/media/{key}": {
         parameters: {
             query?: never;
@@ -1338,13 +1437,13 @@ export interface paths {
             cookie?: never;
         };
         /** Serve Media */
-        get: operations["serve_media_media__key__get"];
+        get: operations["serve_media_media__key__head"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         /** Serve Media */
-        head: operations["serve_media_media__key__get"];
+        head: operations["serve_media_media__key__head"];
         patch?: never;
         trace?: never;
     };
@@ -2179,6 +2278,137 @@ export interface components {
             email: string;
             /** Password */
             password: string;
+        };
+        /** LumiclipClipOut */
+        LumiclipClipOut: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Duration */
+            duration: number;
+            /** Score */
+            score: number;
+            /** Reason */
+            reason: string;
+            /** Status */
+            status: string;
+            /** Download Url */
+            download_url: string | null;
+            /** Thumbnail Url */
+            thumbnail_url: string | null;
+            /** Quality */
+            quality: string | null;
+            /** Imported Asset Id */
+            imported_asset_id?: string | null;
+        };
+        /** LumiclipExport */
+        LumiclipExport: {
+            /**
+             * Quality
+             * @default 1080p
+             * @enum {string}
+             */
+            quality?: "720p" | "1080p";
+        };
+        /**
+         * LumiclipImport
+         * @description Save a finished clip into the library. ``light`` skips transcription (no AI key needed).
+         */
+        LumiclipImport: {
+            /**
+             * Mode
+             * @default light
+             * @enum {string}
+             */
+            mode?: "full" | "light";
+            /** Content Item Id */
+            content_item_id?: string | null;
+        };
+        /** LumiclipImportOut */
+        LumiclipImportOut: {
+            /** Asset Id */
+            asset_id: string;
+            /** Duplicate */
+            duplicate: boolean;
+            /** Job Id */
+            job_id: string | null;
+            project: components["schemas"]["LumiclipProjectOut"];
+        };
+        /** LumiclipProjectOut */
+        LumiclipProjectOut: {
+            /** Id */
+            id: string;
+            /** Remote Id */
+            remote_id: string;
+            /** Source Url */
+            source_url: string;
+            /** Source Asset Id */
+            source_asset_id: string | null;
+            /** Content Item Id */
+            content_item_id: string | null;
+            /** Aspect Ratio */
+            aspect_ratio: string;
+            /** Options */
+            options: {
+                [key: string]: unknown;
+            };
+            /** Status */
+            status: string;
+            /** Step */
+            step: string;
+            /** Message */
+            message: string | null;
+            /** Error */
+            error: string | null;
+            /** Error Category */
+            error_category: string | null;
+            /** Expected Clips */
+            expected_clips: number | null;
+            /** Source Duration Sec */
+            source_duration_sec: number | null;
+            /** Clips */
+            clips: components["schemas"]["LumiclipClipOut"][];
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+            provenance: components["schemas"]["Provenance"];
+        };
+        /**
+         * LumiclipStart
+         * @description Exactly one of ``url`` (a public link, e.g. YouTube) or ``asset_id`` (a library video).
+         */
+        LumiclipStart: {
+            /** Url */
+            url?: string | null;
+            /** Asset Id */
+            asset_id?: string | null;
+            /** Content Item Id */
+            content_item_id?: string | null;
+            /**
+             * Aspect Ratio
+             * @default 9:16
+             * @enum {string}
+             */
+            aspect_ratio?: "9:16" | "16:9";
+            /** Start Time */
+            start_time?: number | null;
+            /** End Time */
+            end_time?: number | null;
+            /** Language */
+            language?: string | null;
+            /** Subtitle Style */
+            subtitle_style?: string | null;
+        };
+        /** LumiclipStatus */
+        LumiclipStatus: {
+            /** Configured */
+            configured: boolean;
+            /** Cloudinary Configured */
+            cloudinary_configured: boolean;
+            /** Base Url */
+            base_url: string;
         };
         /** MatchEnqueued */
         MatchEnqueued: {
@@ -5160,7 +5390,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_put: {
+    _put_transcript_api_v1_assets__asset_id__transcript_post: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -5193,7 +5423,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_put: {
+    _put_transcript_api_v1_assets__asset_id__transcript_post: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -6077,7 +6307,228 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__get: {
+    status_api_v1_lumiclip_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LumiclipStatus"];
+                };
+            };
+        };
+    };
+    list__api_v1_lumiclip_projects_get: {
+        parameters: {
+            query?: {
+                content_item_id?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LumiclipProjectOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_api_v1_lumiclip_projects_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LumiclipStart"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LumiclipProjectOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_api_v1_lumiclip_projects__project_id__get: {
+        parameters: {
+            query?: {
+                refresh?: boolean;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LumiclipProjectOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_api_v1_lumiclip_projects__project_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_clip_api_v1_lumiclip_projects__project_id__clips__clip_id__import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                clip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LumiclipImport"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LumiclipImportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_clip_api_v1_lumiclip_projects__project_id__clips__clip_id__export_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                clip_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LumiclipExport"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    serve_media_media__key__head: {
         parameters: {
             query?: {
                 exp?: number | null;
@@ -6112,7 +6563,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__get: {
+    serve_media_media__key__head: {
         parameters: {
             query?: {
                 exp?: number | null;
