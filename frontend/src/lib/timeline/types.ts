@@ -180,7 +180,7 @@ export function normalizeTimeline(raw: ApiTimeline): Timeline {
         asset_id: o.asset_id ?? null,
         placeholder: o.placeholder ?? false,
         sponsor_slot_id: o.sponsor_slot_id ?? null,
-        ...(o.style ? { style: { ...DEFAULT_TEXT_STYLE, ...o.style } as TextStyle } : {}),
+        style: o.style ? ({ ...DEFAULT_TEXT_STYLE, ...o.style } as TextStyle) : null,
       })),
     },
   }
