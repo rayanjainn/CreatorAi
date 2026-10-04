@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     # Keys live only on the server; the browser never sees them.
     lumiclip_api_key: str = ""
     lumiclip_base_url: str = "https://api.lumiclip.ai"
-    # Tests against a local fake (scripts/fake_lumiclip.py) only: allow clip downloads from loopback.
+    # Tests against a local fake (scripts/fake_lumiclip.py) only: allow loopback clip downloads.
     lumiclip_allow_private_downloads: bool = False
     cloudinary_cloud_name: str = ""
     cloudinary_api_key: str = ""
