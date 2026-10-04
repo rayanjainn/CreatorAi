@@ -8,6 +8,7 @@ import { AlertTriangle, ArrowLeft, Check, ChevronDown, Clapperboard, History, Ke
 import { Button, IconButton } from '@/components/ui/button'
 import { Tooltip } from '@/components/ui/tooltip'
 import { ProvenanceBadge } from '@/components/provenance/provenance-badge'
+import { PresenceStack } from '@/components/team/presence-stack'
 import { RevisionList } from './revision-list'
 import { SaveStatus } from './save-status'
 import { SHORTCUTS } from './use-shortcuts'
@@ -26,7 +27,7 @@ export function EditorHeader({ clip, onExport, exporting }: { clip: Clip; onExpo
   const redo = useEditor((s) => s.redo)
   const canUndo = useEditor((s) => s.history.past.length > 0 && !s.preview && !s.busy)
   const canRedo = useEditor((s) => s.history.future.length > 0 && !s.preview && !s.busy)
-  const ro = useEditor((s) => !!s.preview || !!s.busy)
+  const ro = useEditor((s) => !!s.preview || !!s.busy || s.viewOnly)
   const revision = useEditor((s) => s.revision)
   const suggested = useEditor((s) => totals(viewTimeline(s)).suggested)
   const helpOpen = useEditor((s) => s.helpOpen)
@@ -59,6 +60,7 @@ export function EditorHeader({ clip, onExport, exporting }: { clip: Clip; onExpo
       </nav>
 
       <div className="ed-head-right">
+        <PresenceStack itemId={clip.content_item_id} where={`editor:${clip.id}`} />
         <SaveStatus />
         <div className="ed-sep" />
         {mode === 'edit' && (

@@ -70,4 +70,5 @@ class ActivityLog(Base):
     entity_type: Mapped[str] = mapped_column(String, nullable=False)
     entity_id: Mapped[str | None] = mapped_column(String)
     meta: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
+    user_id: Mapped[str | None] = mapped_column(String)
     created_at: Mapped[str] = created_at_col()

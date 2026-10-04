@@ -3,13 +3,18 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { ArrowRight, Check, ChevronDown, Loader2, Pencil, X } from 'lucide-react'
+import { Popover } from '@base-ui/react/popover'
+import { ArrowRight, Check, ChevronDown, Loader2, MessageSquare, Pencil, X } from 'lucide-react'
 import { StageBadge } from '@/components/common/stage-badge'
 import { ProgressRing } from '@/components/common/progress-ring'
 import { ProvenanceBadge } from '@/components/provenance/provenance-badge'
 import { Button } from '@/components/ui/button'
 import { Menu, MenuItem, MenuPopup } from '@/components/ui/menu'
-import { useContentList, useMoveContent, usePatchContent } from '@/lib/api/hooks'
+import { CommentsPanel } from '@/components/team/comments-panel'
+import { PresenceStack } from '@/components/team/presence-stack'
+import { SharePopover } from '@/components/team/share-popover'
+import { useRole } from '@/lib/use-role'
+import { useComments, useContentList, useMoveContent, usePatchContent } from '@/lib/api/hooks'
 import { isCode } from '@/lib/api/errors'
 import { STAGES, STAGE_LABEL, isDemoTitle, stripDemo } from '@/lib/format'
 import { jobLabel } from '@/lib/format'
@@ -19,6 +24,8 @@ import type { Card, Stage } from '@/lib/api/types'
 /** Header of the project workspace: editable title, stage + advance button, switcher, progress, running jobs. */
 export function ProjectHeader({ item }: { item: Card }) {
   const stage = item.stage as Stage
+  const { readOnly } = useRole()
+  const where = usePathname().split('/')[3] ?? 'plan'
   const nextStage = STAGES[STAGES.findIndex((s) => s.id === stage) + 1]?.id
   return (
     <header className="project-head" data-testid="project-header">
@@ -30,8 +37,11 @@ export function ProjectHeader({ item }: { item: Card }) {
         <EditableTitle id={item.id} title={item.title} />
       </div>
       <div className="project-head-side">
+        <PresenceStack itemId={item.id} where={where} />
         <ProgressRing percent={item.progress.percent} />
-        <StageControl key={stage} id={item.id} stage={stage} next={nextStage} hasScript={item.progress.has_script} />
+        <CommentsButton itemId={item.id} />
+        <SharePopover itemId={item.id} />
+        <StageControl key={stage} id={item.id} stage={stage} next={nextStage} hasScript={item.progress.has_script} readOnly={readOnly} />
         <Switcher currentId={item.id} />
       </div>
       <JobsStrip item={item} />
@@ -40,6 +50,7 @@ export function ProjectHeader({ item }: { item: Card }) {
 }
 
 function EditableTitle({ id, title }: { id: string; title: string }) {
+  const { readOnly } = useRole()
   const patch = usePatchContent()
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(title)
@@ -100,14 +111,14 @@ function EditableTitle({ id, title }: { id: string; title: string }) {
   return (
     <div className="title-row">
       <h1 data-testid="project-title">{stripDemo(title)}</h1>
-      <button type="button" className="icon-button title-pencil" aria-label="Rename project" title="Rename" onClick={() => setEditing(true)} data-testid="rename-project">
+      {!readOnly && <button type="button" className="icon-button title-pencil" aria-label="Rename project" title="Rename" onClick={() => setEditing(true)} data-testid="rename-project">
         {patch.isPending ? <Loader2 size={14} className="spin" /> : <Pencil size={14} />}
-      </button>
+      </button>}
     </div>
   )
 }
 
-function StageControl({ id, stage, next, hasScript }: { id: string; stage: Stage; next?: Stage; hasScript: boolean }) {
+function StageControl({ id, stage, next, hasScript, readOnly }: { id: string; stage: Stage; next?: Stage; hasScript: boolean; readOnly?: boolean }) {
   const move = useMoveContent()
   const pathname = usePathname()
   const [needScript, setNeedScript] = useState(false)
@@ -116,6 +127,7 @@ function StageControl({ id, stage, next, hasScript }: { id: string; stage: Stage
     move.mutate({ id, stage: to }, { onError: (e) => setNeedScript(isCode(e, 'NO_SCRIPT')) })
   }
   const base = pathname.split('/').slice(0, 3).join('/')
+  if (readOnly) return <span className="muted small" data-testid="view-only">View only</span>
   return (
     <div className="stage-control">
       {next ? (
@@ -204,5 +216,28 @@ function JobsStrip({ item }: { item: Card }) {
         All jobs
       </Link>
     </div>
+  )
+}
+
+function CommentsButton({ itemId }: { itemId: string }) {
+  const list = useComments(itemId)
+  const open = (list.data ?? []).filter((c) => !c.resolved).length
+  return (
+    <Popover.Root>
+      <Popover.Trigger className="button button-secondary button-sm" data-testid="comments-open" aria-label={`Comments, ${open} open`}>
+        <MessageSquare size={13} /> {open > 0 ? open : 'Comments'}
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Positioner side="bottom" align="end" sideOffset={8} style={{ zIndex: 70 }}>
+          <Popover.Popup className="popover comments-popover">
+            <div className="popover-head">
+              <b>Comments</b>
+              <small>Visible to everyone who can open this project.</small>
+            </div>
+            <CommentsPanel itemId={itemId} />
+          </Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Portal>
+    </Popover.Root>
   )
 }

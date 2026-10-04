@@ -1,5 +1,6 @@
 'use client'
 
+import { useRole } from '@/lib/use-role'
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { AlertTriangle, FolderOpen, LayoutGrid, List, Search as SearchIcon, UploadCloud } from 'lucide-react'
@@ -69,6 +70,7 @@ function writeView(v: 'grid' | 'list') {
  * links and reloads all land in the same place; filters are local.
  */
 export function LibraryPage({ variant }: { variant: 'library' | 'search' }) {
+  const { canEdit } = useRole()
   const router = useRouter()
   const pathname = usePathname()
   const params = useSearchParams()
@@ -175,8 +177,8 @@ export function LibraryPage({ variant }: { variant: 'library' | 'search' }) {
         }
         actions={
           <>
-            <UploadPill onOpen={() => setUploadOpen(true)} />
-            <Button onClick={() => setUploadOpen(true)} data-testid="open-upload">
+            {canEdit && <UploadPill onOpen={() => setUploadOpen(true)} />}
+            <Button onClick={() => setUploadOpen(true)} disabled={!canEdit} data-testid="open-upload">
               <UploadCloud size={15} /> Upload
             </Button>
           </>

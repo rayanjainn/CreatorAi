@@ -140,4 +140,6 @@ class ActivityOut(BaseModel):
     entity_type: str
     entity_id: str | None
     meta: dict[str, Any]
+    user_id: str | None = None
+    actor_name: str | None = None  # who did it (None for background jobs)
     created_at: str

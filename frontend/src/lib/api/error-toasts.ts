@@ -35,6 +35,9 @@ export function handleApiError(err: unknown, opts: { silentCodes?: string[] } = 
         onClick: () => window.location.reload(),
       })
       return
+    case 'FORBIDDEN':
+      toast.warning(err.message.includes('admins') ? 'Admins only' : 'View-only access', err.message)
+      return
     case 'UNAUTHORIZED':
       return // handled by the auth provider (redirect)
     case 'NETWORK_ERROR':

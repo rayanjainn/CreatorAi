@@ -9,37 +9,52 @@ from app.config import get_settings
 from app.errors import AppError
 from app.ml.embedder import embed_texts
 from app.ml.vectors import pack_vector
-from app.models import CreatorProfile, User, Workspace
+from app.models import CreatorProfile, User, Workspace, WorkspaceMember
 from app.repositories.profiles import ProfileRepository, TwinMemoryRepository
 from app.schemas.auth import MeOut, OnboardingRequest, ProfileOut, ProfileUpdate, UserOut
 from app.security import hash_password, verify_password
 
 
 def signup(
-    db: Session, email: str, password: str, display_name: str | None
+    db: Session,
+    email: str,
+    password: str,
+    display_name: str | None,
+    invite_token: str | None = None,
 ) -> tuple[User, Workspace]:
-    """Create user + workspace + empty profile. Only the first user unless AUTH_ALLOW_MULTI."""
+    """Create user + home workspace + empty profile.
+
+    Only the first user may sign up on a machine, unless AUTH_ALLOW_MULTI or the person holds an
+    invite link for this email (which also adds them to the inviting workspace).
+    """
+    from app.services import team  # local: team imports models that import this module's users
+
+    invite = team.find_invite(db, invite_token) if invite_token else None
+    if invite is not None and invite.email.lower() != email.lower():
+        raise AppError(
+            "INVITE_EMAIL_MISMATCH",
+            f"This invite was sent to {invite.email}. Sign up with that address.",
+            status=403,
+        )
     existing = db.scalar(select(func.count()).select_from(User)) or 0
-    if existing and not get_settings().auth_allow_multi:
+    if existing and not get_settings().auth_allow_multi and invite is None:
         raise AppError(
             "SIGNUP_CLOSED", "An account already exists on this machine; sign in instead"
         )
     if db.scalar(select(User.id).where(User.email == email)):
         raise AppError("EMAIL_TAKEN", "That email is already registered")
-    user = User(email=email, password_hash=hash_password(password))
+    name = display_name or email.split("@")[0]
+    user = User(email=email, password_hash=hash_password(password), display_name=name)
     db.add(user)
     db.flush()
     workspace = Workspace(owner_id=user.id)
     db.add(workspace)
     db.flush()
-    db.add(
-        CreatorProfile(
-            workspace_id=workspace.id,
-            display_name=display_name or email.split("@")[0],
-            domain="technology",
-        )
-    )
+    db.add(WorkspaceMember(workspace_id=workspace.id, user_id=user.id, role="owner"))
+    db.add(CreatorProfile(workspace_id=workspace.id, display_name=name, domain="technology"))
     db.flush()
+    if invite is not None:
+        team.accept_invite(db, invite.token, user)
     return user, workspace
 
 
@@ -68,15 +83,19 @@ def profile_out(profile: CreatorProfile) -> ProfileOut:
 
 
 def me(db: Session, user_id: str, workspace_id: str) -> MeOut:
+    from app.services import access, team
+
     repo = ProfileRepository(db)
     user = db.get(User, user_id)
     if user is None:
         raise AppError("UNAUTHORIZED", "Account no longer exists")
     workspace = repo.workspace(workspace_id)
     return MeOut(
-        user=UserOut(id=user.id, email=user.email),
+        user=UserOut(id=user.id, email=user.email, display_name=team.display_name(user)),
         workspace_id=workspace.id,
         workspace_name=workspace.name,
+        role=access.workspace_role(db, user_id, workspace_id) or "viewer",  # type: ignore[arg-type]
+        workspaces=team.my_workspaces(db, user_id),  # type: ignore[arg-type]
         profile=profile_out(repo.get(workspace_id)),
     )
 

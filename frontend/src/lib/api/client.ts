@@ -1,6 +1,7 @@
 import createClient from 'openapi-fetch'
 import type { paths } from './schema'
 import { getTokenOrMemory } from '@/lib/auth'
+import { getActiveWorkspace } from '@/lib/workspace'
 import { ApiError, toApiError } from './errors'
 
 /** API origin (no trailing slash, no /api/v1). Paths in the generated schema already include /api/v1. */
@@ -19,6 +20,8 @@ export const api = createClient<paths>({
   fetch: async (input: Request) => {
     const token = getTokenOrMemory()
     if (token) input.headers.set('Authorization', `Bearer ${token}`)
+    const workspace = getActiveWorkspace()
+    if (workspace) input.headers.set('X-Workspace-Id', workspace)
     try {
       return await fetch(input)
     } catch {
@@ -60,6 +63,8 @@ async function requestJson<T>(method: string, path: string, body?: unknown, opts
   const headers: Record<string, string> = {}
   const token = getTokenOrMemory()
   if (token && opts.auth !== false) headers.Authorization = `Bearer ${token}`
+  const workspace = getActiveWorkspace()
+  if (workspace && opts.auth !== false) headers['X-Workspace-Id'] = workspace
   if (body !== undefined) headers['Content-Type'] = 'application/json'
   let res: Response
   try {
@@ -85,7 +90,9 @@ export function withAccessToken(path: string): string {
   const token = getTokenOrMemory()
   const url = `${API_URL}${path}`
   if (!token) return url
-  return `${url}${url.includes('?') ? '&' : '?'}access_token=${encodeURIComponent(token)}`
+  const workspace = getActiveWorkspace()
+  const extra = workspace ? `&workspace=${encodeURIComponent(workspace)}` : ''
+  return `${url}${url.includes('?') ? '&' : '?'}access_token=${encodeURIComponent(token)}${extra}`
 }
 
 /** Send a raw (non-JSON) body, e.g. an SRT/VTT/words.json transcript; the response is JSON. */
@@ -93,6 +100,8 @@ export async function putRaw<T>(path: string, body: BodyInit, contentType = 'app
   const headers: Record<string, string> = { 'Content-Type': contentType }
   const token = getTokenOrMemory()
   if (token) headers.Authorization = `Bearer ${token}`
+  const workspace = getActiveWorkspace()
+  if (workspace) headers['X-Workspace-Id'] = workspace
   let res: Response
   try {
     res = await fetch(`${API_URL}${path}`, { method: 'PUT', headers, body })

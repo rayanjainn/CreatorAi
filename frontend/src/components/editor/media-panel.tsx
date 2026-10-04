@@ -28,7 +28,7 @@ export function MediaPanel({ contentItemId }: { contentItemId: string }) {
   const [filter, setFilter] = useState<Filter>('all')
   const [q, setQ] = useState('')
   const input = useRef<HTMLInputElement>(null)
-  const readOnly = useEditor((s) => !!s.preview || !!s.busy)
+  const readOnly = useEditor((s) => !!s.preview || !!s.busy || s.viewOnly)
   const assets = useAssets({ limit: 100, sort: '-created_at' })
   const uploads = useUploads((s) => s.items)
   const mine = uploads.filter((u) => u.tag === 'editor' && !['done', 'aborted'].includes(u.phase) && !(u.phase === 'processing' && u.assetId))

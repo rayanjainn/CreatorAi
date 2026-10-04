@@ -14,7 +14,7 @@ export function TimelineToolbar({ onAddAudio }: { onAddAudio: () => void }) {
   const canUndo = useEditor((s) => s.history.past.length > 0)
   const canRedo = useEditor((s) => s.history.future.length > 0)
   const preview = useEditor((s) => !!s.preview)
-  const busy = useEditor((s) => !!s.busy)
+  const busy = useEditor((s) => !!s.busy || s.viewOnly)
   const hasSelection = useEditor((s) => s.selection.length > 0)
   const hasVideo = useEditor((s) => s.timeline.tracks.video.length > 0)
   const setTool = useEditor((s) => s.setTool)

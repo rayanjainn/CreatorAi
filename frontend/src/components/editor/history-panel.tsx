@@ -17,7 +17,7 @@ import { RevisionList } from './revision-list'
 /** Left panel: honest "Twin chat not available" card + the real edit history and AI changes checklist. */
 export function HistoryPanel({ clipId }: { clipId: string }) {
   const timeline = useEditor(viewTimeline)
-  const ro = useEditor((s) => !!s.preview || !!s.busy)
+  const ro = useEditor((s) => !!s.preview || !!s.busy || s.viewOnly)
   const groups = useMemo(() => layerGroups(timeline), [timeline])
   const t = totals(timeline)
   const ai = t.ai
@@ -192,7 +192,7 @@ function ActivitySection({ clipId }: { clipId: string }) {
         {q.data?.items.map((a) => (
           <li key={a.id} data-testid="activity-row" data-action={a.action}>
             <span className={`act-dot ${a.action === 'layer_rejected' ? 'red' : a.action === 'layer_accepted' ? 'green' : ''}`} />
-            <span className="act-text">{activityText(a)}</span>
+            <span className="act-text">{a.actor_name ? `${a.actor_name}: ` : ''}{activityText(a)}</span>
             <small>{relativeTime(a.created_at)}</small>
           </li>
         ))}

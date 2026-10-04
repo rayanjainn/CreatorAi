@@ -230,3 +230,11 @@ export type CaptionStyle = NonNullable<Render['caption_style']>
 export type LumiclipProject = S['LumiclipProjectOut']
 export type LumiclipClip = S['LumiclipClipOut']
 export type LumiclipStart = S['LumiclipStart']
+
+export type Workspace = S['WorkspaceOut']
+export type Member = S['MemberOut']
+export type Invite = S['InviteOut']
+export type InvitePreview = S['InvitePreview']
+export type ProjectMember = S['ProjectMemberOut']
+export type Comment = S['CommentOut']
+export type Presence = S['PresenceOut']

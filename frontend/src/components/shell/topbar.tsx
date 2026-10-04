@@ -12,6 +12,7 @@ import { initials } from '@/lib/format'
 import { useUi } from '@/stores/ui'
 import { useActiveJobs } from '@/stores/jobs'
 import { ROUTE_TITLES } from './nav'
+import { useRole } from '@/lib/use-role'
 import { Button } from '@/components/ui/button'
 
 function Breadcrumbs() {
@@ -139,6 +140,7 @@ function UserMenu() {
 export function Topbar() {
   const setMobile = useUi((s) => s.setMobileNav)
   const openNew = useUi((s) => s.openNewContent)
+  const { canEdit } = useRole()
   return (
     <header className="topbar">
       <div className="topbar-left">
@@ -153,9 +155,11 @@ export function Topbar() {
         <span className="hide-sm">
           <DataModeChip />
         </span>
-        <Button size="sm" onClick={() => openNew()} data-testid="new-content">
-          <Plus size={15} /> <span className="hide-sm">New content</span>
-        </Button>
+        {canEdit && (
+          <Button size="sm" onClick={() => openNew()} data-testid="new-content">
+            <Plus size={15} /> <span className="hide-sm">New content</span>
+          </Button>
+        )}
         <UserMenu />
       </div>
     </header>

@@ -1,6 +1,7 @@
 import { api, API_URL, unwrap } from '@/lib/api/client'
 import { ApiError, isApiError, toApiError } from '@/lib/api/errors'
 import { getTokenOrMemory } from '@/lib/auth'
+import { getActiveWorkspace } from '@/lib/workspace'
 import { trackJob } from '@/lib/track-job'
 import { useUploads, type UploadItem } from '@/stores/uploads'
 import type { UploadComplete, UploadOut } from '@/lib/api/types'
@@ -64,6 +65,8 @@ function putChunk(uploadId: string, n: number, blob: Blob, run: Run, onProgress:
     xhr.setRequestHeader('Content-Type', 'application/octet-stream')
     const token = getTokenOrMemory()
     if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+    const workspace = getActiveWorkspace()
+    if (workspace) xhr.setRequestHeader('X-Workspace-Id', workspace)
     xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded)
     xhr.onerror = () => {
       run.xhrs.delete(xhr)

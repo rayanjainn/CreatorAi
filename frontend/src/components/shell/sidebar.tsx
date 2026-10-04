@@ -5,8 +5,7 @@ import { usePathname } from 'next/navigation'
 import { ChevronLeft, ChevronRight, Sparkles, X } from 'lucide-react'
 import { NAV, isActive } from './nav'
 import { useUi } from '@/stores/ui'
-import { useAuth } from '@/components/auth-provider'
-import { initials } from '@/lib/format'
+import { WorkspaceSwitcher } from '@/components/team/workspace-switcher'
 import { DataModeChip } from '@/components/provenance/data-mode'
 import { Tooltip } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
@@ -17,9 +16,7 @@ export function Sidebar() {
   const toggle = useUi((s) => s.toggleSidebar)
   const mobileOpen = useUi((s) => s.mobileNavOpen)
   const setMobile = useUi((s) => s.setMobileNav)
-  const { me, profile } = useAuth()
   const collapsed = collapsedPref && !mobileOpen
-  const name = profile?.display_name ?? me?.user.email ?? ''
 
   return (
     <>
@@ -43,17 +40,7 @@ export function Sidebar() {
           )}
         </div>
 
-        <div className="workspace-switcher" title={me?.workspace_name}>
-          <div className="avatar" aria-hidden>
-            {initials(name)}
-          </div>
-          {!collapsed && (
-            <div>
-              <b>{me?.workspace_name || 'My workspace'}</b>
-              <small>Local workspace</small>
-            </div>
-          )}
-        </div>
+        <WorkspaceSwitcher collapsed={collapsed} />
 
         <nav className="side-nav" aria-label="Main navigation">
           {NAV.map((group) => (

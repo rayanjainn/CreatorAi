@@ -253,6 +253,760 @@
         }
       }
     },
+    "/api/v1/workspace": {
+      "get": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Get Workspace",
+        "operationId": "get_workspace_api_v1_workspace_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceOut"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Rename",
+        "operationId": "rename_api_v1_workspace_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkspaceRename"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspace/members": {
+      "get": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Members",
+        "operationId": "members_api_v1_workspace_members_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MemberOut"
+                  },
+                  "type": "array",
+                  "title": "Response Members Api V1 Workspace Members Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspace/members/{user_id}": {
+      "patch": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Set Role",
+        "operationId": "set_role_api_v1_workspace_members__user_id__patch",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberRoleUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Remove",
+        "description": "Remove someone, or leave yourself (``user_id`` = you). The last owner cannot leave.",
+        "operationId": "remove_api_v1_workspace_members__user_id__delete",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspace/invites": {
+      "get": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Invites",
+        "operationId": "invites_api_v1_workspace_invites_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InviteOut"
+                  },
+                  "type": "array",
+                  "title": "Response Invites Api V1 Workspace Invites Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Invite",
+        "description": "Create an invite link. No email is sent: copy the link and share it with the person.",
+        "operationId": "invite_api_v1_workspace_invites_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspace/invites/{invite_id}": {
+      "delete": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Revoke",
+        "operationId": "revoke_api_v1_workspace_invites__invite_id__delete",
+        "parameters": [
+          {
+            "name": "invite_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invite Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/invites/{token}": {
+      "get": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Preview",
+        "description": "What an invite is for, so the invited person can decide. Public: the token is the secret.",
+        "operationId": "preview_api_v1_invites__token__get",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitePreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/invites/{token}/accept": {
+      "post": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Accept",
+        "operationId": "accept_api_v1_invites__token__accept_post",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteAccepted"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/content/{item_id}/members": {
+      "get": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Project Members",
+        "operationId": "project_members_api_v1_content__item_id__members_get",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectMemberOut"
+                  },
+                  "title": "Response Project Members Api V1 Content  Item Id  Members Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspace/projects/{project_item_id}/members/{user_id}": {
+      "put": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Set Project Role",
+        "description": "Override a member's role on one project (admins only; admins/owners are unrestricted).",
+        "operationId": "set_project_role_api_v1_workspace_projects__project_item_id__members__user_id__put",
+        "parameters": [
+          {
+            "name": "project_item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Item Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectMemberSet"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "team"
+        ],
+        "summary": "Clear Project Role",
+        "operationId": "clear_project_role_api_v1_workspace_projects__project_item_id__members__user_id__delete",
+        "parameters": [
+          {
+            "name": "project_item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Item Id"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/content/{item_id}/comments": {
+      "get": {
+        "tags": [
+          "comments"
+        ],
+        "summary": "List Comments",
+        "operationId": "list_comments_api_v1_content__item_id__comments_get",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          },
+          {
+            "name": "clip_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Clip Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommentOut"
+                  },
+                  "title": "Response List Comments Api V1 Content  Item Id  Comments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "comments"
+        ],
+        "summary": "Add Comment",
+        "description": "Anyone in the workspace can comment, including viewers.",
+        "operationId": "add_comment_api_v1_content__item_id__comments_post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/comments/{comment_id}": {
+      "patch": {
+        "tags": [
+          "comments"
+        ],
+        "summary": "Patch Comment",
+        "operationId": "patch_comment_api_v1_comments__comment_id__patch",
+        "parameters": [
+          {
+            "name": "comment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "comments"
+        ],
+        "summary": "Delete Comment",
+        "operationId": "delete_comment_api_v1_comments__comment_id__delete",
+        "parameters": [
+          {
+            "name": "comment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Comment Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/content/{item_id}/presence": {
+      "post": {
+        "tags": [
+          "comments"
+        ],
+        "summary": "Presence",
+        "description": "Heartbeat (every ~10 s while a project is open); returns the others who are here now.",
+        "operationId": "presence_api_v1_content__item_id__presence_post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresenceBeat"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PresenceOut"
+                  },
+                  "title": "Response Presence Api V1 Content  Item Id  Presence Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/jobs": {
       "get": {
         "tags": [
@@ -4844,12 +5598,12 @@
       }
     },
     "/media/{key}": {
-      "head": {
+      "get": {
         "tags": [
           "media"
         ],
         "summary": "Serve Media",
-        "operationId": "serve_media_media__key__head",
+        "operationId": "serve_media_media__key__get",
         "parameters": [
           {
             "name": "key",
@@ -4931,12 +5685,12 @@
           }
         }
       },
-      "get": {
+      "head": {
         "tags": [
           "media"
         ],
         "summary": "Serve Media",
-        "operationId": "serve_media_media__key__head",
+        "operationId": "serve_media_media__key__get",
         "parameters": [
           {
             "name": "key",
@@ -5051,6 +5805,28 @@
             "additionalProperties": true,
             "type": "object",
             "title": "Meta"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "actor_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Name"
           },
           "created_at": {
             "type": "string",
@@ -6554,6 +7330,174 @@
         ],
         "title": "ClipsEnqueued"
       },
+      "CommentCreate": {
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Body"
+          },
+          "clip_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clip Id"
+          },
+          "at_sec": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "At Sec"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body"
+        ],
+        "title": "CommentCreate"
+      },
+      "CommentOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "content_item_id": {
+            "type": "string",
+            "title": "Content Item Id"
+          },
+          "clip_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clip Id"
+          },
+          "parent_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Id"
+          },
+          "at_sec": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "At Sec"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "resolved": {
+            "type": "boolean",
+            "title": "Resolved"
+          },
+          "author_id": {
+            "type": "string",
+            "title": "Author Id"
+          },
+          "author_name": {
+            "type": "string",
+            "title": "Author Name"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "mine": {
+            "type": "boolean",
+            "title": "Mine",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "content_item_id",
+          "clip_id",
+          "parent_id",
+          "at_sec",
+          "body",
+          "resolved",
+          "author_id",
+          "author_name",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "CommentOut"
+      },
+      "CommentPatch": {
+        "properties": {
+          "body": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body"
+          },
+          "resolved": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved"
+          }
+        },
+        "type": "object",
+        "title": "CommentPatch"
+      },
       "ContentCreate": {
         "properties": {
           "title": {
@@ -7351,6 +8295,308 @@
         "type": "object",
         "title": "IdeasGenerateRequest"
       },
+      "InviteAccepted": {
+        "properties": {
+          "workspace_id": {
+            "type": "string",
+            "title": "Workspace Id"
+          },
+          "workspace_name": {
+            "type": "string",
+            "title": "Workspace Name"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor",
+              "admin",
+              "owner"
+            ],
+            "title": "Role"
+          },
+          "content_item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Item Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "workspace_id",
+          "workspace_name",
+          "role",
+          "content_item_id"
+        ],
+        "title": "InviteAccepted"
+      },
+      "InviteCreate": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "title": "Email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor",
+              "admin"
+            ],
+            "title": "Role",
+            "default": "editor"
+          },
+          "content_item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Item Id"
+          },
+          "project_role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "viewer",
+                  "editor"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "InviteCreate"
+      },
+      "InviteOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor",
+              "admin"
+            ],
+            "title": "Role"
+          },
+          "content_item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Item Id"
+          },
+          "project_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Title"
+          },
+          "project_role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "viewer",
+                  "editor"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Role"
+          },
+          "invited_by_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invited By Name"
+          },
+          "expires_at": {
+            "type": "string",
+            "title": "Expires At"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "accepted",
+              "expired"
+            ],
+            "title": "Status"
+          },
+          "token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token"
+          },
+          "link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Link"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "role",
+          "content_item_id",
+          "project_title",
+          "project_role",
+          "invited_by_name",
+          "expires_at",
+          "created_at",
+          "status"
+        ],
+        "title": "InviteOut"
+      },
+      "InvitePreview": {
+        "properties": {
+          "workspace_name": {
+            "type": "string",
+            "title": "Workspace Name"
+          },
+          "inviter_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inviter Name"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor",
+              "admin"
+            ],
+            "title": "Role"
+          },
+          "project_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Title"
+          },
+          "project_role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "viewer",
+                  "editor"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Role"
+          },
+          "expires_at": {
+            "type": "string",
+            "title": "Expires At"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "accepted",
+              "expired"
+            ],
+            "title": "Status"
+          },
+          "account_exists": {
+            "type": "boolean",
+            "title": "Account Exists"
+          }
+        },
+        "type": "object",
+        "required": [
+          "workspace_name",
+          "inviter_name",
+          "email",
+          "role",
+          "project_title",
+          "project_role",
+          "expires_at",
+          "status",
+          "account_exists"
+        ],
+        "title": "InvitePreview",
+        "description": "What the invited person sees before accepting (no sign-in needed)."
+      },
       "JobBrief": {
         "properties": {
           "id": {
@@ -8109,6 +9355,24 @@
             "type": "string",
             "title": "Workspace Name"
           },
+          "role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor",
+              "admin",
+              "owner"
+            ],
+            "title": "Role",
+            "default": "owner"
+          },
+          "workspaces": {
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceRef"
+            },
+            "type": "array",
+            "title": "Workspaces"
+          },
           "profile": {
             "$ref": "#/components/schemas/ProfileOut"
           }
@@ -8121,6 +9385,69 @@
           "profile"
         ],
         "title": "MeOut"
+      },
+      "MemberOut": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor",
+              "admin",
+              "owner"
+            ],
+            "title": "Role"
+          },
+          "joined_at": {
+            "type": "string",
+            "title": "Joined At"
+          },
+          "is_me": {
+            "type": "boolean",
+            "title": "Is Me",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "email",
+          "display_name",
+          "role",
+          "joined_at"
+        ],
+        "title": "MemberOut"
+      },
+      "MemberRoleUpdate": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor",
+              "admin",
+              "owner"
+            ],
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "title": "MemberRoleUpdate"
       },
       "MetaPatch": {
         "properties": {
@@ -8784,6 +10111,49 @@
         ],
         "title": "PlanVersionOut"
       },
+      "PresenceBeat": {
+        "properties": {
+          "where": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Where"
+          }
+        },
+        "type": "object",
+        "required": [
+          "where"
+        ],
+        "title": "PresenceBeat"
+      },
+      "PresenceOut": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "where": {
+            "type": "string",
+            "title": "Where"
+          },
+          "seconds_ago": {
+            "type": "integer",
+            "title": "Seconds Ago"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "name",
+          "where",
+          "seconds_ago"
+        ],
+        "title": "PresenceOut"
+      },
       "ProfileOut": {
         "properties": {
           "display_name": {
@@ -9012,6 +10382,84 @@
           "percent"
         ],
         "title": "ProgressOut"
+      },
+      "ProjectMemberOut": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "workspace_role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor",
+              "admin",
+              "owner"
+            ],
+            "title": "Workspace Role"
+          },
+          "project_role": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "viewer",
+                  "editor"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Project Role"
+          },
+          "effective_role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor",
+              "admin",
+              "owner"
+            ],
+            "title": "Effective Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "email",
+          "display_name",
+          "workspace_role",
+          "project_role",
+          "effective_role"
+        ],
+        "title": "ProjectMemberOut"
+      },
+      "ProjectMemberSet": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor"
+            ],
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "title": "ProjectMemberSet"
       },
       "Provenance": {
         "properties": {
@@ -10395,6 +11843,18 @@
               }
             ],
             "title": "Display Name"
+          },
+          "invite_token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invite Token"
           }
         },
         "type": "object",
@@ -10540,6 +12000,24 @@
           "workspace_name": {
             "type": "string",
             "title": "Workspace Name"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor",
+              "admin",
+              "owner"
+            ],
+            "title": "Role",
+            "default": "owner"
+          },
+          "workspaces": {
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceRef"
+            },
+            "type": "array",
+            "title": "Workspaces"
           },
           "profile": {
             "$ref": "#/components/schemas/ProfileOut"
@@ -10928,6 +12406,11 @@
           "email": {
             "type": "string",
             "title": "Email"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name",
+            "default": ""
           }
         },
         "type": "object",
@@ -11099,6 +12582,94 @@
           "tl_start"
         ],
         "title": "VideoItem"
+      },
+      "WorkspaceOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor",
+              "admin",
+              "owner"
+            ],
+            "title": "Role"
+          },
+          "member_count": {
+            "type": "integer",
+            "title": "Member Count"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "role",
+          "member_count",
+          "created_at"
+        ],
+        "title": "WorkspaceOut"
+      },
+      "WorkspaceRef": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "viewer",
+              "editor",
+              "admin",
+              "owner"
+            ],
+            "title": "Role"
+          },
+          "is_home": {
+            "type": "boolean",
+            "title": "Is Home"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "role",
+          "is_home"
+        ],
+        "title": "WorkspaceRef"
+      },
+      "WorkspaceRename": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "WorkspaceRename"
       }
     }
   }

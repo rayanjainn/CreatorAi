@@ -4,6 +4,7 @@ from app.models.accounts import CreatorProfile, User, Workspace, YoutubeConnecti
 from app.models.assets import Asset, AssetSegment, AssetShot, Upload
 from app.models.base import Base, new_id, utcnow
 from app.models.clips import Clip, Edit, EditRevision, Render
+from app.models.collab import Comment, Invite, ProjectMember, WorkspaceMember
 from app.models.content import ContentItem, DirectorOutput, IdeaSuggestion
 from app.models.integrations import LumiclipProject
 from app.models.matching import BeatMatch
@@ -21,6 +22,7 @@ __all__ = [
     "Base",
     "BeatMatch",
     "Clip",
+    "Comment",
     "ContentItem",
     "CreatorProfile",
     "DirectorOutput",
@@ -28,10 +30,12 @@ __all__ = [
     "EditRevision",
     "IdeaSuggestion",
     "InsightSnapshot",
+    "Invite",
     "Job",
     "LlmCache",
     "LlmUsage",
     "LumiclipProject",
+    "ProjectMember",
     "PublishJob",
     "Render",
     "Script",
@@ -43,6 +47,7 @@ __all__ = [
     "Upload",
     "User",
     "Workspace",
+    "WorkspaceMember",
     "YoutubeConnection",
     "YtMetricDaily",
     "YtVideo",

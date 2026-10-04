@@ -130,7 +130,10 @@ export default function JobsPage() {
                     <ActivityIcon size={14} />
                   </div>
                   <div>
-                    <b>{actionLabel(a.action)}</b>
+                    <b>
+                      {actionLabel(a.action)}
+                      {a.actor_name ? <span className="act-by"> · {a.actor_name}</span> : null}
+                    </b>
                     <small className="truncate">
                       {(a.meta?.title as string | undefined) ?? a.entity_type}
                       {a.action === 'stage_moved' && a.meta?.from ? ` · ${String(a.meta.from)} → ${String(a.meta.to)}` : ''}

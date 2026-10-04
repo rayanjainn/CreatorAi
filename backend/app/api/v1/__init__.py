@@ -17,6 +17,8 @@ ROUTER_MODULES: list[str] = [
     "health",
     "auth",
     "me",
+    "team",
+    "comments",
     "jobs",
     "llm",
     "content",

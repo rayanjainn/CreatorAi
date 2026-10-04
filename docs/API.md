@@ -450,3 +450,38 @@ response carries `provenance: {source: "ai", provider: "lumiclip"}`.
 
 Errors: `LUMICLIP_AUTH` (bad key), `QUOTA_EXCEEDED` (402/429 from the provider), `LUMICLIP_UNREACHABLE`, `LUMICLIP_FAILED`.
 For local development and tests `scripts/fake_lumiclip.py` stands in for the provider (see `.env.example`).
+
+## Teams and collaboration
+
+Every user has a home workspace (their own, they are its `owner`) and can be a member of others. The browser picks the
+workspace with the `X-Workspace-Id` header (or `?workspace=` on GETs such as the SSE stream); without it the home workspace is
+used. A non-member gets `403 FORBIDDEN`. `GET /me` returns `role` (in the selected workspace) and `workspaces`
+(`[{id, name, role, is_home}]`).
+
+**Roles**, lowest first: `viewer` (read, comment, see who is here), `editor` (create and change content), `admin` (team,
+profile, integrations, `POST /llm/test`), `owner` (like admin; owners can also change admins and owners; the last owner cannot
+be demoted). **One policy**, enforced in `deps.get_ctx` for every endpoint (`services/access.py`): GET needs `viewer`, any other
+write needs `editor`, `/workspace/*`, `PUT /profile`, `POST /onboarding`, `/youtube/*` writes and `POST /llm/test` need `admin`.
+A **project override** (`project_members`) replaces the workspace role on one project (a viewer can be an editor of one video, an
+editor read-only on one); it is looked up from the project the request is about (`/content/{item_id}/...`, `/clips/{id}`,
+`/scripts/{id}`, `/renders/{id}`, `/beat-matches/{id}`, `/assets/{id}`, `/comments/{id}`) and never applies to admins or owners.
+A denied request is `403 FORBIDDEN` with `details: {role, needs, workspace_role}`.
+
+| Endpoint | Notes |
+|---|---|
+| `GET /workspace`, `PATCH /workspace {name}` | The current workspace (name, my role, member count); rename is admin |
+| `GET /workspace/members` | `[{user_id, email, display_name, role, joined_at, is_me}]`, highest role first |
+| `PATCH /workspace/members/{user_id} {role}` | Admin. Admins manage editors and viewers; only owners grant or change admin/owner. `409 LAST_OWNER` |
+| `DELETE /workspace/members/{user_id}` | Admin removes someone; **anyone may remove themselves** (leave). `409 LAST_OWNER`; `409 HOME_WORKSPACE` for your own workspace |
+| `POST /workspace/invites {email, role, content_item_id?, project_role?}` | Admin. Creates a link `{FRONTEND_URL}/invite/{token}` (no email is sent: copy it). One open invite per email (a new one replaces the old). `project_role` + `content_item_id` give the invitee an override on that one project. Valid 7 days |
+| `GET /workspace/invites`, `DELETE /workspace/invites/{id}` | Admin: pending invites (with `token` and `link`), revoke |
+| `GET /invites/{token}` | **Public** preview: workspace, inviter, role, project, `status` (`pending`/`accepted`/`expired`), `account_exists` |
+| `POST /invites/{token}/accept` | Signed-in user joins (idempotent for the same person). The invite is for one email: `403 INVITE_EMAIL_MISMATCH`; `410 INVITE_USED` / `INVITE_EXPIRED` |
+| `POST /auth/signup {…, invite_token}` | Lets someone create an account on a machine that already has one, for the invite's email, and joins them |
+| `GET /content/{item_id}/members` | Everyone with their workspace role, project override and effective role |
+| `PUT/DELETE /workspace/projects/{item_id}/members/{user_id}` | Admin: set `{role: editor|viewer}` or clear the override (not for admins/owners) |
+| `GET/POST /content/{item_id}/comments` | `?clip_id=` filters. Body `{body, clip_id?, at_sec?, parent_id?}`. **Viewers can comment** |
+| `PATCH/DELETE /comments/{id}` | The author edits the text; the author or an editor on the project resolves; the author or an admin deletes |
+| `POST /content/{item_id}/presence {where}` | Heartbeat every ~10 s while a project is open; returns the others who are here now (in memory, 30 s) |
+
+`GET /activity` rows carry `user_id` (who did it) for everything done through the API.

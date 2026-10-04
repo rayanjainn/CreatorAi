@@ -13,6 +13,10 @@ import { homeFor } from '@/lib/auth'
 
 export default function SignupPage() {
   const router = useRouter()
+  useEffect(() => {
+    const invite = new URLSearchParams(window.location.search).get('invite')
+    if (invite) router.replace(`/invite/${encodeURIComponent(invite)}`)
+  }, [router])
   const { status, profile, signup } = useAuth()
   const health = useHealth({ refetchMs: 0 })
   const [name, setName] = useState('')

@@ -21,6 +21,13 @@ import type {
   HooksOut,
   LumiclipProject,
   LumiclipStart,
+  Comment,
+  Invite,
+  InvitePreview,
+  Member,
+  Presence,
+  ProjectMember,
+  Workspace,
   Match,
   Plan,
   PlanRequest,
@@ -60,6 +67,12 @@ export const qk = {
   me: ['me'] as const,
   health: ['health'] as const,
   llmStatus: ['llm', 'status'] as const,
+  workspace: ['team', 'workspace'] as const,
+  members: ['team', 'members'] as const,
+  invites: ['team', 'invites'] as const,
+  projectMembers: (id: string) => ['team', 'project-members', id] as const,
+  comments: (id: string, clipId?: string | null) => ['comments', id, clipId ?? 'all'] as const,
+  commentsAll: ['comments'] as const,
   lumiclipStatus: ['lumiclip', 'status'] as const,
   lumiclipProjects: ['lumiclip', 'projects'] as const,
   lumiclipProject: (id: string) => ['lumiclip', 'project', id] as const,
@@ -1037,5 +1050,149 @@ export function useDeleteLumiclipProject() {
   return useMutation({
     mutationFn: (id: string) => unwrap(api.DELETE('/api/v1/lumiclip/projects/{project_id}', { params: { path: { project_id: id } } })),
     onSuccess: () => void qc.invalidateQueries({ queryKey: qk.lumiclipProjects }),
+  })
+}
+
+/* ---------- team: workspace, members, invites, project roles ---------- */
+export function useWorkspaceInfo() {
+  return useQuery({ queryKey: qk.workspace, queryFn: () => unwrap(api.GET('/api/v1/workspace')) as Promise<Workspace> })
+}
+
+export function useMembers() {
+  return useQuery({ queryKey: qk.members, queryFn: () => unwrap(api.GET('/api/v1/workspace/members')) as Promise<Member[]> })
+}
+
+export function useInvites(enabled: boolean) {
+  return useQuery({ queryKey: qk.invites, queryFn: () => unwrap(api.GET('/api/v1/workspace/invites')) as Promise<Invite[]>, enabled })
+}
+
+export function useRenameWorkspace() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (name: string) => unwrap(api.PATCH('/api/v1/workspace', { body: { name } })) as Promise<Workspace>,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: qk.workspace })
+      void qc.invalidateQueries({ queryKey: qk.me })
+    },
+  })
+}
+
+export function useChangeMemberRole() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (v: { userId: string; role: Member['role'] }) =>
+      unwrap(api.PATCH('/api/v1/workspace/members/{user_id}', { params: { path: { user_id: v.userId } }, body: { role: v.role } })) as Promise<Member>,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['team'] }),
+  })
+}
+
+export function useRemoveMember() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (userId: string) => unwrap(api.DELETE('/api/v1/workspace/members/{user_id}', { params: { path: { user_id: userId } } })),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['team'] }),
+  })
+}
+
+export function useCreateInvite() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: { email: string; role: 'viewer' | 'editor' | 'admin'; content_item_id?: string | null; project_role?: 'viewer' | 'editor' | null }) =>
+      unwrap(api.POST('/api/v1/workspace/invites', { body })) as Promise<Invite>,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: qk.invites }),
+  })
+}
+
+export function useRevokeInvite() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => unwrap(api.DELETE('/api/v1/workspace/invites/{invite_id}', { params: { path: { invite_id: id } } })),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: qk.invites }),
+  })
+}
+
+export function useInvitePreview(token: string) {
+  return useQuery({
+    queryKey: ['team', 'invite-preview', token],
+    queryFn: () => unwrap(api.GET('/api/v1/invites/{token}', { params: { path: { token } } }), { skipAuthRedirect: true }) as Promise<InvitePreview>,
+    retry: false,
+  })
+}
+
+export function useAcceptInvite() {
+  return useMutation({
+    mutationFn: (token: string) => unwrap(api.POST('/api/v1/invites/{token}/accept', { params: { path: { token } } })),
+    meta: { silent: true },
+  })
+}
+
+export function useProjectMembers(itemId: string, enabled = true) {
+  return useQuery({
+    queryKey: qk.projectMembers(itemId),
+    queryFn: () => unwrap(api.GET('/api/v1/content/{item_id}/members', { params: { path: { item_id: itemId } } })) as Promise<ProjectMember[]>,
+    enabled,
+  })
+}
+
+export function useSetProjectRole(itemId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (v: { userId: string; role: 'viewer' | 'editor' | null }) =>
+      v.role
+        ? unwrap(api.PUT('/api/v1/workspace/projects/{project_item_id}/members/{user_id}', { params: { path: { project_item_id: itemId, user_id: v.userId } }, body: { role: v.role } }))
+        : unwrap(api.DELETE('/api/v1/workspace/projects/{project_item_id}/members/{user_id}', { params: { path: { project_item_id: itemId, user_id: v.userId } } })),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: qk.projectMembers(itemId) }),
+  })
+}
+
+/* ---------- comments and presence ---------- */
+export function useComments(itemId: string, clipId?: string | null, enabled = true) {
+  return useQuery({
+    queryKey: qk.comments(itemId, clipId),
+    queryFn: () =>
+      unwrap(api.GET('/api/v1/content/{item_id}/comments', { params: { path: { item_id: itemId }, query: { clip_id: clipId ?? undefined } } })) as Promise<Comment[]>,
+    enabled,
+    refetchInterval: 15_000,
+  })
+}
+
+export function useAddComment(itemId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: { body: string; clip_id?: string | null; at_sec?: number | null; parent_id?: string | null }) =>
+      unwrap(api.POST('/api/v1/content/{item_id}/comments', { params: { path: { item_id: itemId } }, body })) as Promise<Comment>,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: qk.commentsAll }),
+  })
+}
+
+export function usePatchComment() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (v: { id: string; body?: string; resolved?: boolean }) =>
+      unwrap(api.PATCH('/api/v1/comments/{comment_id}', { params: { path: { comment_id: v.id } }, body: { body: v.body, resolved: v.resolved } })) as Promise<Comment>,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: qk.commentsAll }),
+  })
+}
+
+export function useDeleteComment() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => unwrap(api.DELETE('/api/v1/comments/{comment_id}', { params: { path: { comment_id: id } } })),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: qk.commentsAll }),
+  })
+}
+
+/**
+ * Tell the server this project is open (every 10 s) and get back who else is here. `where` says what you are looking at,
+ * e.g. `script` or `editor:<clip id>`.
+ */
+export function usePresence(itemId: string | undefined, where: string) {
+  return useQuery({
+    queryKey: ['presence', itemId, where],
+    queryFn: () => unwrap(api.POST('/api/v1/content/{item_id}/presence', { params: { path: { item_id: itemId! } }, body: { where } })) as Promise<Presence[]>,
+    enabled: !!itemId,
+    refetchInterval: 10_000,
+    refetchIntervalInBackground: false,
+    meta: { silent: true },
   })
 }

@@ -62,6 +62,8 @@ export interface EditorState {
   pendingNote: string
   /** Name of a server operation in flight (the timeline is locked meanwhile). */
   busy: string | null
+  /** The viewer's role cannot edit this project: everything is read-only (the server enforces it too). */
+  viewOnly: boolean
   helpOpen: boolean
 
   load: (payload: EditPayload) => void
@@ -91,6 +93,7 @@ export interface EditorState {
   toggleMasterMute: () => void
   setPreview: (p: RevisionDetail | null) => void
   setMode: (m: 'edit' | 'preview') => void
+  setViewOnly: (v: boolean) => void
   setBusy: (b: string | null) => void
   setHelpOpen: (o: boolean) => void
 }
@@ -122,6 +125,7 @@ const initial = () => ({
   mode: 'edit' as const,
   pendingNote: '',
   busy: null as string | null,
+  viewOnly: false,
   helpOpen: false,
 })
 
@@ -161,7 +165,7 @@ export const useEditor = create<EditorState>((set, get) => ({
       toast.info('Previewing an old revision', 'Go back to the latest version to edit.')
       return false
     }
-    if (s.busy) return false
+    if (s.busy || s.viewOnly) return false
     let next: Timeline
     try {
       next = fn(s.timeline)
@@ -193,7 +197,7 @@ export const useEditor = create<EditorState>((set, get) => ({
 
   undo: () => {
     const s = get()
-    if (s.preview || s.busy) return
+    if (s.preview || s.busy || s.viewOnly) return
     const r = undoHistory(s.history, s.timeline)
     if (!r) return
     const live = ids(r.state)
@@ -201,7 +205,7 @@ export const useEditor = create<EditorState>((set, get) => ({
   },
   redo: () => {
     const s = get()
-    if (s.preview || s.busy) return
+    if (s.preview || s.busy || s.viewOnly) return
     const r = redoHistory(s.history, s.timeline)
     if (!r) return
     const live = ids(r.state)
@@ -259,6 +263,7 @@ export const useEditor = create<EditorState>((set, get) => ({
   setPreview: (preview) => set({ preview, mode: get().mode, selection: preview ? [] : get().selection }),
   setMode: (mode) => set({ mode }),
   setBusy: (busy) => set({ busy }),
+  setViewOnly: (viewOnly) => set({ viewOnly }),
   setHelpOpen: (helpOpen) => set({ helpOpen }),
 }))
 
