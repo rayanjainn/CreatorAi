@@ -650,6 +650,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/insights/production": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Production */
+        get: operations["production_api_v1_insights_production_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/content/{item_id}/director/plan": {
         parameters: {
             query?: never;
@@ -1130,9 +1147,9 @@ export interface paths {
         /** Get Transcript */
         get: operations["get_transcript_api_v1_assets__asset_id__transcript_get"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
+        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
+        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1665,13 +1682,13 @@ export interface paths {
             cookie?: never;
         };
         /** Serve Media */
-        get: operations["serve_media_media__key__get"];
+        get: operations["serve_media_media__key__head"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         /** Serve Media */
-        head: operations["serve_media_media__key__get"];
+        head: operations["serve_media_media__key__head"];
         patch?: never;
         trace?: never;
     };
@@ -5415,6 +5432,39 @@ export interface operations {
             };
         };
     };
+    production_api_v1_insights_production_get: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_plan_api_v1_content__item_id__director_plan_get: {
         parameters: {
             query?: {
@@ -6437,7 +6487,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_post: {
+    _put_transcript_api_v1_assets__asset_id__transcript_put: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -6470,7 +6520,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_post: {
+    _put_transcript_api_v1_assets__asset_id__transcript_put: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -7575,7 +7625,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__get: {
+    serve_media_media__key__head: {
         parameters: {
             query?: {
                 exp?: number | null;
@@ -7610,7 +7660,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__get: {
+    serve_media_media__key__head: {
         parameters: {
             query?: {
                 exp?: number | null;

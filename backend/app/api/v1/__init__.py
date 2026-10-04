@@ -24,6 +24,7 @@ ROUTER_MODULES: list[str] = [
     "content",
     "ideas",
     "activity",
+    "insights",
     "director",
     "scripts",
     "uploads",

@@ -76,7 +76,7 @@ export default function ContentBoardPage() {
             <EmptyState
               icon={<Lightbulb size={22} />}
               title="Your board is empty"
-              description="Capture the first idea, or load the demo data with `make seed` to see the board filled with clearly labelled [DEMO] items."
+              description="Capture the first idea. Cards move across the columns as the work does."
               actions={
                 <Button onClick={() => openNew()}>
                   <Plus size={15} /> New content

@@ -8,6 +8,7 @@ import { applyMove } from '@/lib/board'
 import { toast } from '@/stores/toasts'
 import { trackJob } from '@/lib/track-job'
 import type {
+  InsightsReport,
   Activity,
   Asset,
   AssetDetail,
@@ -1194,5 +1195,14 @@ export function usePresence(itemId: string | undefined, where: string) {
     refetchInterval: 10_000,
     refetchIntervalInBackground: false,
     meta: { silent: true },
+  })
+}
+
+/* ---------- creator intelligence ---------- */
+export function useInsights(days: number) {
+  return useQuery({
+    queryKey: ['insights', days],
+    queryFn: () => unwrap(api.GET('/api/v1/insights/production', { params: { query: { days } } })) as unknown as Promise<InsightsReport>,
+    staleTime: 30_000,
   })
 }

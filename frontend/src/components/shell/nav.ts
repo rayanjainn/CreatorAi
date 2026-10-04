@@ -1,7 +1,6 @@
 import {
   BarChart3,
   Bot,
-  BriefcaseBusiness,
   Clapperboard,
   FolderKanban,
   FolderOpen,
@@ -48,8 +47,7 @@ export const NAV: NavGroup[] = [
   {
     label: 'Grow',
     items: [
-      { label: 'Analytics', href: '/analytics', Icon: BarChart3, soon: true },
-      { label: 'Monetization', href: '/monetization', Icon: BriefcaseBusiness, soon: true },
+      { label: 'Insights', href: '/analytics', Icon: BarChart3 },
       { label: 'Creative Twin', href: '/creative-twin', Icon: Gauge, soon: true },
     ],
   },
@@ -74,8 +72,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   'script-match': 'Script Match',
   'smart-clips': 'Smart Clips',
   repurpose: 'Repurpose',
-  analytics: 'Analytics',
-  monetization: 'Monetization',
+  analytics: 'Insights',
   'creative-twin': 'Creative Twin',
   jobs: 'Jobs & Activity',
   settings: 'Settings',

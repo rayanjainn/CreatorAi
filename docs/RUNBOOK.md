@@ -8,8 +8,8 @@ How to run, configure, reset, back up and fix CreatorAi on one machine. For the 
 ```bash
 make doctor    # optional, setup runs it too
 make setup
-make seed
-make dev
+make dev          # then open http://localhost:3000 and create your account
+make seed         # OPTIONAL: labelled [DEMO] data for a populated tour
 ```
 
 **`make setup`** (safe to re-run) prints the doctor report, then creates `backend/.venv`, installs the backend
@@ -22,7 +22,7 @@ database: /.../data/creatorai.db
 applied: 001_init.sql, 002_idea_provenance.sql, 003_beat_match_provenance.sql, 004_render_meta.sql
 [ok] embedder ready: fastembed sentence-transformers/all-MiniLM-L6-v2 (384-d)
 
-Setup done. Next: make seed (demo data), then make dev, then open http://localhost:3000
+Setup done. Next: make dev, then open http://localhost:3000 and create your account (optional: make seed for labelled demo data)
 ```
 
 Offline (or blocked Hugging Face) the download step prints `[FAILED] embedder: ...` and the line

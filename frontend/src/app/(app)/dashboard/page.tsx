@@ -159,7 +159,7 @@ export default function DashboardPage() {
             <EmptyState
               icon={<Lightbulb size={22} />}
               title="Nothing here yet"
-              description="Type an idea in the box above to create your first content item. To explore with sample data, run `make seed` (demo items are labelled [DEMO])."
+              description="Type an idea in the box above to create your first content item."
               actions={<Button onClick={() => openNew()}>New content</Button>}
             />
           ) : (
