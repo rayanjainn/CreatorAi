@@ -1,12 +1,13 @@
 'use client'
 
 import { memo, useMemo } from 'react'
-import { Crop, Shuffle } from 'lucide-react'
+import { Crop, ImageIcon, Shuffle } from 'lucide-react'
 import { LayerBadge } from '../layer-badge'
 import { TRACK_H } from './geometry'
 import { durationOf, type VideoItem } from '@/lib/timeline'
 import type { Frames } from '@/lib/editor/use-frames'
 import type { EditAsset } from '@/lib/editor/types'
+import { mediaUrl } from '@/lib/api/client'
 
 const TILE_W = Math.round((TRACK_H.video * 16) / 9)
 
@@ -47,9 +48,10 @@ export const VideoClip = memo(function VideoClip({
     const n = Math.max(1, Math.ceil(width / TILE_W))
     return Array.from({ length: n }, (_, i) => {
       const center = (Math.min(width, (i + 0.5) * TILE_W) / width) * dur
+      if (item.kind === 'image') return mediaUrl(asset?.thumb_url ?? asset?.image_url ?? null)
       return frames.frameAt(item.asset_id, item.src_in + Math.min(dur, center))
     })
-  }, [width, dur, item.asset_id, item.src_in, frames])
+  }, [width, dur, item.asset_id, item.src_in, item.kind, asset, frames])
   const ai = item.source === 'ai'
   const placeholder = item.asset_id === null
   return (
@@ -75,7 +77,9 @@ export const VideoClip = memo(function VideoClip({
         {placeholder ? <span className="tl-thumb-ph">Sponsor placeholder</span> : tiles.map((url, i) => <span key={i} style={{ width: TILE_W, backgroundImage: url ? `url(${url})` : undefined }} />)}
       </div>
       <div className="tl-clip-top">
-        <span className="tl-clip-name">{item.kind === 'sponsor' ? 'Sponsor' : `Clip ${index + 1}`}</span>
+        <span className="tl-clip-name">
+          {item.kind === 'image' && <ImageIcon size={11} aria-hidden />} {item.kind === 'sponsor' ? 'Sponsor' : item.kind === 'image' ? 'Image' : `Clip ${index + 1}`}
+        </span>
         <span className="tl-clip-dur mono">{dur.toFixed(1)}s</span>
         {width > 96 && <LayerBadge source={item.source} status={item.status} reason={item.reason} compact={width < 150} />}
       </div>

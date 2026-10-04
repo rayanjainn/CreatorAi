@@ -199,7 +199,7 @@ def assemble(upload: Upload) -> tuple[Path, str, int]:
 
 
 def complete_upload(
-    db: Session, workspace_id: str, upload_id: str
+    db: Session, workspace_id: str, upload_id: str, *, mode: str = "full"
 ) -> tuple[Upload, Asset, bool, str | None]:
     """Assemble, hash, dedupe and register the asset, then enqueue processing.
 
@@ -230,6 +230,9 @@ def complete_upload(
     shutil.rmtree(upload_dir(workspace_id, upload.id), ignore_errors=True)
     job_id = None
     if not duplicate:
+        if mode == "light":
+            asset.analysis = {**(asset.analysis or {}), "mode": "light"}
+            db.flush()
         job_id = asset_service.start_processing(db, workspace_id, asset)
     return upload, asset, duplicate, job_id
 

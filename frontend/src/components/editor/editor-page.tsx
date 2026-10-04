@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Eye, Monitor as MonitorIcon, RotateCcw, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -10,8 +10,11 @@ import { ErrorState } from '@/components/common/error-state'
 import { RenderDialog } from '@/components/clips/render-dialog'
 import { ConflictDialog } from './conflict-dialog'
 import { EditorHeader } from './editor-header'
-import { HistoryPanel } from './history-panel'
 import { Inspector } from './inspector'
+import { Splitter } from './splitter'
+import { LeftPanel } from './left-panel'
+import { useDropZone } from './use-drop-zone'
+import { addAssetToTimeline, uploadAndAdd, useEditorUploadWatcher } from '@/lib/editor/media'
 import { Monitor } from './monitor'
 import { TimelinePanel } from './timeline/timeline-panel'
 import { useEditorShortcuts } from './use-shortcuts'
@@ -24,6 +27,7 @@ import { totals } from '@/lib/timeline'
 import { useMediaQuery } from '@/lib/use-media'
 import { toast } from '@/stores/toasts'
 import { useEditor, viewTimeline } from '@/stores/editor'
+import { LAYOUT_LIMITS, useEditorLayout } from '@/stores/editor-layout'
 import type { Clip } from '@/lib/api/types'
 
 /** `/editor/[clipId]`: loads the clip and its timeline, then renders the workspace (or an honest state). */
@@ -100,18 +104,45 @@ function Workspace({ clip }: { clip: Clip }) {
     setExportOpen(true)
   }
 
+  const layout = useEditorLayout()
+  useEffect(() => layout.hydrate(), [layout])
+  useEditorUploadWatcher()
+  const centerDrop = useDropZone({
+    disabled: !!preview || mode !== 'edit',
+    onAsset: (a) => void addAssetToTimeline(a.id),
+    onFiles: (files) => uploadAndAdd(files, clip.content_item_id),
+  })
+  const edit = mode === 'edit'
+  const showLeft = edit && layout.leftOpen
+  const showRight = edit && layout.rightOpen
+  // the timeline may take at most what is left after the header, a usable monitor and the banner
+  const maxTimeline = () => Math.min(LAYOUT_LIMITS.timeline.max, Math.max(LAYOUT_LIMITS.timeline.min, window.innerHeight - 56 - 230))
+  const columns = [showLeft && `${layout.left}px`, showLeft && '8px', 'minmax(0, 1fr)', showRight && '8px', showRight && `${layout.right}px`].filter(Boolean).join(' ')
+
   return (
-    <div className="editor" data-testid="editor" data-mode={mode} data-previewing={!!preview}>
+    <div className="editor" data-testid="editor" data-mode={mode} data-previewing={!!preview} style={{ '--ed-timeline': `${layout.timeline}px` } as React.CSSProperties}>
       <EditorHeader clip={clip} onExport={() => void startExport()} exporting={exporting} />
       {preview && <PreviewBanner />}
-      <div className="ed-body">
-        {mode === 'edit' && <HistoryPanel clipId={clip.id} />}
-        <div className="ed-center">
+      <div className="ed-body" style={{ gridTemplateColumns: columns }}>
+        {showLeft && <LeftPanel clipId={clip.id} contentItemId={clip.content_item_id} />}
+        {showLeft && (
+          <Splitter orientation="vertical" label="Resize the side panel" value={layout.left} min={LAYOUT_LIMITS.left.min} max={LAYOUT_LIMITS.left.max} direction={1} onChange={layout.setLeft} onReset={() => layout.setLeft(LAYOUT_LIMITS.left.def)} testId="split-left" />
+        )}
+        <div className="ed-center" data-dropping={centerDrop.over} {...centerDrop.props}>
           <Monitor frames={frames} large={mode === 'preview'} />
+          {centerDrop.over && <div className="drop-veil" aria-hidden>Drop to add at the playhead</div>}
         </div>
-        {mode === 'edit' && <Inspector clip={clip} />}
+        {showRight && (
+          <Splitter orientation="vertical" label="Resize the inspector" value={layout.right} min={LAYOUT_LIMITS.right.min} max={LAYOUT_LIMITS.right.max} direction={-1} onChange={layout.setRight} onReset={() => layout.setRight(LAYOUT_LIMITS.right.def)} testId="split-right" />
+        )}
+        {showRight && <Inspector clip={clip} />}
       </div>
-      {mode === 'edit' && <TimelinePanel frames={frames} />}
+      {edit && (
+        <>
+          <Splitter orientation="horizontal" label="Resize the timeline" value={layout.timeline} min={LAYOUT_LIMITS.timeline.min} max={maxTimeline()} direction={-1} onChange={(px) => layout.setTimeline(Math.min(px, maxTimeline()))} onReset={() => layout.setTimeline(LAYOUT_LIMITS.timeline.def)} testId="split-timeline" />
+          <TimelinePanel frames={frames} contentItemId={clip.content_item_id} />
+        </>
+      )}
       <ConflictDialog />
       <RenderDialog clip={exportClip} open={exportOpen} onOpenChange={setExportOpen} />
     </div>

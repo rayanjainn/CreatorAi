@@ -783,6 +783,8 @@ export interface paths {
         /**
          * Complete Upload
          * @description Assemble the chunks, hash, dedupe by sha256 and enqueue ``asset.process``.
+         *
+         *     ``mode="light"`` skips transcription, captioning and embedding (media added in the editor).
          */
         post: operations["complete_upload_api_v1_uploads__upload_id__complete_post"];
         delete?: never;
@@ -900,9 +902,9 @@ export interface paths {
         /** Get Transcript */
         get: operations["get_transcript_api_v1_assets__asset_id__transcript_get"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
+        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
+        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2667,6 +2669,8 @@ export interface components {
         ReprocessRequest: {
             /** Stage */
             stage?: string | null;
+            /** Mode */
+            mode?: ("full" | "light") | null;
         };
         /** RestoreRequest */
         RestoreRequest: {
@@ -3188,6 +3192,18 @@ export interface components {
             /** Duplicate */
             duplicate: boolean;
         };
+        /**
+         * UploadCompleteRequest
+         * @description Optional body of ``POST /uploads/{id}/complete``.
+         */
+        UploadCompleteRequest: {
+            /**
+             * Mode
+             * @default full
+             * @enum {string}
+             */
+            mode?: "full" | "light";
+        };
         /** UploadInit */
         UploadInit: {
             /** Filename */
@@ -3268,7 +3284,7 @@ export interface components {
              * @default clip
              * @enum {string}
              */
-            kind?: "clip" | "sponsor";
+            kind?: "clip" | "sponsor" | "image";
             /** Asset Id */
             asset_id?: string | null;
             /** Src In */
@@ -4853,7 +4869,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UploadCompleteRequest"] | null;
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -5140,7 +5160,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_post: {
+    _put_transcript_api_v1_assets__asset_id__transcript_put: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -5173,7 +5193,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_post: {
+    _put_transcript_api_v1_assets__asset_id__transcript_put: {
         parameters: {
             query?: {
                 format?: string | null;

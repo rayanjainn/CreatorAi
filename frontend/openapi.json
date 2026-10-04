@@ -2444,7 +2444,7 @@
           "uploads"
         ],
         "summary": "Complete Upload",
-        "description": "Assemble the chunks, hash, dedupe by sha256 and enqueue ``asset.process``.",
+        "description": "Assemble the chunks, hash, dedupe by sha256 and enqueue ``asset.process``.\n\n``mode=\"light\"`` skips transcription, captioning and embedding (media added in the editor).",
         "operationId": "complete_upload_api_v1_uploads__upload_id__complete_post",
         "parameters": [
           {
@@ -2457,6 +2457,23 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/UploadCompleteRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -2953,12 +2970,12 @@
           }
         }
       },
-      "post": {
+      "put": {
         "tags": [
           "assets"
         ],
         "summary": "Attach an SRT, VTT or words.json transcript and re-run from transcription",
-        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_post",
+        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_put",
         "parameters": [
           {
             "name": "asset_id",
@@ -3010,12 +3027,12 @@
           }
         }
       },
-      "put": {
+      "post": {
         "tags": [
           "assets"
         ],
         "summary": "Attach an SRT, VTT or words.json transcript and re-run from transcription",
-        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_post",
+        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_put",
         "parameters": [
           {
             "name": "asset_id",
@@ -8598,6 +8615,21 @@
               }
             ],
             "title": "Stage"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "full",
+                  "light"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
           }
         },
         "type": "object",
@@ -9984,6 +10016,22 @@
         ],
         "title": "UploadComplete"
       },
+      "UploadCompleteRequest": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "full",
+              "light"
+            ],
+            "title": "Mode",
+            "default": "full"
+          }
+        },
+        "type": "object",
+        "title": "UploadCompleteRequest",
+        "description": "Optional body of ``POST /uploads/{id}/complete``."
+      },
       "UploadInit": {
         "properties": {
           "filename": {
@@ -10198,7 +10246,8 @@
             "type": "string",
             "enum": [
               "clip",
-              "sponsor"
+              "sponsor",
+              "image"
             ],
             "title": "Kind",
             "default": "clip"

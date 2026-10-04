@@ -122,7 +122,7 @@ def validate(
                 path,
                 item.id,
             )
-        if item.asset_id is not None and asset_durations is not None:
+        if item.kind != "image" and item.asset_id is not None and asset_durations is not None:
             limit = asset_durations.get(item.asset_id)
             if limit is None:
                 add("SRC_BEYOND_ASSET", f"unknown asset {item.asset_id}", path, item.id)

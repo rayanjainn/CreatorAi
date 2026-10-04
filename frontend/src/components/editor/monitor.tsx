@@ -105,7 +105,7 @@ function FrameUnderlay({ frames }: { frames: Frames }) {
   const item = loc.segment.item
   if (item.asset_id === null) return null
   const asset = assets[item.asset_id]
-  const url = frames.frameAt(item.asset_id, loc.srcTime)
+  const url = item.kind === 'image' ? mediaUrl(asset?.image_url ?? asset?.thumb_url ?? null) : frames.frameAt(item.asset_id, loc.srcTime)
   if (!url) return <div className="monitor-empty" />
   return <img className="monitor-underlay" src={url} alt="" style={{ objectPosition: `${cropPositionX(item.crop_x, asset?.width, asset?.height, timeline.aspect)}% 50%` }} draggable={false} />
 }
@@ -174,7 +174,7 @@ function EngineNotice({ timeline }: { timeline: Timeline }) {
   const playhead = useEditor((s) => s.playhead)
   const loc = locate(useMemo(() => buildSegments(timeline), [timeline]), playhead)
   const item: VideoItem | undefined = loc?.segment.item
-  if (!item || item.asset_id === null) return null
+  if (!item || item.asset_id === null || item.kind === 'image') return null // a still has nothing to decode
   const asset = assets[item.asset_id]
   if (!asset?.proxy_url) {
     return (

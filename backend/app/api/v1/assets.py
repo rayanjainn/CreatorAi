@@ -142,7 +142,11 @@ def reprocess_asset(
 ) -> dict[str, Any]:
     """Resume at the first stage missing in ``stages_done`` (or restart from ``stage``)."""
     _, job_id = asset_service.reprocess(
-        db, ctx.workspace_id, asset_id, body.stage if body else None
+        db,
+        ctx.workspace_id,
+        asset_id,
+        body.stage if body else None,
+        mode=body.mode if body else None,
     )
     return {"job_id": job_id, "asset": _card(db, ctx.workspace_id, asset_id)}
 

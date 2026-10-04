@@ -98,6 +98,7 @@ export function assetToEditAsset(d: {
     proxy_url: d.urls.proxy ?? null,
     audio_url: d.urls.audio ?? (d.kind === 'audio' ? (d.urls.original ?? null) : null),
     thumb_url: d.thumb_url ?? d.urls.thumb ?? null,
+    image_url: d.kind === 'image' ? (d.urls.original ?? null) : null,
     energy,
     energy_window_sec: 0.5,
     silences,

@@ -8,6 +8,7 @@ import {
   addAudio,
   addCaption,
   addOverlay,
+  addVideoMedia,
   buildSegments,
   deleteItem,
   findItem,
@@ -195,13 +196,13 @@ export function addCaptionAtPlayhead(): void {
   if (ok && id) st().select([id])
 }
 
-export function addAudioLayer(p: { assetId: string; kind: AudioKind; duration: number }): void {
+export function addAudioLayer(p: { assetId: string; kind: AudioKind; duration: number; at?: number }): void {
   const s = st()
   if (!guard('audio')) return
   let id: string | null = null
   const ok = s.apply(
     (t) => {
-      const r = addAudio(t, { assetId: p.assetId, kind: p.kind, at: s.playhead, assetDuration: p.duration })
+      const r = addAudio(t, { assetId: p.assetId, kind: p.kind, at: p.at ?? s.playhead, assetDuration: p.duration })
       id = r.id
       return r.timeline
     },
@@ -243,4 +244,21 @@ export async function tightenPausesOnServer(keepSec: number): Promise<boolean> {
     toast.success(saved > 0.05 ? `Removed ${saved.toFixed(1)} s of pauses` : 'No pauses to remove', saved > 0.05 ? `The clip is now ${res.timeline.duration.toFixed(1)} s. Undo restores it.` : 'The cut is already tight at this setting.')
   }
   return !!res
+}
+
+/** Put a library video or still image on the video track at `at` (default: the playhead). */
+export function addVideoAsset(p: { assetId: string; kind: 'video' | 'image'; duration: number | null; at?: number }): boolean {
+  const s = st()
+  if (!guard('video')) return false
+  let id: string | null = null
+  const ok = s.apply(
+    (t) => {
+      const r = addVideoMedia(t, { assetId: p.assetId, kind: p.kind, duration: p.duration, at: p.at ?? s.playhead })
+      id = r.id
+      return r.timeline
+    },
+    { note: p.kind === 'image' ? 'Added an image' : 'Added a video' },
+  )
+  if (ok && id) st().select([id])
+  return ok
 }

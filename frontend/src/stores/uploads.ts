@@ -7,6 +7,10 @@ export type UploadItem = {
   id: string
   file: File
   contentItemId?: string
+  /** `light` skips transcription, captions and embeddings (music, b-roll, stills added in the editor). */
+  mode?: 'full' | 'light'
+  /** Who started it, so a screen only reacts to its own uploads (e.g. `editor`). */
+  tag?: string
   phase: UploadPhase
   uploadId?: string
   chunkSize?: number

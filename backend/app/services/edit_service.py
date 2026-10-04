@@ -103,6 +103,7 @@ def edit_payload(db: Session, workspace_id: str, clip: Clip, edit: Edit) -> dict
             "proxy_url": sign_media(asset.proxy_key) if asset.proxy_key else None,
             "audio_url": sign_media(media_key) if media_key else None,
             "thumb_url": sign_media(asset.thumb_key) if asset.thumb_key else None,
+            "image_url": sign_media(asset.storage_key) if asset.kind == "image" else None,
             "energy": [float(x) for x in (analysis.get("energy") or [])][:WAVEFORM_MAX_BINS],
             "energy_window_sec": 0.5,
             "silences": analysis.get("silences") or [],
