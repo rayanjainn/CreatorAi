@@ -306,3 +306,5 @@ reason is in the render's `error` field. To keep logs: `make dev 2>&1 | tee dev.
 | Login rejected after `make reset` | the user was wiped | sign up again (signup is open when no user exists) or `make seed` |
 | Unexpected `[MOCK]` text and a red banner | `LLM_ALLOW_MOCK=true` in `.env` | set it to `false`, restart |
 | `make setup` fails midway (pip or npm error) | interrupted or partial install | delete `backend/.venv` and/or `frontend/node_modules` and run `make setup` again |
+
+| `faster-whisper failed: open() got an unexpected keyword argument 'metadata_errors'` | PyAV (`av`) version mismatch in local Whisper's own audio decoding | fixed: the app now decodes audio with ffmpeg and passes Whisper an array, so PyAV's `av.open` is never called. Update with `git pull`, then reprocess the asset |

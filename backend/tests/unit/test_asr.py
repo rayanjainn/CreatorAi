@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
 import httpx
+import numpy as np
 import pytest
 
 from app.config import Settings
 from app.ml.asr import ASRError, GroqASR, LocalASR, get_asr_chain
 from app.ml.asr.base import Segment, interpolate_words
+from app.ml.asr.local import decode_pcm16k
 from app.ml.models import preload_asr, preload_embedder
 
 
@@ -119,7 +122,7 @@ def test_local_whisper_with_stub_model(tmp_path: Path) -> None:
     )  # fmt: skip
 
     class Model:
-        def transcribe(self, path: str, **kw: Any) -> Any:
+        def transcribe(self, path: Any, **kw: Any) -> Any:
             calls.update(kw, path=path)
             return iter([seg]), SimpleNamespace(language="en", duration=2.0)
 
@@ -129,10 +132,12 @@ def test_local_whisper_with_stub_model(tmp_path: Path) -> None:
         loads.append(name)
         return Model()
 
-    p = LocalASR(cfg(tmp_path, WHISPER_LOCAL_MODEL="base"), loader)
+    pcm = np.zeros(16000, dtype=np.float32)
+    p = LocalASR(cfg(tmp_path, WHISPER_LOCAL_MODEL="base"), loader, decoder=lambda _p: pcm)
     t = p.transcribe(audio(tmp_path), offset_sec=10.0)
     p.transcribe(audio(tmp_path))
     assert loads == ["base"]  # model loaded once
+    assert calls["path"] is pcm  # decoded by us, never by PyAV
     assert (
         calls["word_timestamps"] is True
         and calls["vad_filter"] is True
@@ -206,3 +211,22 @@ def test_download_script_reports_failure_offline(
     monkeypatch.setattr(mod, "preload_asr", lambda name=None: f"asr ready {name}")
     assert mod.main(["--asr", "--asr-model", "base"]) == 0
     assert "asr ready base" in capsys.readouterr().out
+
+
+def test_decode_pcm16k_real_ffmpeg(tmp_path: Path) -> None:
+    wav = tmp_path / "tone.wav"
+    subprocess.run(
+        ["ffmpeg", "-v", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=1.5", str(wav)],
+        check=True,
+    )
+    pcm = decode_pcm16k(wav)
+    assert (
+        pcm.dtype == np.float32 and abs(len(pcm) - 24000) < 800 and float(np.abs(pcm).max()) > 0.1
+    )
+
+
+def test_decode_pcm16k_bad_file_is_asr_error(tmp_path: Path) -> None:
+    bad = tmp_path / "bad.wav"
+    bad.write_bytes(b"not audio")
+    with pytest.raises(ASRError, match="could not decode audio"):
+        decode_pcm16k(bad)
