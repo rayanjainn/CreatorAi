@@ -980,3 +980,10 @@ a.stat:hover {
 .caption-option .caption-demo {
   width: 100%;
 }
+
+/* landing: keep the beat text readable where it crosses the particle art */
+.beat h1,
+.beat h2,
+.beat p {
+  text-shadow: 0 2px 24px #0a0a0cf2, 0 0 2px #0a0a0c;
+}

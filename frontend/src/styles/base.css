@@ -1,3 +1,5 @@
+/* Element resets live in a layer: unlayered rules would beat every Tailwind utility (e.g. mt-4, text-[#1a1a1a]) on the landing page. */
+@layer base {
 * {
   box-sizing: border-box;
 }
@@ -58,6 +60,7 @@ kbd {
   font-size: 10px;
   font-family: ui-monospace, monospace;
   color: var(--dim);
+}
 }
 .sr-only {
   position: absolute;
