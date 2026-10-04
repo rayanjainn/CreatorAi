@@ -10,6 +10,8 @@ export interface EditAsset {
   proxy_url: string | null
   audio_url: string | null
   thumb_url: string | null
+  /** The original picture of an image asset (shown on the monitor). */
+  image_url?: string | null
   /** Loudness curve in dB, one value per `energy_window_sec`. */
   energy: number[]
   energy_window_sec: number

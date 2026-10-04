@@ -13,6 +13,8 @@ import { EditorHeader } from './editor-header'
 import { Inspector } from './inspector'
 import { Splitter } from './splitter'
 import { LeftPanel } from './left-panel'
+import { useDropZone } from './use-drop-zone'
+import { addAssetToTimeline, uploadAndAdd, useEditorUploadWatcher } from '@/lib/editor/media'
 import { Monitor } from './monitor'
 import { TimelinePanel } from './timeline/timeline-panel'
 import { useEditorShortcuts } from './use-shortcuts'
@@ -104,6 +106,12 @@ function Workspace({ clip }: { clip: Clip }) {
 
   const layout = useEditorLayout()
   useEffect(() => layout.hydrate(), [layout])
+  useEditorUploadWatcher()
+  const centerDrop = useDropZone({
+    disabled: !!preview || mode !== 'edit',
+    onAsset: (a) => void addAssetToTimeline(a.id),
+    onFiles: (files) => uploadAndAdd(files, clip.content_item_id),
+  })
   const edit = mode === 'edit'
   const showLeft = edit && layout.leftOpen
   const showRight = edit && layout.rightOpen
@@ -120,8 +128,9 @@ function Workspace({ clip }: { clip: Clip }) {
         {showLeft && (
           <Splitter orientation="vertical" label="Resize the side panel" value={layout.left} min={LAYOUT_LIMITS.left.min} max={LAYOUT_LIMITS.left.max} direction={1} onChange={layout.setLeft} onReset={() => layout.setLeft(LAYOUT_LIMITS.left.def)} testId="split-left" />
         )}
-        <div className="ed-center">
+        <div className="ed-center" data-dropping={centerDrop.over} {...centerDrop.props}>
           <Monitor frames={frames} large={mode === 'preview'} />
+          {centerDrop.over && <div className="drop-veil" aria-hidden>Drop to add at the playhead</div>}
         </div>
         {showRight && (
           <Splitter orientation="vertical" label="Resize the inspector" value={layout.right} min={LAYOUT_LIMITS.right.min} max={LAYOUT_LIMITS.right.max} direction={-1} onChange={layout.setRight} onReset={() => layout.setRight(LAYOUT_LIMITS.right.def)} testId="split-right" />
@@ -131,7 +140,7 @@ function Workspace({ clip }: { clip: Clip }) {
       {edit && (
         <>
           <Splitter orientation="horizontal" label="Resize the timeline" value={layout.timeline} min={LAYOUT_LIMITS.timeline.min} max={maxTimeline()} direction={-1} onChange={(px) => layout.setTimeline(Math.min(px, maxTimeline()))} onReset={() => layout.setTimeline(LAYOUT_LIMITS.timeline.def)} testId="split-timeline" />
-          <TimelinePanel frames={frames} />
+          <TimelinePanel frames={frames} contentItemId={clip.content_item_id} />
         </>
       )}
       <ConflictDialog />

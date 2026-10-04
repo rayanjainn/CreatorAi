@@ -31,7 +31,7 @@ export function validate(t: Timeline, assetDurations?: Record<string, number> | 
     const length = item.src_out - item.src_in
     if (length <= 0) add('SRC_RANGE', 'src_out must be greater than src_in', path, item.id)
     if (item.kind === 'sponsor' && item.asset_id !== null && item.placeholder) add('SPONSOR_PLACEHOLDER', 'a linked sponsor segment is not a placeholder', path, item.id)
-    if (item.asset_id !== null && assetDurations) {
+    if (item.kind !== 'image' && item.asset_id !== null && assetDurations) {
       const limit = assetDurations[item.asset_id]
       if (limit === undefined) add('SRC_BEYOND_ASSET', `unknown asset ${item.asset_id}`, path, item.id)
       else if (item.src_out > limit + EPS) add('SRC_BEYOND_ASSET', `src_out ${g(item.src_out)} is past the end of the asset (${g(limit)} s)`, path, item.id)

@@ -38,8 +38,25 @@ def stage_start(stage: str) -> int:
     return STAGE_PROGRESS[STAGES[index - 1]] if index else 0
 
 
-def stages_for(kind: str, *, has_audio: bool = True) -> list[str]:
-    """The stages that apply to an asset kind (audio-only skips video stages, images skip ASR)."""
+def stages_for(kind: str, *, has_audio: bool = True, light: bool = False) -> list[str]:
+    """The stages that apply to an asset kind (audio-only skips video stages, images skip ASR).
+
+    ``light`` is for media dropped into the editor (music, b-roll, stills): everything needed to
+    preview and render it, none of the understanding (no transcript, captions or embeddings), so it
+    is usable in seconds and needs no AI keys. A later reprocess with ``mode="full"`` upgrades it.
+    """
+    if light:
+        if kind == "video":
+            wanted = {"probe", "proxy", "finalize"}
+            if has_audio:
+                wanted |= {"audio", "silence"}
+        elif kind == "audio":
+            wanted = {"probe", "audio", "silence", "finalize"}
+        elif kind == "image":
+            wanted = {"probe", "keyframes", "finalize"}
+        else:
+            wanted = {"probe", "finalize"}
+        return [s for s in STAGES if s in wanted]
     if kind == "video":
         wanted = {"probe", "proxy", "shots", "keyframes", "caption", "embed", "finalize"}
         if has_audio:

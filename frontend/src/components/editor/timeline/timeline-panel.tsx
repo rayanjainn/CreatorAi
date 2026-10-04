@@ -4,6 +4,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Eye, EyeOff, Lock, LockOpen, Maximize2, Volume2, VolumeX, ZoomIn, ZoomOut, Ban } from 'lucide-react'
 import { Tooltip } from '@/components/ui/tooltip'
 import { TimelineToolbar } from './toolbar'
+import { useDropZone } from '../use-drop-zone'
+import { addAssetToTimeline, uploadAndAdd } from '@/lib/editor/media'
 import { Ruler } from './ruler'
 import { VideoClip } from './video-clip'
 import { LayerClip } from './layer-clip'
@@ -32,7 +34,7 @@ import { clock } from '@/lib/timeline'
 
 type Layer = CaptionItem | OverlayItem | AudioItem
 
-export function TimelinePanel({ frames }: { frames: Frames }) {
+export function TimelinePanel({ frames, contentItemId }: { frames: Frames; contentItemId: string }) {
   const timeline = useEditor(viewTimeline)
   const assets = useEditor((s) => s.assets)
   const selection = useEditor((s) => s.selection)
@@ -84,6 +86,25 @@ export function TimelinePanel({ frames }: { frames: Frames }) {
     },
     [],
   )
+
+  // drop a library file (or a file from the computer) onto the timeline: it lands where you let go, snapped to a cut
+  const [dropAt, setDropAt] = useState<number | null>(null)
+  const dropTime = useCallback(
+    (clientX: number) => {
+      const raw = Math.max(0, getTime(clientX))
+      const cuts = [0, ...useEditor.getState().timeline.tracks.video.filter((v) => v.status !== 'rejected').flatMap((v) => [v.tl_start, v.tl_start + durationOf(v)])]
+      const near = cuts.reduce((best, c) => (Math.abs(c - raw) < Math.abs(best - raw) ? c : best), cuts[0])
+      return Math.abs(near - raw) * useEditor.getState().zoom <= 14 ? near : raw
+    },
+    [getTime],
+  )
+  const dropZone = useDropZone({
+    disabled: readOnly,
+    onOver: (e) => setDropAt(dropTime(e.clientX)),
+    onLeave: () => setDropAt(null),
+    onAsset: (a, e) => void addAssetToTimeline(a.id, { at: dropTime(e.clientX) }),
+    onFiles: (files, e) => uploadAndAdd(files, contentItemId, { at: dropTime(e.clientX) }),
+  })
 
   // ctrl/cmd + wheel zooms around the cursor
   useEffect(() => {
@@ -277,7 +298,7 @@ export function TimelinePanel({ frames }: { frames: Frames }) {
   const counts: Record<TrackName, number> = { video: timeline.tracks.video.length, captions: timeline.tracks.captions.length, audio: timeline.tracks.audio.length, overlays: timeline.tracks.overlays.length }
 
   return (
-    <section className="tl" data-testid="timeline" aria-label="Timeline" data-readonly={readOnly}>
+    <section className="tl" data-testid="timeline" aria-label="Timeline" data-readonly={readOnly} data-dropping={dropZone.over} {...dropZone.props}>
       <TimelineToolbar onAddAudio={() => setPickerOpen(true)} />
       <div className="tl-main">
         <div className="tl-head">
@@ -397,6 +418,7 @@ export function TimelinePanel({ frames }: { frames: Frames }) {
                 </div>
               )
             })}
+            {dropZone.over && dropAt !== null && <div className="tl-dropline" style={{ left: HEADER_W + dropAt * pps }} aria-hidden />}
             <Playhead pps={pps} onScrub={scrub} />
             <FollowPlayhead scroller={scroller} pps={pps} />
           </div>

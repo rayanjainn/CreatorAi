@@ -12,7 +12,7 @@ from app.deps import CtxDep, DbDep
 from app.errors import AppError
 from app.models import Upload
 from app.repositories.assets import AssetRepository, UploadRepository
-from app.schemas.assets import UploadComplete, UploadInit, UploadOut
+from app.schemas.assets import UploadComplete, UploadCompleteRequest, UploadInit, UploadOut
 from app.services import assets as asset_service
 from app.services import uploads as upload_service
 from app.workers.scheduler import register_nightly
@@ -89,10 +89,15 @@ def get_upload(upload_id: str, ctx: CtxDep, db: DbDep) -> UploadOut:
 
 
 @router.post("/{upload_id}/complete", response_model=UploadComplete)
-def complete_upload(upload_id: str, ctx: CtxDep, db: DbDep) -> UploadComplete:
-    """Assemble the chunks, hash, dedupe by sha256 and enqueue ``asset.process``."""
+def complete_upload(
+    upload_id: str, ctx: CtxDep, db: DbDep, body: UploadCompleteRequest | None = None
+) -> UploadComplete:
+    """Assemble the chunks, hash, dedupe by sha256 and enqueue ``asset.process``.
+
+    ``mode="light"`` skips transcription, captioning and embedding (media added in the editor).
+    """
     upload, asset, duplicate, job_id = upload_service.complete_upload(
-        db, ctx.workspace_id, upload_id
+        db, ctx.workspace_id, upload_id, mode=body.mode if body else "full"
     )
     job = AssetRepository(db).latest_jobs(ctx.workspace_id, [asset.id]).get(asset.id)
     return UploadComplete(

@@ -22,6 +22,7 @@ import {
   type Transition,
   type VideoItem,
 } from './types'
+import { rippleInsert } from './ops'
 import { clamp, pyRound } from './util'
 
 export const MIN_EDIT_LAYER_SEC = 0.2
@@ -257,4 +258,36 @@ export function patchLayer(t: Timeline, itemId: string, patch: LayerPatch): Time
     ;(hit.item as AudioItem).tl_start = r3(clamp(patch.tl_start, 0, Math.max(0, out.duration - MIN_PIECE_SEC)))
   }
   return out
+}
+
+export const DEFAULT_IMAGE_SEC = 3
+
+/**
+ * Put a whole library video, or a still image, on the video track at `at` (pushing everything after it later; a clip under
+ * `at` is split first). A video plays in full; an image is shown for `imageSec`. Mirrors `ripple_insert` on the server.
+ */
+export function addVideoMedia(
+  t: Timeline,
+  p: { assetId: string; kind: 'video' | 'image'; at: number; duration?: number | null; imageSec?: number },
+): { timeline: Timeline; id: string } {
+  const image = p.kind === 'image'
+  const length = image ? p.imageSec ?? DEFAULT_IMAGE_SEC : p.duration ?? 0
+  if (!(length > 0)) throw bad('add_video', 'this file has no length yet: wait until it has finished processing')
+  const item: VideoItem = {
+    id: newItemId('v'),
+    source: 'user',
+    status: 'accepted',
+    reason: null,
+    kind: image ? 'image' : 'clip',
+    asset_id: p.assetId,
+    src_in: 0,
+    src_out: r3(length),
+    tl_start: 0,
+    crop_x: 0.5,
+    transition_in: null,
+    speed: 1,
+    placeholder: false,
+    text: null,
+  }
+  return { timeline: rippleInsert(t, clamp(p.at, 0, Math.max(0, t.duration)), item), id: item.id }
 }

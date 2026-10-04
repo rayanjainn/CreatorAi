@@ -376,9 +376,17 @@ def start_processing(db: Session, workspace_id: str, asset: Asset, **payload: An
 
 
 def reprocess(
-    db: Session, workspace_id: str, asset_id: str, stage: str | None = None
+    db: Session,
+    workspace_id: str,
+    asset_id: str,
+    stage: str | None = None,
+    *,
+    mode: str | None = None,
 ) -> tuple[Asset, str | None]:
-    """Resume (or, with ``stage``, restart from that stage) the pipeline for an asset."""
+    """Resume (or, with ``stage``, restart from that stage) the pipeline for an asset.
+
+    ``mode="full"`` upgrades a light asset (media added in the editor) to the full analysis.
+    """
     repo = AssetRepository(db)
     asset = repo.require(workspace_id, asset_id)
     if stage is not None and stage not in STAGES:
@@ -390,6 +398,11 @@ def reprocess(
     if not processing_available():
         raise AppError("INTERNAL_ERROR", "Asset processing is not available")
     payload: dict[str, Any] = {"reprocess": True}
+    if mode == "full" and (asset.analysis or {}).get("mode") == "light":
+        data = dict(asset.analysis or {})
+        data.pop("mode", None)
+        asset.analysis = data
+        db.flush()
     if stage:
         payload["from_stage"] = stage
     job_id = start_processing(db, workspace_id, asset, **payload)

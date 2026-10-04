@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, Literal, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -120,6 +120,15 @@ class UploadOut(BaseModel):
     created_at: str
 
 
+ProcessingMode = Literal["full", "light"]
+
+
+class UploadCompleteRequest(BaseModel):
+    """Optional body of ``POST /uploads/{id}/complete``."""
+
+    mode: ProcessingMode = "full"
+
+
 class UploadComplete(BaseModel):
     upload: UploadOut
     asset: AssetOut
@@ -135,6 +144,7 @@ class AssetUploadResult(BaseModel):
 
 class ReprocessRequest(BaseModel):
     stage: str | None = None
+    mode: ProcessingMode | None = None  # "full" upgrades a light asset to the full analysis
 
 
 class ReprocessOut(BaseModel):

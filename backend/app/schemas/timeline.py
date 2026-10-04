@@ -10,7 +10,8 @@ unrelated to :class:`app.schemas.common.Provenance` (the API-level badge of gene
 Structural rules live here (types, ranges, ids). The cross-item invariants (gapless video track,
 durations, source ranges against the asset) are in ``services/timeline_service.validate``.
 Sponsor video items (section 8.10) are ``VideoItem(kind="sponsor")``: ``asset_id`` may be ``None``
-only while ``placeholder`` is true.
+only while ``placeholder`` is true. A still image dropped on the video track is ``kind="image"``:
+``src_in`` is 0 and ``src_out`` is how long it is shown (an image has no source duration to check).
 """
 
 from __future__ import annotations
@@ -60,7 +61,7 @@ class Transition(_Strict):
 
 
 class VideoItem(LayerBase):
-    kind: Literal["clip", "sponsor"] = "clip"
+    kind: Literal["clip", "sponsor", "image"] = "clip"
     asset_id: str | None = None
     src_in: float = Field(ge=0)
     src_out: float = Field(gt=0)

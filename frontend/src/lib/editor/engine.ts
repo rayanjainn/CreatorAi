@@ -335,6 +335,7 @@ export class PlaybackEngine {
   }
 
   private isFailed(item: VideoItem): boolean {
+    if (item.kind === 'image' || item.asset_id === null) return false // nothing to decode: the clock carries it
     const url = this.urlFor(item)
     return !url || this.failedUrls.has(url) || this.slowUrls.has(url)
   }

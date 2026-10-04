@@ -294,3 +294,13 @@ inventory and "how to add a page / hook" are in `frontend/README.md`. In short:
   over SSE (`lib/sse.ts`, `?access_token=`), driving JobToasts and the topbar indicator.
 - **Honesty rules**: generated content carries a `ProvenanceBadge`; `DataModeBanner` reflects
   `GET /health` `data_mode`; features without a backend render `NotAvailablePage`, never sample data.
+
+
+## Editor media (light ingest and image items)
+
+Files dropped into the editor are uploaded to the library like any other asset but with `mode: "light"` (see `docs/API.md`), so
+they never wait for transcription and work without AI keys. `VideoItem.kind` has a third value, `"image"`: a still shown for
+`src_out - src_in` seconds (`src_in` is 0; there is no source duration to check). The render graph loops the picture for that
+time (`-loop 1 -framerate 30 -t <dur>`) with silent audio; the TypeScript timeline library mirrors the rules (`addVideoMedia`).
+The panels of the editor (side panel, inspector, timeline height) are resizable and collapsible, and the layout is stored per
+browser (`creatorai.editor-layout.v1`).

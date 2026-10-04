@@ -12,7 +12,7 @@ import { useEditor } from '@/stores/editor'
 import { toast } from '@/stores/toasts'
 
 /** Revision history of the clip's timeline: preview one read-only, or restore it as a NEW revision. */
-export function RevisionList({ clipId, limit, compact }: { clipId: string; limit?: number; compact?: boolean }) {
+export function RevisionList({ clipId, limit, compact, onPick }: { clipId: string; limit?: number; compact?: boolean; /** Called after a preview or restore is started (lets a popover close itself). */ onPick?: () => void }) {
   const qc = useQueryClient()
   const revision = useEditor((s) => s.revision)
   const savedAt = useEditor((s) => s.save.at)
@@ -39,7 +39,10 @@ export function RevisionList({ clipId, limit, compact }: { clipId: string; limit
           </div>
           {r.revision !== revision && (
             <div className="rev-actions">
-              <Button size="sm" variant="ghost" onClick={() => void previewRevision(r.revision)} disabled={!!busy} data-testid="preview-revision" aria-label={`Preview revision ${r.revision}`}>
+              <Button size="sm" variant="ghost" onClick={() => {
+                  void previewRevision(r.revision)
+                  onPick?.()
+                }} disabled={!!busy} data-testid="preview-revision" aria-label={`Preview revision ${r.revision}`}>
                 <Eye size={12} /> Preview
               </Button>
               <Button
@@ -47,6 +50,7 @@ export function RevisionList({ clipId, limit, compact }: { clipId: string; limit
                 variant="secondary"
                 disabled={!!busy}
                 onClick={async () => {
+                  onPick?.()
                   if (await restoreTo(r.revision)) toast.success(`Restored revision ${r.revision}`, 'It is saved as a new revision; nothing was overwritten.')
                 }}
                 data-testid="restore-revision"

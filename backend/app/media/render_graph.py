@@ -169,6 +169,16 @@ def build_plan(
         src = assets.get(item.asset_id)
         if src is None:
             raise ValueError(f"asset {item.asset_id} is not available for rendering")
+        if item.kind == "image":  # a still: looped for exactly the time it is shown, silent
+            idx = add_input("-loop", "1", "-framerate", str(FPS), "-t", _t(dur), "-i", src.path)
+            crop = _crop_expr(src, item.crop_x) if portrait else ""
+            chains.append(
+                f"[{idx}:v]setpts=PTS-STARTPTS,{crop}"
+                f"scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},"
+                f"setsar=1,fps={FPS},format=yuv420p[v_{i}]"
+            )
+            chains.append(_silence(dur, i))
+            continue
         seek = max(0.0, item.src_in - SEEK_PAD)
         idx = add_input(*(["-ss", _t(seek)] if seek > 0 else []), "-i", src.path)
         start, end = item.src_in - seek, item.src_out - seek

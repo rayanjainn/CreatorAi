@@ -32,6 +32,7 @@ export function EditorHeader({ clip, onExport, exporting }: { clip: Clip; onExpo
   const helpOpen = useEditor((s) => s.helpOpen)
   const setHelpOpen = useEditor((s) => s.setHelpOpen)
   const layout = useEditorLayout()
+  const [revOpen, setRevOpen] = useState(false)
   return (
     <header className="ed-head" data-testid="editor-header">
       <div className="ed-head-left">
@@ -80,7 +81,7 @@ export function EditorHeader({ clip, onExport, exporting }: { clip: Clip; onExpo
         <IconButton label="Redo (Ctrl+Shift+Z)" onClick={redo} disabled={!canRedo} data-testid="header-redo">
           <Redo2 size={15} />
         </IconButton>
-        <Popover.Root>
+        <Popover.Root open={revOpen} onOpenChange={setRevOpen}>
           <Popover.Trigger className="button button-secondary button-sm ed-rev" data-testid="revision-menu" aria-label="Revision history">
             <History size={13} /> Rev <span className="mono" data-testid="revision-number">{revision}</span> <ChevronDown size={12} />
           </Popover.Trigger>
@@ -91,7 +92,7 @@ export function EditorHeader({ clip, onExport, exporting }: { clip: Clip; onExpo
                   <b>Revision history</b>
                   <small>Every save is a revision. Restoring one creates a new revision, so nothing is lost.</small>
                 </div>
-                <RevisionList clipId={clip.id} />
+                <RevisionList clipId={clip.id} onPick={() => setRevOpen(false)} />
               </Popover.Popup>
             </Popover.Positioner>
           </Popover.Portal>

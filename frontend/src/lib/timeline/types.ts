@@ -29,7 +29,8 @@ export interface Transition {
   dur: number
 }
 export interface VideoItem extends LayerBase {
-  kind: 'clip' | 'sponsor'
+  /** `image` is a still shown for `src_out - src_in` seconds (no source duration to exceed). */
+  kind: 'clip' | 'sponsor' | 'image'
   asset_id: string | null
   src_in: number
   src_out: number

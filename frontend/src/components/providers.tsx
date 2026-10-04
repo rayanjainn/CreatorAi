@@ -7,6 +7,7 @@ import { AuthProvider } from '@/components/auth-provider'
 import { ToastViewport } from '@/components/common/toast-viewport'
 import { handleApiError } from '@/lib/api/error-toasts'
 import { isApiError } from '@/lib/api/errors'
+import { setQueryClient } from '@/lib/api/query-client'
 
 type Meta = { silent?: boolean; silentCodes?: string[] } | undefined
 
@@ -38,7 +39,11 @@ function makeClient() {
 }
 
 export function Providers({ children }: { children: ReactNode }) {
-  const [client] = useState(makeClient)
+  const [client] = useState(() => {
+    const c = makeClient()
+    setQueryClient(c)
+    return c
+  })
   return (
     <QueryClientProvider client={client}>
       <Tooltip.Provider delay={250}>

@@ -79,7 +79,8 @@ def process_asset(job: JobContext) -> dict[str, Any]:
             snapshot = run.snapshot()
             analysis = analysis_of(snapshot)
             has_audio = (analysis.get("probe") or {}).get("has_audio", True)
-            if stage not in stages_for(snapshot.kind, has_audio=has_audio):
+            light = analysis.get("mode") == "light"
+            if stage not in stages_for(snapshot.kind, has_audio=has_audio, light=light):
                 continue
             if not _should_run(stage, analysis):
                 continue

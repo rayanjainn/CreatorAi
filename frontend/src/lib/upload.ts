@@ -12,13 +12,15 @@ type Run = { aborted: boolean; xhrs: Set<XMLHttpRequest> }
 const runs = new Map<string, Run>()
 
 let seq = 0
-export function newUploadItem(file: File, contentItemId?: string): UploadItem {
-  return { id: `u${Date.now().toString(36)}${++seq}`, file, contentItemId, phase: 'queued', sentBytes: 0, speed: 0, etaSec: null }
+export type UploadOptions = { mode?: 'full' | 'light'; tag?: string }
+
+export function newUploadItem(file: File, contentItemId?: string, opts: UploadOptions = {}): UploadItem {
+  return { id: `u${Date.now().toString(36)}${++seq}`, file, contentItemId, mode: opts.mode, tag: opts.tag, phase: 'queued', sentBytes: 0, speed: 0, etaSec: null }
 }
 
 /** Queue files and start uploading them (two files at a time so one slow upload does not starve the rest). */
-export function enqueueUploads(files: File[], contentItemId?: string, onDone?: () => void): UploadItem[] {
-  const items = files.map((f) => newUploadItem(f, contentItemId))
+export function enqueueUploads(files: File[], contentItemId?: string, onDone?: () => void, opts: UploadOptions = {}): UploadItem[] {
+  const items = files.map((f) => newUploadItem(f, contentItemId, opts))
   useUploads.getState().add(items)
   void runQueue(items, onDone)
   return items
@@ -167,7 +169,7 @@ export async function startUpload(id: string): Promise<void> {
     if (run.aborted) return
 
     patch({ phase: 'finalizing', sentBytes: file.size, speed: 0, etaSec: null })
-    const done = (await unwrap(api.POST('/api/v1/uploads/{upload_id}/complete', { params: { path: { upload_id: up.id } } }))) as UploadComplete
+    const done = (await unwrap(api.POST('/api/v1/uploads/{upload_id}/complete', { params: { path: { upload_id: up.id } }, body: { mode: item.mode ?? 'full' } }))) as UploadComplete
     if (done.job_id) void trackJob(done.job_id)
     patch({ phase: done.duplicate ? 'done' : 'processing', assetId: done.asset.id, jobId: done.job_id, duplicate: done.duplicate })
   } catch (e) {
