@@ -667,6 +667,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/twin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Overview */
+        get: operations["overview_api_v1_twin_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/twin/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Messages */
+        get: operations["messages_api_v1_twin_messages_get"];
+        put?: never;
+        post?: never;
+        /** Clear */
+        delete: operations["clear_api_v1_twin_messages_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/twin/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Chat */
+        post: operations["chat_api_v1_twin_chat_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/twin/messages/{message_id}/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Apply */
+        post: operations["apply_api_v1_twin_messages__message_id__apply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/twin/style/update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Update Style */
+        post: operations["update_style_api_v1_twin_style_update_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/content/{item_id}/director/plan": {
         parameters: {
             query?: never;
@@ -1147,9 +1233,9 @@ export interface paths {
         /** Get Transcript */
         get: operations["get_transcript_api_v1_assets__asset_id__transcript_get"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
+        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
+        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1682,13 +1768,13 @@ export interface paths {
             cookie?: never;
         };
         /** Serve Media */
-        get: operations["serve_media_media__key__get"];
+        get: operations["serve_media_media__key__head"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         /** Serve Media */
-        head: operations["serve_media_media__key__get"];
+        head: operations["serve_media_media__key__head"];
         patch?: never;
         trace?: never;
     };
@@ -1750,6 +1836,14 @@ export interface components {
             is_current?: boolean;
             /** Thumbnail Url */
             thumbnail_url?: string | null;
+        };
+        /** ApplyBody */
+        ApplyBody: {
+            /**
+             * Index
+             * @default 0
+             */
+            index?: number;
         };
         /** AssetDetail */
         AssetDetail: {
@@ -2100,6 +2194,15 @@ export interface components {
             thumbnail_url: string | null;
             progress: components["schemas"]["ProgressOut"];
             running_jobs: components["schemas"]["RunningJobsOut"];
+        };
+        /** ChatBody */
+        ChatBody: {
+            /** Message */
+            message: string;
+            /** Content Item Id */
+            content_item_id?: string | null;
+            /** Clip Id */
+            clip_id?: string | null;
         };
         /** ClipOut */
         ClipOut: {
@@ -5525,6 +5628,162 @@ export interface operations {
             };
         };
     };
+    overview_api_v1_twin_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    messages_api_v1_twin_messages_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+        };
+    };
+    clear_api_v1_twin_messages_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    chat_api_v1_twin_chat_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apply_api_v1_twin_messages__message_id__apply_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                message_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplyBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_style_api_v1_twin_style_update_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     get_plan_api_v1_content__item_id__director_plan_get: {
         parameters: {
             query?: {
@@ -6547,7 +6806,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_post: {
+    _put_transcript_api_v1_assets__asset_id__transcript_put: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -6580,7 +6839,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_post: {
+    _put_transcript_api_v1_assets__asset_id__transcript_put: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -7685,7 +7944,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__get: {
+    serve_media_media__key__head: {
         parameters: {
             query?: {
                 exp?: number | null;
@@ -7720,7 +7979,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__get: {
+    serve_media_media__key__head: {
         parameters: {
             query?: {
                 exp?: number | null;

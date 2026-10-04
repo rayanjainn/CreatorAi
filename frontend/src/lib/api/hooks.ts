@@ -9,6 +9,9 @@ import { toast } from '@/stores/toasts'
 import { trackJob } from '@/lib/track-job'
 import type {
   InsightsReport,
+  TwinApplied,
+  TwinMessage,
+  TwinOverview,
   Activity,
   Asset,
   AssetDetail,
@@ -1204,5 +1207,42 @@ export function useInsights(days: number) {
     queryKey: ['insights', days],
     queryFn: () => unwrap(api.GET('/api/v1/insights/production', { params: { query: { days } } })) as unknown as Promise<InsightsReport>,
     staleTime: 30_000,
+  })
+}
+
+/* ---------- digital twin ---------- */
+const twinGet = <T,>(path: string) => unwrap(api.GET(path as never, {} as never)) as unknown as Promise<T>
+export function useTwin() {
+  return useQuery({ queryKey: ['twin'], queryFn: () => twinGet<TwinOverview>('/api/v1/twin') })
+}
+export function useTwinMessages() {
+  return useQuery({ queryKey: ['twin', 'messages'], queryFn: () => twinGet<TwinMessage[]>('/api/v1/twin/messages') })
+}
+export function useTwinChat() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: { message: string; content_item_id?: string | null; clip_id?: string | null }) =>
+      unwrap(api.POST('/api/v1/twin/chat' as never, { body } as never)) as unknown as Promise<TwinMessage>,
+    onSettled: () => void qc.invalidateQueries({ queryKey: ['twin', 'messages'] }),
+  })
+}
+export function useTwinApply() {
+  return useMutation({
+    mutationFn: (v: { id: string; index?: number }) =>
+      unwrap(api.POST('/api/v1/twin/messages/{message_id}/apply' as never, { params: { path: { message_id: v.id } }, body: { index: v.index ?? 0 } } as never)) as unknown as Promise<TwinApplied>,
+  })
+}
+export function useTwinStyleUpdate() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => unwrap(api.POST('/api/v1/twin/style/update' as never, {} as never)) as unknown as Promise<TwinOverview>,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['twin'] }),
+  })
+}
+export function useTwinClear() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => unwrap(api.DELETE('/api/v1/twin/messages' as never, {} as never)),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['twin', 'messages'] }),
   })
 }

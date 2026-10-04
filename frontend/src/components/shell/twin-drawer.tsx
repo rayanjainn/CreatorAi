@@ -3,10 +3,9 @@
 import { Dialog } from '@base-ui/react/dialog'
 import { X } from 'lucide-react'
 import { useUi } from '@/stores/ui'
-import { NotAvailableInline } from '@/components/common/not-available'
-import { Bot } from 'lucide-react'
+import { TwinChat } from '@/components/twin/twin-chat'
 
-/** Right slide-over reserved for the Creative Twin chat. The Twin backend is not built yet: say so honestly. */
+/** Right slide-over with the Creative Twin chat, reachable from anywhere. */
 export function TwinDrawer() {
   const open = useUi((s) => s.twinOpen)
   const setOpen = useUi((s) => s.setTwinOpen)
@@ -25,10 +24,7 @@ export function TwinDrawer() {
             </Dialog.Close>
           </div>
           <div className="drawer-body">
-            <NotAvailableInline title="Not available yet" icon={<Bot size={16} />}>
-              The Creative Twin learns your voice from your scripts and published videos. Its chat and style-profile backend are not built
-              yet, so there is nothing to talk to. This panel will open from anywhere in the app once it ships.
-            </NotAvailableInline>
+            <TwinChat compact />
           </div>
         </Dialog.Popup>
       </Dialog.Portal>

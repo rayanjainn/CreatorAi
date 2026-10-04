@@ -269,3 +269,10 @@ export type InsightsReport = {
   performance: { available: boolean; reason: string }
   nudges: { kind: string; text: string; href: string }[]
 }
+
+/** Digital Twin (backend/app/services/twin.py). */
+export type TwinStyle = { summary?: string; tone_descriptors?: string[]; vocabulary?: { favor: string[]; avoid: string[] }; dos?: string[]; donts?: string[]; provenance?: { source: string; provider?: string | null; model?: string | null } }
+export type TwinOverview = { style: TwinStyle; style_revision: number; approvals_since_update: number; update_every: number; memory_count: number; memories: { id: string; kind: string; text: string; created_at: string }[] }
+export type TwinAction = { type: string; clip_id?: string | null; content_item_id?: string | null; params?: Record<string, unknown> }
+export type TwinMessage = { id: string; role: 'user' | 'assistant'; content: string; actions: TwinAction[]; provenance?: { source: string; provider?: string | null; model?: string | null } | null; created_at: string }
+export type TwinApplied = { applied: boolean; kind: string; message: string; open_editor?: boolean; clip_id?: string | null; content_item_id?: string | null }

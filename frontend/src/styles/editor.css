@@ -2566,3 +2566,4 @@ body[data-resizing] video {
   color: #fff;
   border-color: #8b5cf6;
 }
+.monitor-notice { pointer-events: none; }

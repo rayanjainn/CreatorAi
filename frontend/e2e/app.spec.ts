@@ -108,12 +108,15 @@ test('settings: data mode, test keys with no providers, honest YouTube state', a
   await expect(page.getByTestId('pipeline-card')).toContainText('ffmpeg')
 })
 
-test('deferred features render the honest not-available state', async ({ page }) => {
+test('creative twin: honest without a key, and the page explains what it learns from', async ({ page }) => {
   await login(page)
-  for (const route of ['/creative-twin']) {
-    await page.goto(route)
-    await expect(page.getByTestId('not-available')).toContainText('not built yet')
-  }
+  await page.goto('/creative-twin')
+  await expect(page.getByTestId('twin-page')).toBeVisible()
+  await page.getByTestId('twin-input').fill('Give me an idea')
+  await page.getByTestId('twin-input').press('Enter')
+  await expect(page.getByTestId('llm-not-configured')).toBeVisible()
+  await page.getByTestId('twin-learn').click()
+  await expect(page.getByTestId('twin-page')).toContainText(/Approve a script|Add a free AI key|GEMINI_API_KEY/)
   await page.goto('/board')
   await page.waitForURL('**/calendar')
   await page.goto('/does-not-exist')
