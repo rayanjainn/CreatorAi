@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import Link from 'next/link'
-import { Bot, Check, ChevronRight, Circle, CircleCheck, CircleX, History, ListChecks, Sparkles, X } from 'lucide-react'
+import { Check, ChevronRight, Circle, CircleCheck, CircleX, History, ListChecks, Sparkles, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useActivity } from '@/lib/api/hooks'
 import { acceptAllLayers, seekTo, setGroupStatus, setItemStatus } from '@/lib/editor/actions'
@@ -24,25 +23,6 @@ export function HistoryPanel({ clipId }: { clipId: string }) {
   const decided = groups.reduce((n, g) => n + g.items.filter((i) => i.source === 'ai' && i.status !== 'suggested').length, 0)
   return (
     <div className="agent-panel" aria-label="Agent and edit history" data-testid="history-panel">
-      <div className="twin-card" data-testid="twin-unavailable">
-        <div className="twin-card-head">
-          <span className="twin-orb">
-            <Bot size={15} />
-          </span>
-          <div>
-            <b>Twin chat isn&apos;t available yet</b>
-            <small>Creative Twin</small>
-          </div>
-        </div>
-        <p>
-          The Twin backend isn&apos;t built, so there is no agent to chat with and nothing here is simulated. Everything the Agent already did to this clip is
-          below. Review it, then accept or reject it.
-        </p>
-        <Link href="/creative-twin" className="link small">
-          What the Twin will do
-        </Link>
-      </div>
-
       <div className="checklist">
         <header className="cl-head">
           <span className="eyebrow">

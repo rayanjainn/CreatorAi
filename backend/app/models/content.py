@@ -23,6 +23,7 @@ class ContentItem(Base):
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     target_duration_sec: Mapped[int | None] = mapped_column(Integer)
     published_at: Mapped[str | None] = mapped_column(String)
+    scheduled_for: Mapped[str | None] = mapped_column(String)
     created_at: Mapped[str] = created_at_col()
     updated_at: Mapped[str] = updated_at_col()
 

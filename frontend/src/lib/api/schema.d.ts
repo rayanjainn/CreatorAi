@@ -667,6 +667,110 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/twin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Overview */
+        get: operations["overview_api_v1_twin_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/twin/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Messages */
+        get: operations["messages_api_v1_twin_messages_get"];
+        put?: never;
+        post?: never;
+        /** Clear */
+        delete: operations["clear_api_v1_twin_messages_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/twin/chat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Chat */
+        post: operations["chat_api_v1_twin_chat_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/twin/messages/{message_id}/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Apply */
+        post: operations["apply_api_v1_twin_messages__message_id__apply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/twin/style/update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Update Style */
+        post: operations["update_style_api_v1_twin_style_update_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/research": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Briefs */
+        get: operations["list_briefs_api_v1_research_get"];
+        put?: never;
+        /** Create */
+        post: operations["create_api_v1_research_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/content/{item_id}/director/plan": {
         parameters: {
             query?: never;
@@ -1751,6 +1855,14 @@ export interface components {
             /** Thumbnail Url */
             thumbnail_url?: string | null;
         };
+        /** ApplyBody */
+        ApplyBody: {
+            /**
+             * Index
+             * @default 0
+             */
+            index?: number;
+        };
         /** AssetDetail */
         AssetDetail: {
             /** Id */
@@ -2092,6 +2204,8 @@ export interface components {
             target_duration_sec: number | null;
             /** Published At */
             published_at: string | null;
+            /** Scheduled For */
+            scheduled_for?: string | null;
             /** Created At */
             created_at: string;
             /** Updated At */
@@ -2100,6 +2214,15 @@ export interface components {
             thumbnail_url: string | null;
             progress: components["schemas"]["ProgressOut"];
             running_jobs: components["schemas"]["RunningJobsOut"];
+        };
+        /** ChatBody */
+        ChatBody: {
+            /** Message */
+            message: string;
+            /** Content Item Id */
+            content_item_id?: string | null;
+            /** Clip Id */
+            clip_id?: string | null;
         };
         /** ClipOut */
         ClipOut: {
@@ -2281,6 +2404,8 @@ export interface components {
             target_duration_sec: number | null;
             /** Published At */
             published_at: string | null;
+            /** Scheduled For */
+            scheduled_for?: string | null;
             /** Created At */
             created_at: string;
             /** Updated At */
@@ -2301,6 +2426,8 @@ export interface components {
             domain?: ("education" | "technology" | "entertainment" | "lifestyle" | "business") | null;
             /** Target Duration Sec */
             target_duration_sec?: number | null;
+            /** Scheduled For */
+            scheduled_for?: string | null;
         };
         /** CoverageOut */
         CoverageOut: {
@@ -3373,6 +3500,13 @@ export interface components {
             stage?: string | null;
             /** Mode */
             mode?: ("full" | "light") | null;
+        };
+        /** ResearchBody */
+        ResearchBody: {
+            /** Topic */
+            topic: string;
+            /** Content Item Id */
+            content_item_id?: string | null;
         };
         /** RestoreRequest */
         RestoreRequest: {
@@ -5505,6 +5639,230 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    overview_api_v1_twin_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    messages_api_v1_twin_messages_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+        };
+    };
+    clear_api_v1_twin_messages_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    chat_api_v1_twin_chat_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChatBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apply_api_v1_twin_messages__message_id__apply_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                message_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplyBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_style_api_v1_twin_style_update_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    list_briefs_api_v1_research_get: {
+        parameters: {
+            query?: {
+                content_item_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_api_v1_research_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResearchBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };

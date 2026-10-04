@@ -48,7 +48,7 @@ export const NAV: NavGroup[] = [
     label: 'Grow',
     items: [
       { label: 'Insights', href: '/analytics', Icon: BarChart3 },
-      { label: 'Creative Twin', href: '/creative-twin', Icon: Gauge, soon: true },
+      { label: 'Creative Twin', href: '/creative-twin', Icon: Gauge },
     ],
   },
   {

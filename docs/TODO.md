@@ -59,7 +59,7 @@ the work is the services, endpoints, jobs and pages.
 - **Acceptance:** a PR shows backend, frontend and lint checks; failing tests block merge.
 - **Size:** S.
 
-### 4. Sponsorship and monetization (a)
+### 3. Sponsorship and monetization (a)
 - **What:** sponsor brief, sponsor slot detection, "Accept into clip", disclosure.
 - **Why:** a named product module; the project "Sponsors" tab and `/monetization` are empty "not available" pages.
 - **Where:** Plan 8.10 and 6.1 (sponsor `VideoItem`), table `sponsor_briefs`/`sponsor_slots` (exist), LLM task `sponsors.integration` (schema, prompt, mock exist), `timeline_service.ripple_insert`, error `SLOT_OUTSIDE_CLIP` (exists).
@@ -176,12 +176,12 @@ Intentionally not built: it is a planning estimate. If wanted, a usage page can 
 
 ## Status update (latest)
 
-Done since the last list: teams and RBAC with invites, comments and presence; creator intelligence (production insights, `/analytics`);
-movable, styled text overlays; `make showcase` for real content; empty first run (no seed needed); landing page fixes.
+Done: teams and RBAC (invites, comments, presence, view-only); creator intelligence (`/analytics`, production insights computed from your own
+data); movable, styled text overlays; `make showcase` for real content; empty first run (no seed needed); landing page fixes; **Digital Twin**
+(style profile learned from approved scripts, memories from approved scripts and accepted clips, chat with suggested actions; in the editor
+the "Ask" tab applies pause tightening, caption style and music changes as new revisions); **calendar planner** (`scheduled_for`, month view); **Research agent** (project Research tab: web search via Tavily/Serper, brief cited only from the results; port of Menil's design).
 
-Still open, in priority order:
-1. **Digital Twin**: style profile, memories, chat (`twin.chat`), listeners on `script_approved` / `clip_accepted` / `layer_rejected`. The UI is a placeholder.
-2. **AI revise by instruction** in the editor (allow-listed ops) and a **research agent** with cited sources.
-3. **YouTube connection**: OAuth, publishing and real performance metrics (Insights shows none until this exists).
-4. **Calendar scheduling** for the board.
-5. Sponsors (Plan 8.10) were dropped on purpose.
+Still open:
+1. **YouTube connection**: OAuth, publishing and real performance metrics (Insights shows none until this exists).
+2. Twin event `layer_rejected` and trim/hook actions are not wired (those open the editor instead of applying).
+3. Sponsors (Plan 8.10) were dropped on purpose.

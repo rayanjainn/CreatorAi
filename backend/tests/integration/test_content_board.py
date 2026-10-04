@@ -390,3 +390,17 @@ def test_ideas_use_the_real_provider_and_report_it(
     assert body["provenance"]["source"] == "ai" and body["provenance"]["provider"] == "gemini"
     assert body["ideas"][0]["title"] == "Real idea one"
     assert body["ideas"][0]["provenance"]["provider"] == "gemini"
+
+
+def test_schedule_a_day_and_clear_it(client: TestClient, auth: Hdr) -> None:
+    item = client.post(f"{V1}/content", json={"title": "Plan me"}, headers=auth).json()
+    res = client.patch(
+        f"{V1}/content/{item['id']}", json={"scheduled_for": "2026-11-03"}, headers=auth
+    )
+    assert res.status_code == 200 and res.json()["scheduled_for"] == "2026-11-03"
+    bad = client.patch(
+        f"{V1}/content/{item['id']}", json={"scheduled_for": "tomorrow"}, headers=auth
+    )
+    assert bad.status_code == 422
+    cleared = client.patch(f"{V1}/content/{item['id']}", json={"scheduled_for": None}, headers=auth)
+    assert cleared.json()["scheduled_for"] is None

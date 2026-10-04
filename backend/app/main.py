@@ -16,6 +16,7 @@ from app.config import get_settings
 from app.db import dispose_engine, migrate
 from app.errors import install_error_handlers
 from app.logging import configure_logging
+from app.services import twin
 from app.workers import load_handlers
 from app.workers.runner import get_runner, mark_interrupted_jobs, shutdown_runner
 from app.workers.scheduler import scheduler
@@ -35,6 +36,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     if interrupted:
         log.warning("marked %s interrupted job(s) as failed (retryable)", interrupted)
     load_handlers()
+    twin.register_listeners()
     get_runner()
     scheduler.start()
     log.info("CreatorAi API ready (data dir: %s)", settings.data_dir)

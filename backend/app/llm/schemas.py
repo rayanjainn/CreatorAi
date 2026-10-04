@@ -239,6 +239,20 @@ class InsightsNarrateOutput(BaseModel):
     ideas: list[NextIdea] = Field(default_factory=list)
 
 
+class ResearchSource(BaseModel):
+    title: str
+    url: str
+
+
+class ResearchBriefOutput(BaseModel):
+    """``research.brief`` output. Sources are restricted in code to URLs the search returned."""
+
+    summary: str
+    key_points: list[str] = Field(min_length=1, max_length=20)
+    trends: list[str] = Field(default_factory=list, max_length=20)
+    sources: list[ResearchSource] = Field(default_factory=list, max_length=20)
+
+
 class ContentIdeasOutput(BaseModel):
     """``content.ideas`` output: fresh video ideas for the board (stored as source ``twin``)."""
 
@@ -258,6 +272,7 @@ TASK_SCHEMAS: dict[str, type[BaseModel]] = {
     "match.disambiguate": MatchDisambiguateOutput,
     "clips.rerank_copy": ClipRerankOutput,
     "sponsors.integration": SponsorIntegrationOutput,
+    "research.brief": ResearchBriefOutput,
     "twin.chat": TwinChatOutput,
     "twin.style_extract": StyleExtractOutput,
     "insights.narrate_ideas": InsightsNarrateOutput,
