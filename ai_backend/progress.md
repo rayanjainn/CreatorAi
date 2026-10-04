@@ -184,5 +184,5 @@ Append one 5-line entry per task (newest last):
 ## P6 + P7 parallel tracks merged (2026-10-04)
 - Done: P7 (render) fast-forwarded into feat/ai-backend-phase0, then P6 (moments + editing agent) merged on top. Conflicts only in jobs.js and workers/index.js (kept both sides), progress.md (kept both) and the phase0 stub table (each track had removed its own rows; only POST /mcp remains).
 - Learned: separate test DBs (aivideo_p6_test / _p7_test) and reserved migration ranges (060/061, 070) again gave conflict-free code. P6 added GET /agents/editing/jobs/:jobId for polling; P7 POST render returns 200 (not 202) for an existing render. Tests that drain render.run need configureRender/useRealRender (fake ffmpeg writes no file).
-- Next: P8 (E2E, MCP gateway, hardening). HITL live smokes: 5-10 min video -> moments -> 3 reels -> revise; render one reel at final quality to real Cloudinary.
+- Next: P8 skipped (human decision, 2026-10-04); POST /mcp stays a 501 stub. HITL live smokes: 5-10 min video -> moments -> 3 reels -> revise; render one reel at final quality to real Cloudinary.
 - Gate: per human rule, eslint clean + vitest tests/phase0 tests/phase6 tests/phase7 passed (172/172) on the merged tree.
