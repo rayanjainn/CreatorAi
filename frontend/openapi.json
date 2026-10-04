@@ -2970,12 +2970,12 @@
           }
         }
       },
-      "put": {
+      "post": {
         "tags": [
           "assets"
         ],
         "summary": "Attach an SRT, VTT or words.json transcript and re-run from transcription",
-        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_put",
+        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_post",
         "parameters": [
           {
             "name": "asset_id",
@@ -3027,12 +3027,12 @@
           }
         }
       },
-      "post": {
+      "put": {
         "tags": [
           "assets"
         ],
         "summary": "Attach an SRT, VTT or words.json transcript and re-run from transcription",
-        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_put",
+        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_post",
         "parameters": [
           {
             "name": "asset_id",
@@ -4505,13 +4505,351 @@
         }
       }
     },
-    "/media/{key}": {
+    "/api/v1/lumiclip/status": {
       "get": {
+        "tags": [
+          "lumiclip"
+        ],
+        "summary": "Status",
+        "operationId": "status_api_v1_lumiclip_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LumiclipStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lumiclip/projects": {
+      "post": {
+        "tags": [
+          "lumiclip"
+        ],
+        "summary": "Start",
+        "description": "Start clipping a public URL, or a library video (uploaded to Cloudinary first).",
+        "operationId": "start_api_v1_lumiclip_projects_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LumiclipStart"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LumiclipProjectOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "lumiclip"
+        ],
+        "summary": "List ",
+        "operationId": "list__api_v1_lumiclip_projects_get",
+        "parameters": [
+          {
+            "name": "content_item_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Content Item Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 30,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LumiclipProjectOut"
+                  },
+                  "title": "Response List  Api V1 Lumiclip Projects Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lumiclip/projects/{project_id}": {
+      "get": {
+        "tags": [
+          "lumiclip"
+        ],
+        "summary": "Get",
+        "description": "The project; while it is running this asks LumiClip for fresh progress first.",
+        "operationId": "get_api_v1_lumiclip_projects__project_id__get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Refresh"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LumiclipProjectOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "lumiclip"
+        ],
+        "summary": "Remove",
+        "operationId": "remove_api_v1_lumiclip_projects__project_id__delete",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lumiclip/projects/{project_id}/clips/{clip_id}/import": {
+      "post": {
+        "tags": [
+          "lumiclip"
+        ],
+        "summary": "Import Clip",
+        "description": "Save a finished clip into the library (then it can be edited and exported like any asset).",
+        "operationId": "import_clip_api_v1_lumiclip_projects__project_id__clips__clip_id__import_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "clip_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Clip Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LumiclipImport"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LumiclipImportOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/lumiclip/projects/{project_id}/clips/{clip_id}/export": {
+      "post": {
+        "tags": [
+          "lumiclip"
+        ],
+        "summary": "Export Clip",
+        "description": "Ask LumiClip to render a clip at a quality; returns its ``{status, url, ...}``.",
+        "operationId": "export_clip_api_v1_lumiclip_projects__project_id__clips__clip_id__export_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "clip_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Clip Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LumiclipExport"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Export Clip Api V1 Lumiclip Projects  Project Id  Clips  Clip Id  Export Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/media/{key}": {
+      "head": {
         "tags": [
           "media"
         ],
         "summary": "Serve Media",
-        "operationId": "serve_media_media__key__get",
+        "operationId": "serve_media_media__key__head",
         "parameters": [
           {
             "name": "key",
@@ -4593,12 +4931,12 @@
           }
         }
       },
-      "head": {
+      "get": {
         "tags": [
           "media"
         ],
         "summary": "Serve Media",
-        "operationId": "serve_media_media__key__get",
+        "operationId": "serve_media_media__key__head",
         "parameters": [
           {
             "name": "key",
@@ -7171,6 +7509,438 @@
           "password"
         ],
         "title": "LoginRequest"
+      },
+      "LumiclipClipOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "duration": {
+            "type": "number",
+            "title": "Duration"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "download_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Download Url"
+          },
+          "thumbnail_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thumbnail Url"
+          },
+          "quality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality"
+          },
+          "imported_asset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imported Asset Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "duration",
+          "score",
+          "reason",
+          "status",
+          "download_url",
+          "thumbnail_url",
+          "quality"
+        ],
+        "title": "LumiclipClipOut"
+      },
+      "LumiclipExport": {
+        "properties": {
+          "quality": {
+            "type": "string",
+            "enum": [
+              "720p",
+              "1080p"
+            ],
+            "title": "Quality",
+            "default": "1080p"
+          }
+        },
+        "type": "object",
+        "title": "LumiclipExport"
+      },
+      "LumiclipImport": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "full",
+              "light"
+            ],
+            "title": "Mode",
+            "default": "light"
+          },
+          "content_item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Item Id"
+          }
+        },
+        "type": "object",
+        "title": "LumiclipImport",
+        "description": "Save a finished clip into the library. ``light`` skips transcription (no AI key needed)."
+      },
+      "LumiclipImportOut": {
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "title": "Asset Id"
+          },
+          "duplicate": {
+            "type": "boolean",
+            "title": "Duplicate"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "project": {
+            "$ref": "#/components/schemas/LumiclipProjectOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "asset_id",
+          "duplicate",
+          "job_id",
+          "project"
+        ],
+        "title": "LumiclipImportOut"
+      },
+      "LumiclipProjectOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "remote_id": {
+            "type": "string",
+            "title": "Remote Id"
+          },
+          "source_url": {
+            "type": "string",
+            "title": "Source Url"
+          },
+          "source_asset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Asset Id"
+          },
+          "content_item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Item Id"
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "title": "Aspect Ratio"
+          },
+          "options": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Options"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "step": {
+            "type": "string",
+            "title": "Step"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "error_category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Category"
+          },
+          "expected_clips": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Clips"
+          },
+          "source_duration_sec": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Duration Sec"
+          },
+          "clips": {
+            "items": {
+              "$ref": "#/components/schemas/LumiclipClipOut"
+            },
+            "type": "array",
+            "title": "Clips"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "remote_id",
+          "source_url",
+          "source_asset_id",
+          "content_item_id",
+          "aspect_ratio",
+          "options",
+          "status",
+          "step",
+          "message",
+          "error",
+          "error_category",
+          "expected_clips",
+          "source_duration_sec",
+          "clips",
+          "created_at",
+          "updated_at",
+          "provenance"
+        ],
+        "title": "LumiclipProjectOut"
+      },
+      "LumiclipStart": {
+        "properties": {
+          "url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "asset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asset Id"
+          },
+          "content_item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Item Id"
+          },
+          "aspect_ratio": {
+            "type": "string",
+            "enum": [
+              "9:16",
+              "16:9"
+            ],
+            "title": "Aspect Ratio",
+            "default": "9:16"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "subtitle_style": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subtitle Style"
+          }
+        },
+        "type": "object",
+        "title": "LumiclipStart",
+        "description": "Exactly one of ``url`` (a public link, e.g. YouTube) or ``asset_id`` (a library video)."
+      },
+      "LumiclipStatus": {
+        "properties": {
+          "configured": {
+            "type": "boolean",
+            "title": "Configured"
+          },
+          "cloudinary_configured": {
+            "type": "boolean",
+            "title": "Cloudinary Configured"
+          },
+          "base_url": {
+            "type": "string",
+            "title": "Base Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "configured",
+          "cloudinary_configured",
+          "base_url"
+        ],
+        "title": "LumiclipStatus"
       },
       "MatchEnqueued": {
         "properties": {

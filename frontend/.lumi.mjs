@@ -1,0 +1,26 @@
+import { chromium } from '@playwright/test'
+import fs from 'node:fs'
+const S = process.argv[2]
+const exe = fs.readdirSync('/opt/pw-browsers').filter(d=>d.startsWith('chromium-'))[0]
+const browser = await chromium.launch({ executablePath: `/opt/pw-browsers/${exe}/chrome-linux/chrome` })
+const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
+const page = await ctx.newPage()
+const r = await fetch('http://localhost:8200/api/v1/auth/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:'demo@creatorai.local',password:'demo1234'})}).then(r=>r.json())
+await page.addInitScript(t=>localStorage.setItem('creatorai.token',t), r.access_token)
+const errors=[]; page.on('console', m=>{ if(m.type()==='error') errors.push(m.text().slice(0,200)) })
+await page.goto('http://localhost:3200/smart-clips?tab=link', { waitUntil: 'networkidle' })
+await page.waitForSelector('[data-testid=lumiclip-form]')
+await page.screenshot({ path: S+'/lc-form.png' })
+await page.getByTestId('lumiclip-url').fill('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+await page.getByTestId('lumiclip-start').click()
+await page.waitForSelector('[data-testid=lumiclip-progress]')
+await page.screenshot({ path: S+'/lc-progress.png' })
+await page.waitForSelector('[data-testid=lumiclip-clips]', { timeout: 40000 })
+console.log('clips:', await page.getByTestId('lumiclip-clip').count())
+await page.waitForTimeout(800)
+await page.screenshot({ path: S+'/lc-done.png' })
+await page.getByTestId('lumiclip-clip').first().locator('.sc-clip-thumb').click()
+await page.waitForTimeout(1200)
+await page.screenshot({ path: S+'/lc-preview.png' })
+console.log('errors', JSON.stringify(errors))
+await browser.close()

@@ -19,6 +19,8 @@ import type {
   ClipStatus,
   GenerateScriptRequest,
   HooksOut,
+  LumiclipProject,
+  LumiclipStart,
   Match,
   Plan,
   PlanRequest,
@@ -58,6 +60,9 @@ export const qk = {
   me: ['me'] as const,
   health: ['health'] as const,
   llmStatus: ['llm', 'status'] as const,
+  lumiclipStatus: ['lumiclip', 'status'] as const,
+  lumiclipProjects: ['lumiclip', 'projects'] as const,
+  lumiclipProject: (id: string) => ['lumiclip', 'project', id] as const,
   board: (f?: { q?: string; domain?: string }) => ['board', f ?? {}] as const,
   boardAll: ['board'] as const,
   content: (f?: object) => ['content', 'list', f ?? {}] as const,
@@ -948,3 +953,89 @@ export const fetchReview = (id: string) =>
   orNull(unwrap(api.GET('/api/v1/content/{item_id}/director/review', { params: { path: { item_id: id }, query: {} } })) as unknown as Promise<Review>, 'NOT_FOUND', 'NO_REVIEW')
 export const fetchMatch = (id: string) =>
   orNull(unwrap(api.GET('/api/v1/content/{item_id}/match', { params: { path: { item_id: id } } })) as unknown as Promise<Match>, 'NO_SCRIPT')
+
+/* ---------- LumiClip cloud clipper (optional) ---------- */
+const lumiclipRunning = (p?: LumiclipProject) => !!p && !['completed', 'failed'].includes(p.status)
+
+export function useLumiclipStatus() {
+  return useQuery({
+    queryKey: qk.lumiclipStatus,
+    queryFn: () => unwrap(api.GET('/api/v1/lumiclip/status')),
+    staleTime: 60_000,
+  })
+}
+
+export function useLumiclipProjects() {
+  return useQuery({
+    queryKey: qk.lumiclipProjects,
+    queryFn: () => unwrap(api.GET('/api/v1/lumiclip/projects', { params: { query: { limit: 30 } } })) as Promise<LumiclipProject[]>,
+    refetchInterval: (q) => (q.state.data?.some(lumiclipRunning) ? 6000 : false),
+  })
+}
+
+/** One project; asks the server (which asks LumiClip) for fresh progress every few seconds while it runs. */
+export function useLumiclipProject(id: string | null | undefined) {
+  const qc = useQueryClient()
+  return useQuery({
+    queryKey: qk.lumiclipProject(id ?? ''),
+    queryFn: async () => {
+      const p = (await unwrap(api.GET('/api/v1/lumiclip/projects/{project_id}', { params: { path: { project_id: id! } } }))) as LumiclipProject
+      // keep the "Recent" list in step with what the detail view just learned
+      qc.setQueryData<LumiclipProject[]>(qk.lumiclipProjects, (old) => old?.map((x) => (x.id === p.id ? p : x)))
+      return p
+    },
+    enabled: !!id,
+    refetchInterval: (q) => (lumiclipRunning(q.state.data) ? 4000 : false),
+  })
+}
+
+export function useStartLumiclip() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: LumiclipStart) => unwrap(api.POST('/api/v1/lumiclip/projects', { body })) as Promise<LumiclipProject>,
+    onSuccess: (p) => {
+      qc.setQueryData(qk.lumiclipProject(p.id), p)
+      void qc.invalidateQueries({ queryKey: qk.lumiclipProjects })
+    },
+    meta: { silentCodes: ['LUMICLIP_NOT_CONFIGURED', 'CLOUDINARY_NOT_CONFIGURED'] },
+  })
+}
+
+export function useImportLumiclipClip() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (v: { projectId: string; clipId: string; mode?: 'full' | 'light'; contentItemId?: string | null }) =>
+      unwrap(
+        api.POST('/api/v1/lumiclip/projects/{project_id}/clips/{clip_id}/import', {
+          params: { path: { project_id: v.projectId, clip_id: v.clipId } },
+          body: { mode: v.mode ?? 'light', content_item_id: v.contentItemId ?? null },
+        }),
+      ),
+    onSuccess: (out, v) => {
+      void trackJob(out.job_id)
+      qc.setQueryData(qk.lumiclipProject(v.projectId), out.project)
+      void qc.invalidateQueries({ queryKey: ['assets'] })
+      void qc.invalidateQueries({ queryKey: qk.lumiclipProjects })
+    },
+  })
+}
+
+export function useExportLumiclipClip() {
+  return useMutation({
+    mutationFn: (v: { projectId: string; clipId: string; quality: '720p' | '1080p' }) =>
+      unwrap(
+        api.POST('/api/v1/lumiclip/projects/{project_id}/clips/{clip_id}/export', {
+          params: { path: { project_id: v.projectId, clip_id: v.clipId } },
+          body: { quality: v.quality },
+        }),
+      ) as Promise<{ status?: string; url?: string | null; estimated_seconds?: number | null }>,
+  })
+}
+
+export function useDeleteLumiclipProject() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => unwrap(api.DELETE('/api/v1/lumiclip/projects/{project_id}', { params: { path: { project_id: id } } })),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: qk.lumiclipProjects }),
+  })
+}

@@ -10,6 +10,7 @@
 @import "../styles/library.css";
 @import "../styles/project.css";
 @import "../styles/editor.css";
+@import "../styles/smart-clips.css";
 
 @custom-variant dark (&:is(.dark *));
 

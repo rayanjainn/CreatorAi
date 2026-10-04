@@ -19,7 +19,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BACKEND, FRONTEND = ROOT / "backend", ROOT / "frontend"
-API_PORT, WEB_PORT = "8100", "3100"
+API_PORT, WEB_PORT, LUMI_PORT = "8100", "3100", "8398"
 PY = BACKEND / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
 
 
@@ -49,6 +49,10 @@ def main() -> int:
         "E2E_WEB_URL": f"http://localhost:{WEB_PORT}",
         "E2E_API_URL": f"http://localhost:{API_PORT}",
         "E2E_BACKEND_PYTHON": str(PY),
+        # the optional cloud clipper, pointed at a local fake (scripts/fake_lumiclip.py)
+        "LUMICLIP_API_KEY": "e2e-key",
+        "LUMICLIP_BASE_URL": f"http://127.0.0.1:{LUMI_PORT}",
+        "LUMICLIP_ALLOW_PRIVATE_DOWNLOADS": "true",
     }
     procs: list[subprocess.Popen[bytes]] = []
 
@@ -77,6 +81,12 @@ def main() -> int:
 
     try:
         print(f"[e2e] data dir {data}; seeding ...", flush=True)
+        procs.append(
+            subprocess.Popen(
+                [sys.executable, str(ROOT / "scripts" / "fake_lumiclip.py"), "--port", LUMI_PORT],
+                env=env, start_new_session=os.name != "nt",
+            )
+        )  # fmt: skip
         subprocess.run([str(PY), "scripts/migrate.py"], cwd=BACKEND, env=env, check=True)
         subprocess.run([str(PY), "scripts/seed_demo.py"], cwd=BACKEND, env=env, check=True)
         shell = os.name == "nt"
@@ -86,6 +96,7 @@ def main() -> int:
             ["npx", "next", "start", "-p", WEB_PORT], cwd=FRONTEND, env=env, shell=os.name == "nt",
             start_new_session=os.name != "nt",
         ))  # fmt: skip
+        wait(f"http://127.0.0.1:{LUMI_PORT}/media/c1.jpg", timeout=60)
         wait(f"http://localhost:{WEB_PORT}/login")
         args = sys.argv[1:]
 
