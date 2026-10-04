@@ -5,6 +5,8 @@ import { Lightbulb, Plus, Search } from 'lucide-react'
 import { PageHeader } from '@/components/common/page-header'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/field'
+import { CalendarView } from '@/components/board/calendar-view'
+import { Segmented } from '@/components/common/segmented'
 import { Board, BoardSkeleton } from '@/components/board/board'
 import { IdeasPanel } from '@/components/board/ideas-panel'
 import { ErrorState } from '@/components/common/error-state'
@@ -20,6 +22,7 @@ export default function ContentBoardPage() {
   const openNew = useUi((s) => s.openNewContent)
   const [q, setQ] = useState('')
   const [domain, setDomain] = useState('')
+  const [view, setView] = useState<'board' | 'calendar'>('board')
   const wide = useMediaQuery('(min-width: 1760px)', true)
   // null = follow the screen size (side column on very wide screens, hidden otherwise) until toggled.
   const [ideasPref, setIdeasOpen] = useState<boolean | null>(null)
@@ -35,6 +38,7 @@ export default function ContentBoardPage() {
         description="Move every idea from first spark to published. Drag cards between columns, or use the card menu (Alt + arrow keys also work)."
         actions={
           <>
+            <Segmented label="View" value={view} onChange={setView} options={[{ value: 'board', label: 'Board' }, { value: 'calendar', label: 'Calendar' }]} />
             <Button variant="secondary" onClick={() => setIdeasOpen(!ideasOpen)} aria-pressed={ideasOpen}>
               <Lightbulb size={15} /> Ideas
             </Button>
@@ -84,7 +88,7 @@ export default function ContentBoardPage() {
               }
             />
           ) : (
-            <Board board={board.data} />
+            view === 'calendar' ? <CalendarView cards={board.data.columns.flatMap((c) => c.cards)} /> : <Board board={board.data} />
           )}
         </div>
         {ideasOpen && <IdeasPanel />}

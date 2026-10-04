@@ -1233,9 +1233,9 @@ export interface paths {
         /** Get Transcript */
         get: operations["get_transcript_api_v1_assets__asset_id__transcript_get"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
+        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
+        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1768,13 +1768,13 @@ export interface paths {
             cookie?: never;
         };
         /** Serve Media */
-        get: operations["serve_media_media__key__head"];
+        get: operations["serve_media_media__key__get"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         /** Serve Media */
-        head: operations["serve_media_media__key__head"];
+        head: operations["serve_media_media__key__get"];
         patch?: never;
         trace?: never;
     };
@@ -2186,6 +2186,8 @@ export interface components {
             target_duration_sec: number | null;
             /** Published At */
             published_at: string | null;
+            /** Scheduled For */
+            scheduled_for?: string | null;
             /** Created At */
             created_at: string;
             /** Updated At */
@@ -2384,6 +2386,8 @@ export interface components {
             target_duration_sec: number | null;
             /** Published At */
             published_at: string | null;
+            /** Scheduled For */
+            scheduled_for?: string | null;
             /** Created At */
             created_at: string;
             /** Updated At */
@@ -2404,6 +2408,8 @@ export interface components {
             domain?: ("education" | "technology" | "entertainment" | "lifestyle" | "business") | null;
             /** Target Duration Sec */
             target_duration_sec?: number | null;
+            /** Scheduled For */
+            scheduled_for?: string | null;
         };
         /** CoverageOut */
         CoverageOut: {
@@ -6806,7 +6812,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_put: {
+    _put_transcript_api_v1_assets__asset_id__transcript_post: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -6839,7 +6845,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_put: {
+    _put_transcript_api_v1_assets__asset_id__transcript_post: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -7944,7 +7950,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__head: {
+    serve_media_media__key__get: {
         parameters: {
             query?: {
                 exp?: number | null;
@@ -7979,7 +7985,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__head: {
+    serve_media_media__key__get: {
         parameters: {
             query?: {
                 exp?: number | null;

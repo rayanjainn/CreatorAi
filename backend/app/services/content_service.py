@@ -95,6 +95,7 @@ def _item_dict(item: ContentItem) -> dict[str, Any]:
         "position": item.position,
         "target_duration_sec": item.target_duration_sec,
         "published_at": item.published_at,
+        "scheduled_for": item.scheduled_for,
         "created_at": item.created_at,
         "updated_at": item.updated_at,
     }

@@ -39,6 +39,7 @@ class ContentPatch(BaseModel):
     objective: str | None = Field(default=None, max_length=1000)
     domain: Domain | None = None
     target_duration_sec: int | None = Field(default=None, ge=5, le=3600)
+    scheduled_for: str | None = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")
 
 
 class MoveRequest(BaseModel):
@@ -58,6 +59,7 @@ class ContentItemOut(BaseModel):
     position: int
     target_duration_sec: int | None
     published_at: str | None
+    scheduled_for: str | None = None
     created_at: str
     updated_at: str
 

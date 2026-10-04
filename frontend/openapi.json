@@ -3952,12 +3952,12 @@
           }
         }
       },
-      "put": {
+      "post": {
         "tags": [
           "assets"
         ],
         "summary": "Attach an SRT, VTT or words.json transcript and re-run from transcription",
-        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_put",
+        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_post",
         "parameters": [
           {
             "name": "asset_id",
@@ -4009,12 +4009,12 @@
           }
         }
       },
-      "post": {
+      "put": {
         "tags": [
           "assets"
         ],
         "summary": "Attach an SRT, VTT or words.json transcript and re-run from transcription",
-        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_put",
+        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_post",
         "parameters": [
           {
             "name": "asset_id",
@@ -5826,12 +5826,12 @@
       }
     },
     "/media/{key}": {
-      "head": {
+      "get": {
         "tags": [
           "media"
         ],
         "summary": "Serve Media",
-        "operationId": "serve_media_media__key__head",
+        "operationId": "serve_media_media__key__get",
         "parameters": [
           {
             "name": "key",
@@ -5913,12 +5913,12 @@
           }
         }
       },
-      "get": {
+      "head": {
         "tags": [
           "media"
         ],
         "summary": "Serve Media",
-        "operationId": "serve_media_media__key__head",
+        "operationId": "serve_media_media__key__get",
         "parameters": [
           {
             "name": "key",
@@ -7269,6 +7269,17 @@
             ],
             "title": "Published At"
           },
+          "scheduled_for": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled For"
+          },
           "created_at": {
             "type": "string",
             "title": "Created At"
@@ -7906,6 +7917,17 @@
             ],
             "title": "Published At"
           },
+          "scheduled_for": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled For"
+          },
           "created_at": {
             "type": "string",
             "title": "Created At"
@@ -8000,6 +8022,18 @@
               }
             ],
             "title": "Target Duration Sec"
+          },
+          "scheduled_for": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled For"
           }
         },
         "additionalProperties": false,
