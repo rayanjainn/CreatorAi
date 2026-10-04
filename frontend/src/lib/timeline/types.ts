@@ -61,6 +61,22 @@ export interface AudioItem extends LayerBase {
   tl_start: number
   gain_db: number
 }
+export type TextFont = 'montserrat' | 'inter' | 'serif' | 'mono'
+/** Look and position of a text overlay. x/y are the box centre as a share of the frame; size is a share of the frame height. */
+export interface TextStyle {
+  x: number
+  y: number
+  font: TextFont
+  size: number
+  color: string
+  bg: string | null
+  bg_opacity: number
+  align: 'left' | 'center' | 'right'
+  width: number
+  shadow: boolean
+}
+export const DEFAULT_TEXT_STYLE: TextStyle = { x: 0.5, y: 0.25, font: 'montserrat', size: 0.045, color: '#FFFFFF', bg: null, bg_opacity: 0.6, align: 'center', width: 0.8, shadow: true }
+
 export interface OverlayItem extends LayerBase {
   kind: OverlayKind
   tl_start: number
@@ -69,6 +85,8 @@ export interface OverlayItem extends LayerBase {
   asset_id: string | null
   placeholder: boolean
   sponsor_slot_id: string | null
+  /** Text look and position; null = the built-in look for this kind. */
+  style?: TextStyle | null
 }
 export interface Tracks {
   video: VideoItem[]
@@ -162,6 +180,7 @@ export function normalizeTimeline(raw: ApiTimeline): Timeline {
         asset_id: o.asset_id ?? null,
         placeholder: o.placeholder ?? false,
         sponsor_slot_id: o.sponsor_slot_id ?? null,
+        ...(o.style ? { style: { ...DEFAULT_TEXT_STYLE, ...o.style } as TextStyle } : {}),
       })),
     },
   }

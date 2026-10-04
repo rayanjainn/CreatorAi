@@ -6,7 +6,7 @@ PY := $(VENV)/bin/python
 HAS_WEB := $(wildcard frontend/package.json)
 
 .DEFAULT_GOAL := help
-.PHONY: help docs-check doctor setup models models-asr dev seed demo-media migrate test lint reset reset-password clean gen-api e2e
+.PHONY: help docs-check doctor setup models models-asr dev showcase seed demo-media migrate test lint reset reset-password clean gen-api e2e
 
 help: ## Show this help
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-15s %s\n", $$1, $$2}'
@@ -43,6 +43,9 @@ models-asr: ## Download embedding + faster-whisper models (needs internet once)
 
 dev: ## Start API (:8000) and web (:3000) together (override: API_PORT=, WEB_PORT=)
 	$(PY) scripts/dev.py
+
+showcase: ## Fill the running app with YOUR videos through the real pipeline (ARGS="--file talk.mp4 --title 'My title'")
+	backend/.venv/bin/python scripts/showcase.py $(ARGS)
 
 seed: ## Load demo data: demo user, board, analytics, hero project (ARGS="--reset --render")
 	cd backend && .venv/bin/python scripts/seed_demo.py $(ARGS)

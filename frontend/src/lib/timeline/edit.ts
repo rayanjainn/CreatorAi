@@ -18,6 +18,8 @@ import {
   type CaptionStyle,
   type OverlayItem,
   type OverlayKind,
+  type TextStyle,
+  DEFAULT_TEXT_STYLE,
   type Timeline,
   type Transition,
   type VideoItem,
@@ -134,6 +136,9 @@ export function addOverlay(t: Timeline, kind: OverlayKind, at: number, text: str
     asset_id: null,
     placeholder: false,
     sponsor_slot_id: null,
+    // new text starts styled so it can be dragged and recoloured straight away
+    ...(kind === 'text' ? { style: { ...DEFAULT_TEXT_STYLE } } : {}),
+    ...(kind === 'lower_third' ? { style: { ...DEFAULT_TEXT_STYLE, y: 0.78, size: 0.035, align: 'left' as const, bg: '#000000', bg_opacity: 0.65, width: 0.7 } } : {}),
   }
   out.tracks.overlays.push(item)
   return { timeline: out, id: item.id }
@@ -217,6 +222,8 @@ export type LayerPatch = {
   kind?: OverlayKind | AudioKind
   tl_start?: number
   tl_end?: number
+  /** Merge into the overlay's text style (created from the defaults on first use). */
+  style?: Partial<TextStyle>
 }
 
 /** Field-level edit of one layer (caption text/override, overlay text/kind, audio gain/kind, caption or overlay times). */
@@ -238,6 +245,17 @@ export function patchLayer(t: Timeline, itemId: string, patch: LayerPatch): Time
     const o = hit.item as OverlayItem
     if (patch.text !== undefined) o.text = patch.text
     if (patch.kind !== undefined) o.kind = patch.kind as OverlayKind
+    if (patch.style) {
+      const s = { ...DEFAULT_TEXT_STYLE, ...(o.style ?? {}), ...patch.style }
+      o.style = {
+        ...s,
+        x: clamp(s.x, 0, 1),
+        y: clamp(s.y, 0, 1),
+        size: clamp(s.size, 0.015, 0.2),
+        width: clamp(s.width, 0.2, 1),
+        bg_opacity: clamp(s.bg_opacity, 0, 1),
+      }
+    }
   } else {
     const a = hit.item as AudioItem
     if (patch.gain_db !== undefined) a.gain_db = clamp(pyRound(patch.gain_db, 1), -60, 12)

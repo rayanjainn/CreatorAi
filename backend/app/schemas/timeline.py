@@ -112,8 +112,31 @@ class AudioItem(LayerBase):
     gain_db: float = Field(default=DEFAULT_MUSIC_GAIN_DB, ge=-60.0, le=12.0)
 
 
+TextFont = Literal["montserrat", "inter", "serif", "mono"]
+
+
+class TextStyle(_Strict):
+    """How a text overlay looks and where it sits.
+
+    ``x``/``y`` are the centre of the box as a share of the frame (0 to 1); ``size`` is the text
+    height as a share of the frame height; ``width`` is the wrap width as a share of the frame
+    width. ``None`` on the item means the built-in look."""
+
+    x: float = Field(default=0.5, ge=0.0, le=1.0)
+    y: float = Field(default=0.25, ge=0.0, le=1.0)
+    font: TextFont = "montserrat"
+    size: float = Field(default=0.045, ge=0.015, le=0.2)
+    color: str = Field(default="#FFFFFF", pattern=r"^#[0-9A-Fa-f]{6}$")
+    bg: str | None = Field(default=None, pattern=r"^#[0-9A-Fa-f]{6}$")
+    bg_opacity: float = Field(default=0.6, ge=0.0, le=1.0)
+    align: Literal["left", "center", "right"] = "center"
+    width: float = Field(default=0.8, ge=0.2, le=1.0)
+    shadow: bool = True
+
+
 class OverlayItem(LayerBase):
     kind: Literal["sponsor_card", "lower_third", "text"]
+    style: TextStyle | None = None
     tl_start: float = Field(ge=0)
     tl_end: float = Field(gt=0)
     text: str = ""

@@ -58,3 +58,11 @@ Backend gaps and oddities hit while wiring the frontend. Each is worked around i
 - `/invite/[token]` is public: preview, then sign up (new email) or sign in (existing) and accept. No email is sent; admins copy the link from Settings -> Team or a project's Share popover.
 - Project header: presence avatars, Comments popover, Share popover (per-project roles). Editor: presence, a Notes tab (comments pinned to the playhead) and a view-only mode (`viewOnly` in the editor store) for viewers.
 - `useRole` / `useProjectRole` only decide what to show; the server enforces every permission.
+
+## Text overlays (editor)
+
+Text and lower-third overlays carry an optional `style` (font, size, colour, box colour/opacity, alignment, width, shadow, and `x`/`y`
+as the centre of the box in frame units). The Selection inspector edits it (`text-style-section.tsx`); while an overlay is selected it can
+be dragged on the preview (`OverlayView` in `monitor.tsx`). The export draws the same numbers (`backend/app/media/cards.py`), so the
+preview matches the file. Overlays without a style keep the built-in look. Fonts: Montserrat and Inter are vendored; serif and mono use
+the first installed system font and fall back to Montserrat.

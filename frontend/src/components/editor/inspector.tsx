@@ -10,6 +10,7 @@ import { Segmented } from '@/components/common/segmented'
 import { ProvenanceBadge } from '@/components/provenance/provenance-badge'
 import { LayerBadge } from './layer-badge'
 import { NumField, Row, Section, TimeField } from './fields'
+import { TextStyleSection } from './text-style-section'
 import { Waveform } from './timeline/waveform'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { acceptAllLayers, addCaptionAtPlayhead, deleteSelection, regenerateCaptions, setItemStatus, splitAtPlayhead, tightenPausesOnServer, trimToPlayhead } from '@/lib/editor/actions'
@@ -362,6 +363,7 @@ function OverlayPanel({ item }: { item: OverlayItem }) {
         <Textarea value={text} rows={2} disabled={ro} aria-label="Overlay text" onChange={(e) => setText(e.target.value)} onBlur={() => text !== item.text && apply((t) => patchLayer(t, item.id, { text }), { note: 'Edited overlay text', key: `otext:${item.id}` })} data-testid="overlay-text" />
         {item.placeholder && <small className="insp-hint-line">A placeholder card: renders as a title card until a real segment is linked.</small>}
       </Section>
+      {item.kind !== 'sponsor_card' && <TextStyleSection item={item} disabled={ro} />}
       <Section title="Timing">
         <Row label="Start">
           <TimeField label="Overlay start" value={item.tl_start} min={0} max={item.tl_end - 0.2} disabled={ro} onCommit={(v) => apply((t) => patchLayer(t, item.id, { tl_start: v }), { note: 'Retimed an overlay', key: `os:${item.id}` })} />
