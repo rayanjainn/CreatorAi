@@ -60,6 +60,7 @@ const JOB_LABELS: Record<string, string> = {
   'publish.upload': 'Publishing',
   'analytics.sync': 'Syncing analytics',
   'twin.update': 'Updating style profile',
+  'youtube.import': 'Downloading from YouTube',
 }
 export function jobLabel(type: string): string {
   return JOB_LABELS[type] ?? type
@@ -86,6 +87,8 @@ const ACTION_LABELS: Record<string, string> = {
   review_generated: 'Generated a review',
   match_completed: 'Matched script to footage',
   clips_generated: 'Generated clips',
+  yt_import_started: 'Imported a YouTube video',
+  community_posted: 'Shared to the community',
 }
 export function actionLabel(action: string): string {
   if (ACTION_LABELS[action]) return ACTION_LABELS[action]

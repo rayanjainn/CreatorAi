@@ -1251,9 +1251,9 @@ export interface paths {
         /** Get Transcript */
         get: operations["get_transcript_api_v1_assets__asset_id__transcript_get"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
+        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
+        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1776,6 +1776,199 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/yt-import/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Status */
+        get: operations["status_api_v1_yt_import_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/yt-import/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search
+         * @description YouTube videos about ``q`` from the configured web search (Serper or Tavily).
+         */
+        get: operations["search_api_v1_yt_import_search_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/yt-import/thumbnail/{video_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Thumbnail
+         * @description YouTube's thumbnail for a video id, fetched here so the browser loads nothing remote.
+         */
+        get: operations["thumbnail_api_v1_yt_import_thumbnail__video_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/yt-import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List */
+        get: operations["list__api_v1_yt_import_get"];
+        put?: never;
+        /**
+         * Start
+         * @description Probe the link, create a project (unless ``content_item_id``) and queue the download.
+         */
+        post: operations["start_api_v1_yt_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/yt-import/{import_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get */
+        get: operations["get_api_v1_yt_import__import_id__get"];
+        put?: never;
+        post?: never;
+        /** Remove */
+        delete: operations["remove_api_v1_yt_import__import_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/community/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Posts
+         * @description Every post on this server (not only your workspace's), newest first by default.
+         */
+        get: operations["list_posts_api_v1_community_posts_get"];
+        put?: never;
+        /**
+         * Create Post
+         * @description Share a finished render (or a ready video) of the current workspace (editor role).
+         */
+        post: operations["create_post_api_v1_community_posts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/community/posts/{post_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Post */
+        get: operations["get_post_api_v1_community_posts__post_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Post */
+        delete: operations["delete_post_api_v1_community_posts__post_id__delete"];
+        options?: never;
+        head?: never;
+        /** Patch Post */
+        patch: operations["patch_post_api_v1_community_posts__post_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/community/posts/{post_id}/like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Like */
+        put: operations["like_api_v1_community_posts__post_id__like_put"];
+        post?: never;
+        /** Unlike */
+        delete: operations["unlike_api_v1_community_posts__post_id__like_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/community/posts/{post_id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Comments */
+        get: operations["list_comments_api_v1_community_posts__post_id__comments_get"];
+        put?: never;
+        /** Add Comment */
+        post: operations["add_comment_api_v1_community_posts__post_id__comments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/community/comments/{community_comment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Comment */
+        delete: operations["delete_comment_api_v1_community_comments__community_comment_id__delete"];
+        options?: never;
+        head?: never;
+        /** Patch Comment */
+        patch: operations["patch_comment_api_v1_community_comments__community_comment_id__patch"];
         trace?: never;
     };
     "/media/{key}": {
@@ -2359,6 +2552,47 @@ export interface components {
             /** Resolved */
             resolved?: boolean | null;
         };
+        /** CommunityAuthor */
+        CommunityAuthor: {
+            /** Id */
+            id: string | null;
+            /** Name */
+            name: string;
+        };
+        /** CommunityCommentCreate */
+        CommunityCommentCreate: {
+            /** Body */
+            body: string;
+            /** Parent Id */
+            parent_id?: string | null;
+        };
+        /** CommunityCommentOut */
+        CommunityCommentOut: {
+            /** Id */
+            id: string;
+            /** Post Id */
+            post_id: string;
+            /** Parent Id */
+            parent_id: string | null;
+            /** Body */
+            body: string;
+            author: components["schemas"]["CommunityAuthor"];
+            /** Mine */
+            mine: boolean;
+            /** Can Delete */
+            can_delete: boolean;
+            /** By Post Author */
+            by_post_author: boolean;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** CommunityCommentPatch */
+        CommunityCommentPatch: {
+            /** Body */
+            body: string;
+        };
         /** ContentCreate */
         ContentCreate: {
             /** Title */
@@ -2787,6 +3021,15 @@ export interface components {
             started_at: string | null;
             /** Finished At */
             finished_at: string | null;
+        };
+        /** LikeOut */
+        LikeOut: {
+            /** Post Id */
+            post_id: string;
+            /** Liked */
+            liked: boolean;
+            /** Like Count */
+            like_count: number;
         };
         /** LoginRequest */
         LoginRequest: {
@@ -3243,6 +3486,89 @@ export interface components {
             /** Scenes */
             scenes: number;
             provenance: components["schemas"]["Provenance"];
+        };
+        /**
+         * PostCreate
+         * @description Share exactly one of ``render_id`` (a finished render) or ``asset_id`` (a ready video).
+         */
+        PostCreate: {
+            /** Render Id */
+            render_id?: string | null;
+            /** Asset Id */
+            asset_id?: string | null;
+            /** Title */
+            title?: string | null;
+            /**
+             * Body
+             * @default
+             */
+            body?: string;
+            /** Platforms */
+            platforms?: ("youtube" | "instagram" | "tiktok")[];
+            /** Tags */
+            tags?: string[];
+        };
+        /** PostOut */
+        PostOut: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /** Platforms */
+            platforms: ("youtube" | "instagram" | "tiktok")[];
+            /** Tags */
+            tags: string[];
+            author: components["schemas"]["CommunityAuthor"];
+            /** Workspace Name */
+            workspace_name: string | null;
+            /** Video Url */
+            video_url: string;
+            /** Thumbnail Url */
+            thumbnail_url: string | null;
+            /** Duration Sec */
+            duration_sec: number | null;
+            /** Aspect */
+            aspect: string | null;
+            /** Render Id */
+            render_id: string | null;
+            /** Asset Id */
+            asset_id: string | null;
+            /** Mine */
+            mine: boolean;
+            /** Like Count */
+            like_count: number;
+            /** Comment Count */
+            comment_count: number;
+            /** Liked By Me */
+            liked_by_me: boolean;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** PostPage */
+        PostPage: {
+            /** Items */
+            items: components["schemas"]["PostOut"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+        };
+        /** PostPatch */
+        PostPatch: {
+            /** Title */
+            title?: string | null;
+            /** Body */
+            body?: string | null;
+            /** Platforms */
+            platforms?: ("youtube" | "instagram" | "tiktok")[] | null;
+            /** Tags */
+            tags?: string[] | null;
         };
         /** PresenceBeat */
         PresenceBeat: {
@@ -4257,6 +4583,123 @@ export interface components {
         WorkspaceRename: {
             /** Name */
             name: string;
+        };
+        /** YtImportCreate */
+        YtImportCreate: {
+            /** Url */
+            url: string;
+            /** Topic */
+            topic?: string | null;
+            /** Content Item Id */
+            content_item_id?: string | null;
+            /**
+             * Auto Clips
+             * @default true
+             */
+            auto_clips?: boolean;
+            /**
+             * Clip Count
+             * @default 4
+             */
+            clip_count?: number;
+        };
+        /** YtImportOut */
+        YtImportOut: {
+            /** Id */
+            id: string;
+            /** Url */
+            url: string;
+            /** Video Id */
+            video_id: string;
+            /** Title */
+            title: string;
+            /** Channel */
+            channel: string | null;
+            /** Duration Sec */
+            duration_sec: number | null;
+            /** Topic */
+            topic: string | null;
+            /** Options */
+            options: {
+                [key: string]: unknown;
+            };
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "downloading" | "processing" | "clipping" | "done" | "failed";
+            /** Progress */
+            progress: number;
+            /** Stage */
+            stage: string;
+            /** Error */
+            error: string | null;
+            /** Error Code */
+            error_code: string | null;
+            /** Content Item Id */
+            content_item_id: string | null;
+            /** Asset Id */
+            asset_id: string | null;
+            /** Asset Status */
+            asset_status: string | null;
+            /** Thumbnail Url */
+            thumbnail_url: string | null;
+            /** Transcript Source */
+            transcript_source: ("asr" | "youtube_captions") | null;
+            /** Clips Count */
+            clips_count: number;
+            /** Job Id */
+            job_id: string | null;
+            /** Clips Job Id */
+            clips_job_id: string | null;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+        };
+        /** YtImportStatus */
+        YtImportStatus: {
+            /** Available */
+            available: boolean;
+            /** Search Configured */
+            search_configured: boolean;
+            /** Search Provider */
+            search_provider: string;
+            /** Asr Available */
+            asr_available: boolean;
+            /** Max Duration Sec */
+            max_duration_sec: number;
+            /** Max Height */
+            max_height: number;
+        };
+        /** YtSearchOut */
+        YtSearchOut: {
+            /** Query */
+            query: string;
+            /** Provider */
+            provider: string;
+            /** Results */
+            results: components["schemas"]["YtVideoResult"][];
+        };
+        /** YtVideoResult */
+        YtVideoResult: {
+            /** Video Id */
+            video_id: string;
+            /** Url */
+            url: string;
+            /** Title */
+            title: string;
+            /**
+             * Snippet
+             * @default
+             */
+            snippet?: string;
+            /** Channel */
+            channel?: string | null;
+            /** Duration Sec */
+            duration_sec?: number | null;
+            /** Published */
+            published?: string | null;
         };
     };
     responses: never;
@@ -6905,7 +7348,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_post: {
+    _put_transcript_api_v1_assets__asset_id__transcript_put: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -6938,7 +7381,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_post: {
+    _put_transcript_api_v1_assets__asset_id__transcript_put: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -8030,6 +8473,572 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    status_api_v1_yt_import_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["YtImportStatus"];
+                };
+            };
+        };
+    };
+    search_api_v1_yt_import_search_get: {
+        parameters: {
+            query: {
+                q: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["YtSearchOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    thumbnail_api_v1_yt_import_thumbnail__video_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                video_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list__api_v1_yt_import_get: {
+        parameters: {
+            query?: {
+                content_item_id?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["YtImportOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_api_v1_yt_import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["YtImportCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["YtImportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_api_v1_yt_import__import_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["YtImportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_api_v1_yt_import__import_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_posts_api_v1_community_posts_get: {
+        parameters: {
+            query?: {
+                sort?: "new" | "top" | "discussed";
+                platform?: string | null;
+                tag?: string | null;
+                /** @description a user id, or "me" */
+                author?: string | null;
+                q?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_post_api_v1_community_posts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PostCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_post_api_v1_community_posts__post_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_post_api_v1_community_posts__post_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_post_api_v1_community_posts__post_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PostPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    like_api_v1_community_posts__post_id__like_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LikeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unlike_api_v1_community_posts__post_id__like_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LikeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_comments_api_v1_community_posts__post_id__comments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommunityCommentOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_comment_api_v1_community_posts__post_id__comments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommunityCommentCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommunityCommentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_comment_api_v1_community_comments__community_comment_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                community_comment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_comment_api_v1_community_comments__community_comment_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                community_comment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommunityCommentPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommunityCommentOut"];
                 };
             };
             /** @description Validation Error */

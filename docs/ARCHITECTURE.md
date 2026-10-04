@@ -304,3 +304,18 @@ they never wait for transcription and work without AI keys. `VideoItem.kind` has
 time (`-loop 1 -framerate 30 -t <dur>`) with silent audio; the TypeScript timeline library mirrors the rules (`addVideoMedia`).
 The panels of the editor (side panel, inspector, timeline height) are resizable and collapsible, and the layout is stored per
 browser (`creatorai.editor-layout.v1`).
+
+## YouTube import and the community feed
+
+**YouTube import** (`services/yt_import.py`) reuses the pipeline instead of adding one: `POST /yt-import` probes the link with
+yt-dlp (metadata only), creates the project and queues `youtube.import` on the `io` pool. The job downloads the MP4 (H.264/AAC
+preferred, height capped, progress from yt-dlp's hook, cancel through `ctx.progress`), fetches the caption track only when no ASR
+is configured (`integrations/ytdlp.json3_words` turns it into a `words.json` sidecar), and hands the file to
+`assets.register_file` + `start_processing` exactly like an upload. A `register_after_asset_ready` hook then starts
+`clips.generate` on that asset. The import row stores only ids; its `status` is advanced on read from the three jobs and the asset,
+so a restart never leaves it inconsistent.
+
+**Community** (`services/community.py`) is the one feature that is deliberately *not* workspace-scoped: posts, likes and comments
+are visible to every account. A post copies its video and poster into `community/{post_id}/` (signed `/media` URLs, like everything
+else) so it does not depend on the render. Lists order by `created_at` and then SQLite `rowid`, because timestamps have
+one-second resolution.

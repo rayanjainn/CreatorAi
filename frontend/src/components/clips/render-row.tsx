@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Download, Film, Trash2 } from 'lucide-react'
+import { Download, Film, Share2, Trash2 } from 'lucide-react'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
+import { NewPostDialog } from '@/components/community/new-post-dialog'
 import { Thumb } from '@/components/common/thumb'
 import { Button } from '@/components/ui/button'
 import { VideoPlayer } from '@/components/media/video-player'
@@ -20,6 +21,7 @@ export function RenderRow({ render, projectTitle }: { render: Render; projectTit
   const del = useDeleteRender()
   const [preview, setPreview] = useState(false)
   const [confirm, setConfirm] = useState(false)
+  const [share, setShare] = useState(false)
   const live = useJobs((s) => (render.job_id ? s.jobs[render.job_id] : undefined))
   const active = render.status === 'queued' || render.status === 'rendering'
   const preset = PRESETS.find((p) => p.id === render.preset)
@@ -76,6 +78,11 @@ export function RenderRow({ render, projectTitle }: { render: Render; projectTit
             <Download size={13} /> Download
           </a>
         )}
+        {render.status === 'done' && (
+          <Button size="sm" variant="ghost" onClick={() => setShare(true)} title="Share with the community for feedback" data-testid="render-share">
+            <Share2 size={13} /> Share
+          </Button>
+        )}
         {render.status === 'done' && !preview && (
           <Button size="sm" variant="ghost" onClick={() => setPreview(true)}>
             <Film size={13} /> Preview
@@ -85,6 +92,7 @@ export function RenderRow({ render, projectTitle }: { render: Render; projectTit
           <Trash2 size={14} />
         </button>
       </div>
+      <NewPostDialog open={share} onOpenChange={setShare} renderId={render.id} />
       <ConfirmDialog
         open={confirm}
         onOpenChange={setConfirm}

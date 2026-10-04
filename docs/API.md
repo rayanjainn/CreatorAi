@@ -498,3 +498,56 @@ A denied request is `403 FORBIDDEN` with `details: {role, needs, workspace_role}
 | `POST /research` `{topic, content_item_id?}`, `GET /research?content_item_id=` | Web search (`SEARCH_PROVIDER` tavily or serper) then a `research.brief` LLM call. Sources are limited in code to URLs the search returned. Errors: `SEARCH_NOT_CONFIGURED` 503, `SEARCH_FAILED` 502, `NO_RESULTS` 404, `BAD_OUTPUT` 502. |
 | `PATCH /content/{id}` `{scheduled_for: "YYYY-MM-DD" \| null}` | Plans a project on a day (nothing is posted). |
 | Timeline overlay `style` | Optional on `text` and `lower_third` overlays: `{x, y, font: montserrat\|inter\|serif\|mono, size, color, bg, bg_opacity, align, width, shadow}`. The renderer draws it (`media/cards.py`). |
+
+## YouTube import (`api/v1/yt_import.py`, job `youtube.import`)
+
+Find a YouTube video on a topic (the web search the Research agent uses), download it with **yt-dlp**, run it through the normal
+ingest (probe, proxy, transcribe, segments, shots, keyframes, captions, embeddings) and, unless `auto_clips: false`, Smart Clips.
+Only single YouTube video links are accepted (`youtube.com/watch`, `youtu.be`, `/shorts/`, `/embed/`, `/live/`), so the downloader
+is never pointed at another host.
+
+| Endpoint | Notes |
+|---|---|
+| `GET /yt-import/status` | `{available (yt-dlp importable), search_configured, search_provider, asr_available, max_duration_sec, max_height}` |
+| `GET /yt-import/search?q=&limit=` | YouTube videos about `q`: `{query, provider, results:[{video_id, url, title, snippet, channel, duration_sec, published}]}`. Serper uses its video vertical (`/videos`), Tavily is restricted to youtube.com. `503 SEARCH_NOT_CONFIGURED`, `502 SEARCH_FAILED` |
+| `GET /yt-import/thumbnail/{video_id}` | YouTube's thumbnail, fetched by the API so the browser loads nothing remote (`?access_token=` works for `<img>`) |
+| `POST /yt-import` | `{url, topic?, content_item_id?, auto_clips=true, clip_count=4 (1-8)}`. Probes the link first (title, length; nothing is created on failure), creates a project in the `edit` column titled like the video (unless `content_item_id`), queues `youtube.import` (queue `io`). `201` import |
+| `GET /yt-import`, `GET /yt-import/{id}` | Imports of the workspace, newest first. Reading advances `status` from the jobs |
+| `DELETE /yt-import/{id}` | Forget the import (the project, video and clips stay). `409` while downloading |
+
+Import: `{id, url, video_id, title, channel, duration_sec, topic, options, status, progress (0-100 over download 0-30, analysis
+30-80, clips 80-100), stage, error, error_code, content_item_id, asset_id, asset_status, thumbnail_url, transcript_source, clips_count,
+job_id, clips_job_id, created_at, updated_at}`. `status`: `queued -> downloading -> processing -> clipping -> done` or `failed`.
+
+* **Transcript**: the normal chain (Groq Whisper, local faster-whisper), `transcript_source: "asr"`. Only when no ASR is configured is
+  the video's own caption track fetched (uploader subtitles before automatic captions, json3 with word times) and attached as the
+  sidecar: `transcript_source: "youtube_captions"`, provenance `{source: ai, provider: youtube, model: auto-captions}` or
+  `{source: user, provider: youtube, model: subtitles}`. Nothing is invented: no ASR and no captions fails with `ASR_UNAVAILABLE`.
+* **Clips**: when the asset becomes ready, the after-ready hook starts `clips.generate` on that asset (`count = clip_count`); the
+  9:16 shorts appear in the project's Clips tab and in Smart Clips like any others.
+* **Errors** (`error_code` on the import, or the response of `POST`): `YT_UNAVAILABLE` (private, removed, blocked, live), `YT_LOGIN_REQUIRED`
+  (age limit, members-only, bot check: set `YT_IMPORT_COOKIES_FILE`), `YT_TOO_LONG` (over `YT_IMPORT_MAX_SEC`), `YT_DOWNLOAD_FAILED`,
+  `YT_IMPORT_UNAVAILABLE` (yt-dlp missing), then any ingest or clip error (`ASR_UNAVAILABLE`, `NO_CLIP_CANDIDATES`, `CLIPS_FAILED`).
+  The first three are not retried. Re-importing the same video reuses the library asset (sha256 dedupe).
+* Activity: `yt_import_started`. Only import videos you have the rights to reuse.
+
+## Community (`api/v1/community.py`)
+
+A feed shared by **every account on this server** (not scoped to a workspace): people post finished work, others like it and
+comment. Only the *source* is scoped: you share a `done` render (or a `ready` library video) of the workspace you are in, and its
+files are copied to `community/{post_id}/` so the post survives deleting or re-rendering the render. Multiple accounts need
+`AUTH_ALLOW_MULTI=true` or invite links. Nothing is published to YouTube, Instagram or TikTok; `platforms` says what the work is for.
+
+| Endpoint | Notes |
+|---|---|
+| `GET /community/posts` | Paged. `sort=new|top|discussed`, `platform=youtube|instagram|tiktok`, `tag=`, `author=<user id>|me`, `q=` (title/description) |
+| `POST /community/posts` | `{render_id | asset_id (exactly one), title? (defaults to the clip title / file name), body, platforms[], tags[]}`. Editor role in the current workspace. Tags are lower-cased, `#` stripped, max 10. `409 ASSET_NOT_READY` for an unfinished render |
+| `GET/PATCH/DELETE /community/posts/{id}` | Only the author edits or deletes (`403`) |
+| `PUT/DELETE /community/posts/{id}/like` | Idempotent; `{post_id, liked, like_count}` |
+| `GET/POST /community/posts/{id}/comments` | `{body, parent_id?}`; replies stay one level deep (a reply to a reply joins the thread) |
+| `PATCH/DELETE /community/comments/{id}` | Authors edit their comments; the comment's author **or the post's author** deletes (moderation). Deleting a thread removes its replies |
+
+Post: `{id, title, body, platforms, tags, author {id, name}, workspace_name, video_url, thumbnail_url, duration_sec, aspect, render_id,
+asset_id, mine, like_count, comment_count, liked_by_me, created_at, updated_at}`. Comment: `{id, post_id, parent_id, body, author, mine,
+can_delete, by_post_author, created_at, updated_at}`. Viewers may like and comment (policy `VIEWER_WRITES`); posting needs editor.
+Activity (in the author's workspace): `community_posted`.

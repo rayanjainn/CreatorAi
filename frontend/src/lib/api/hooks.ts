@@ -8,6 +8,16 @@ import { applyMove } from '@/lib/board'
 import { toast } from '@/stores/toasts'
 import { trackJob } from '@/lib/track-job'
 import type {
+  CommunityComment,
+  CommunityPlatform,
+  CommunityPost,
+  CommunityPostCreate,
+  CommunityPostPage,
+  CommunityPostPatch,
+  YtImport,
+  YtImportCreate,
+  YtImportStatus,
+  YtSearchOut,
   InsightsReport,
   ResearchBrief,
   TwinApplied,
@@ -1260,5 +1270,194 @@ export function useRunResearch(itemId: string) {
   return useMutation({
     mutationFn: (topic: string) => unwrap(api.POST('/api/v1/research' as never, { body: { topic, content_item_id: itemId } } as never)) as unknown as Promise<ResearchBrief>,
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['research', itemId] }),
+  })
+}
+
+/* ---------- YouTube import: topic search, download, ingest, auto clips ---------- */
+const ytActive = (i: YtImport) => ['queued', 'downloading', 'processing', 'clipping'].includes(i.status)
+const ytList = ['yt-import', 'list'] as const
+
+export function useYtImportStatus() {
+  return useQuery({
+    queryKey: ['yt-import', 'status'] as const,
+    queryFn: () => unwrap(api.GET('/api/v1/yt-import/status')) as Promise<YtImportStatus>,
+    staleTime: 60_000,
+  })
+}
+
+/** Video search runs only for a submitted query (each one costs a search credit). */
+export function useYtSearch(q: string) {
+  return useQuery({
+    queryKey: ['yt-import', 'search', q] as const,
+    queryFn: () => unwrap(api.GET('/api/v1/yt-import/search', { params: { query: { q, limit: 12 } } })) as Promise<YtSearchOut>,
+    enabled: q.trim().length >= 2,
+    staleTime: 10 * 60_000,
+    retry: false,
+    meta: { silent: true },
+  })
+}
+
+export function useYtImports() {
+  const qc = useQueryClient()
+  return useQuery({
+    queryKey: ytList,
+    queryFn: async () => {
+      const prev = qc.getQueryData<YtImport[]>(ytList)
+      const rows = (await unwrap(api.GET('/api/v1/yt-import', { params: { query: { limit: 30 } } }))) as YtImport[]
+      // an import that just finished made a project, a library video and clips: refresh those views
+      if (prev?.some((p) => ytActive(p) && rows.some((r) => r.id === p.id && !ytActive(r)))) {
+        void qc.invalidateQueries({ queryKey: qk.clipsAll })
+        void qc.invalidateQueries({ queryKey: qk.assetsAll })
+        void qc.invalidateQueries({ queryKey: qk.boardAll })
+        void qc.invalidateQueries({ queryKey: qk.contentAll })
+      }
+      return rows
+    },
+    refetchInterval: (q) => (q.state.data?.some(ytActive) ? 2500 : false),
+  })
+}
+
+export function useStartYtImport() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: YtImportCreate) => unwrap(api.POST('/api/v1/yt-import', { body })) as Promise<YtImport>,
+    onSuccess: (row) => {
+      void trackJob(row.job_id)
+      qc.setQueryData<YtImport[]>(ytList, (old) => [row, ...(old ?? []).filter((r) => r.id !== row.id)])
+      void qc.invalidateQueries({ queryKey: qk.boardAll })
+      void qc.invalidateQueries({ queryKey: qk.contentAll })
+    },
+    meta: { silent: true },
+  })
+}
+
+export function useDeleteYtImport() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { response, error } = await api.DELETE('/api/v1/yt-import/{import_id}', { params: { path: { import_id: id } } })
+      if (!response.ok) await unwrap(Promise.resolve({ error, response }))
+    },
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ytList }),
+  })
+}
+
+/* ---------- community feed (every account on this server) ---------- */
+export type CommunityFilters = { sort?: 'new' | 'top' | 'discussed'; platform?: CommunityPlatform; tag?: string; author?: string; q?: string }
+
+export function useCommunityPosts(filters: CommunityFilters = {}) {
+  return useQuery({
+    queryKey: ['community', 'posts', filters] as const,
+    queryFn: () => unwrap(api.GET('/api/v1/community/posts', { params: { query: { ...filters, limit: 48 } } })) as Promise<CommunityPostPage>,
+    placeholderData: keepPreviousData,
+  })
+}
+
+export function useCommunityPost(id: string) {
+  return useQuery({
+    queryKey: ['community', 'post', id] as const,
+    queryFn: () => unwrap(api.GET('/api/v1/community/posts/{post_id}', { params: { path: { post_id: id } } })) as Promise<CommunityPost>,
+    retry: (n, e) => !isCode(e, 'NOT_FOUND') && n < 2,
+  })
+}
+
+export function useCreatePost() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: CommunityPostCreate) => unwrap(api.POST('/api/v1/community/posts', { body })) as Promise<CommunityPost>,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['community'] })
+      toast.success('Posted to the community')
+    },
+    meta: { silent: true },
+  })
+}
+
+export function usePatchPost(id: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: CommunityPostPatch) => unwrap(api.PATCH('/api/v1/community/posts/{post_id}', { params: { path: { post_id: id } }, body })) as Promise<CommunityPost>,
+    onSuccess: (post) => {
+      qc.setQueryData(['community', 'post', id], post)
+      void qc.invalidateQueries({ queryKey: ['community', 'posts'] })
+    },
+  })
+}
+
+export function useDeletePost() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { response, error } = await api.DELETE('/api/v1/community/posts/{post_id}', { params: { path: { post_id: id } } })
+      if (!response.ok) await unwrap(Promise.resolve({ error, response }))
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['community', 'posts'] })
+      toast.success('Post deleted')
+    },
+  })
+}
+
+/** Like / unlike with an optimistic count on every cached copy of the post. */
+export function useLikePost() {
+  const qc = useQueryClient()
+  const patch = (id: string, liked: boolean, count?: number) => {
+    const apply = (p: CommunityPost): CommunityPost =>
+      p.id !== id ? p : { ...p, liked_by_me: liked, like_count: count ?? Math.max(0, p.like_count + (liked ? 1 : -1)) }
+    qc.setQueryData<CommunityPost>(['community', 'post', id], (p) => (p ? apply(p) : p))
+    qc.setQueriesData<CommunityPostPage>({ queryKey: ['community', 'posts'] }, (page) => (page ? { ...page, items: page.items.map(apply) } : page))
+  }
+  return useMutation({
+    mutationFn: (v: { id: string; liked: boolean }) =>
+      unwrap(
+        v.liked
+          ? api.PUT('/api/v1/community/posts/{post_id}/like', { params: { path: { post_id: v.id } } })
+          : api.DELETE('/api/v1/community/posts/{post_id}/like', { params: { path: { post_id: v.id } } }),
+      ),
+    onMutate: (v) => patch(v.id, v.liked),
+    onSuccess: (out) => patch(out.post_id, out.liked, out.like_count),
+    onError: () => void qc.invalidateQueries({ queryKey: ['community'] }),
+  })
+}
+
+export function useCommunityComments(postId: string) {
+  return useQuery({
+    queryKey: ['community', 'comments', postId] as const,
+    queryFn: () => unwrap(api.GET('/api/v1/community/posts/{post_id}/comments', { params: { path: { post_id: postId } } })) as Promise<CommunityComment[]>,
+  })
+}
+
+function invalidateThread(qc: QueryClient, postId: string) {
+  void qc.invalidateQueries({ queryKey: ['community', 'comments', postId] })
+  void qc.invalidateQueries({ queryKey: ['community', 'post', postId] })
+  void qc.invalidateQueries({ queryKey: ['community', 'posts'] })
+}
+
+export function useAddCommunityComment(postId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: { body: string; parent_id?: string | null }) =>
+      unwrap(api.POST('/api/v1/community/posts/{post_id}/comments', { params: { path: { post_id: postId } }, body })) as Promise<CommunityComment>,
+    onSuccess: () => invalidateThread(qc, postId),
+  })
+}
+
+export function usePatchCommunityComment(postId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (v: { id: string; body: string }) =>
+      unwrap(api.PATCH('/api/v1/community/comments/{community_comment_id}', { params: { path: { community_comment_id: v.id } }, body: { body: v.body } })) as Promise<CommunityComment>,
+    onSuccess: () => invalidateThread(qc, postId),
+  })
+}
+
+export function useDeleteCommunityComment(postId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { response, error } = await api.DELETE('/api/v1/community/comments/{community_comment_id}', { params: { path: { community_comment_id: id } } })
+      if (!response.ok) await unwrap(Promise.resolve({ error, response }))
+    },
+    onSuccess: () => invalidateThread(qc, postId),
   })
 }

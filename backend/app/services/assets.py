@@ -194,6 +194,9 @@ def require_content_item(db: Session, workspace_id: str, content_item_id: str | 
         raise not_found("Content item")
 
 
+SIDECAR_SOURCES = ("user", "demo", "youtube_subs", "youtube_auto")
+
+
 def store_sidecar(
     asset: Asset,
     text: str,
@@ -205,7 +208,8 @@ def store_sidecar(
     """Validate and save a transcript sidecar for ``asset`` and invalidate transcription onward.
 
     Raises ``VALIDATION_ERROR`` for unparsable transcripts. The sidecar's provenance is ``user``
-    (or ``demo`` when the file itself declares it); ``source`` forces one of those two.
+    (or ``demo`` when the file itself declares it); ``source`` forces one of those, or marks a
+    YouTube caption track (``youtube_subs`` uploader-written, ``youtube_auto`` YouTube's own ASR).
     """
     parsed = parse_sidecar(text, fmt, filename)
     storage = get_storage()
@@ -215,7 +219,7 @@ def store_sidecar(
     key = f"{prefix}/sidecar.{parsed.format}"
     storage.path_for(key).parent.mkdir(parents=True, exist_ok=True)
     storage.path_for(key).write_text(text, encoding="utf-8")
-    chosen = source if source in ("user", "demo") else parsed.source
+    chosen = source if source in SIDECAR_SOURCES else parsed.source
     done = invalidate_from(analysis_of(asset).get("stages_done", []), "transcribe")
     update_analysis(
         asset,

@@ -86,11 +86,13 @@ override it. Restart the API after editing (`make dev` auto-reloads Python code,
 | Variable | Default | Meaning |
 |---|---|---|
 | `GEMINI_API_KEY` | blank | Google AI Studio key |
-| `GEMINI_MODEL_MAIN` / `GEMINI_MODEL_LITE` | `gemini-2.5-flash` / `gemini-2.5-flash-lite` | heavy tasks / cheap tasks (**ids unverified against the live API**, see HANDOFF) |
+| `GEMINI_MODEL_MAIN` / `GEMINI_MODEL_LITE` | `gemini-2.5-flash` / `gemini-2.5-flash-lite` | heavy tasks / cheap tasks. **Checked 2026-10-04 with a real key: the 2.5 ids are refused for new keys ("no longer available to new users"); `gemini-3.5-flash` / `gemini-3.5-flash-lite` work.** Without a working id, captions and clip copy silently fall back (`LLM_BUSY` in job warnings); run Settings > Test my keys |
 | `GROQ_API_KEY` | blank | Groq key (also used for Whisper) |
 | `SEARCH_PROVIDER`, `TAVILY_API_KEY`, `SERPER_API_KEY` | `tavily`, blank | web search for the Research tab (optional; free tiers) |
 | `LUMICLIP_API_KEY`, `CLOUDINARY_*` | blank | optional cloud clipper and the library-video upload it needs |
-| `GROQ_CHAT_MODEL` | `llama-3.3-70b-versatile` | |
+| `YT_IMPORT_MAX_SEC`, `YT_IMPORT_MAX_HEIGHT` | `1800`, `720` | YouTube import (Smart Clips > From YouTube): longest video accepted, download resolution cap. Topic search uses `SEARCH_PROVIDER` + its key; pasting a link needs none |
+| `YT_IMPORT_COOKIES_FILE` | blank | optional Netscape `cookies.txt` for videos YouTube only serves to signed-in viewers. yt-dlp breaks when YouTube changes: `backend/.venv` `pip install -U yt-dlp` fixes most `YT_DOWNLOAD_FAILED` |
+| `GROQ_CHAT_MODEL` | `llama-3.3-70b-versatile` | **2026-10-04: Groq answers `model_not_found` for this id.** `openai/gpt-oss-120b` exists but rejected the `/llm/test` JSON prompt; Whisper on Groq is unaffected |
 | `OLLAMA_API_KEY` | blank | Ollama Cloud key; blank for a local server |
 | `OLLAMA_BASE_URL` | `https://ollama.com` | `http://localhost:11434` for a local server. **Do not set it to an empty value**: an empty string counts as "configured" |
 | `OLLAMA_MODEL` | `gpt-oss:120b` | any model your account/server can run |

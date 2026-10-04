@@ -1,7 +1,8 @@
 import { expect, type APIRequestContext, type Locator, type Page } from '@playwright/test'
 
 export const API = process.env.E2E_API_URL || 'http://localhost:8100'
-export const DEMO = { email: 'demo@creatorai.local', password: 'demo1234' }
+/** The seeded demo account; E2E_EMAIL / E2E_PASSWORD point the specs at another account (a real dev stack). */
+export const DEMO = { email: process.env.E2E_EMAIL || 'demo@creatorai.local', password: process.env.E2E_PASSWORD || 'demo1234' }
 
 export async function login(page: Page) {
   await page.goto('/login')

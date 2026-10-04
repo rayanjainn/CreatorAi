@@ -16,6 +16,7 @@ HANDLER_MODULES: list[str] = [
     "app.workers.tasks.publish_upload",
     "app.workers.tasks.analytics_sync",
     "app.workers.tasks.twin_update",
+    "app.workers.tasks.youtube_import",
 ]
 
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import subprocess
 from pathlib import Path
 from types import SimpleNamespace
@@ -230,3 +231,21 @@ def test_decode_pcm16k_bad_file_is_asr_error(tmp_path: Path) -> None:
     bad.write_bytes(b"not audio")
     with pytest.raises(ASRError, match="could not decode audio"):
         decode_pcm16k(bad)
+
+
+def test_spoken_order_keeps_the_sentence_when_whisper_times_run_backwards() -> None:
+    """Real Groq Whisper output: "speak" got the start of "the", which a time sort turned into
+    "the speak time when we up"."""
+    from app.ml.asr.base import Word
+    from app.services.ingest.transcribe import spoken_order
+
+    raw = [
+        Word("Most", 78.818, 79.038), Word("of", 79.038, 79.178), Word("the", 79.178, 79.198),
+        Word("time", 79.198, 79.358), Word("when", 79.358, 79.518), Word("we", 79.518, 79.618),
+        Word("speak", 79.178, 79.978), Word("up,", 79.978, 80.318),
+    ]  # fmt: skip
+    out = spoken_order(raw)
+    assert " ".join(w.word for w in out) == "Most of the time when we speak up,"
+    assert all(a.start <= b.start and a.end <= b.start for a, b in itertools.pairwise(out))
+    assert out[6].start == 79.518 and out[6].end == 79.978  # repaired, not dropped
+    assert spoken_order([]) == []

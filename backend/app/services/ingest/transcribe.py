@@ -123,12 +123,31 @@ def transcribe_chunks(
         provider=provider_name,
         model="+".join(models[p] for p in used),
         language=language_out,
-        words=sorted(merged_words, key=lambda w: (w.start, w.end)),
+        words=spoken_order(merged_words),
         segments=sorted(merged_segments, key=lambda s: s.start),
         duration=end,
         words_estimated=estimated,
     )
     return ChunkedResult(transcript, used, len(chunks))
+
+
+def spoken_order(words: list[Word]) -> list[Word]:
+    """Keep the words in the order they were spoken and repair times that run backwards.
+
+    Chunks are transcribed in order and every provider returns words in reading order, but word
+    timestamps are sometimes off (Whisper can give a word the start of its neighbour). Sorting by
+    time would then shuffle the sentence ("the time when we speak up" -> "the speak time when we
+    up"), so instead starts are made non-decreasing and an end never runs past the next start.
+    """
+    out: list[Word] = []
+    for w in words:
+        start = max(w.start, out[-1].start) if out else w.start
+        out.append(Word(w.word, start, max(w.end, start)))
+    for i in range(len(out) - 1):
+        nxt = out[i + 1].start
+        if out[i].end > nxt:
+            out[i] = Word(out[i].word, out[i].start, max(out[i].start, nxt))
+    return out
 
 
 def _profile_language(workspace_id: str) -> str | None:
@@ -150,8 +169,14 @@ def stage_transcribe(run: Run) -> None:
 def _from_sidecar(run: Run, sidecar: dict[str, str]) -> None:
     text = run.path(sidecar["key"]).read_text(encoding="utf-8", errors="replace")
     parsed = parse_sidecar(text, sidecar.get("format"), sidecar.get("filename"))  # type: ignore[arg-type]
-    source = "demo" if sidecar.get("source") == "demo" else "user"
-    provenance = Provenance(source=source, provider="sidecar", model=parsed.format)  # type: ignore[arg-type]
+    kind = sidecar.get("source")
+    if kind == "youtube_auto":  # YouTube's automatic captions: speech recognition, not ours
+        provenance = Provenance(source="ai", provider="youtube", model="auto-captions")
+    elif kind == "youtube_subs":  # written by the video's uploader
+        provenance = Provenance(source="user", provider="youtube", model="subtitles")
+    else:
+        source = "demo" if kind == "demo" else "user"
+        provenance = Provenance(source=source, provider="sidecar", model=parsed.format)  # type: ignore[arg-type]
     _store(run, parsed.transcript, "sidecar", provenance, providers=["sidecar"], chunks=1)
 
 

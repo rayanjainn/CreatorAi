@@ -5,8 +5,9 @@ from app.models.assets import Asset, AssetSegment, AssetShot, Upload
 from app.models.base import Base, new_id, utcnow
 from app.models.clips import Clip, Edit, EditRevision, Render
 from app.models.collab import Comment, Invite, ProjectMember, WorkspaceMember
+from app.models.community import CommunityComment, CommunityLike, CommunityPost
 from app.models.content import ContentItem, DirectorOutput, IdeaSuggestion
-from app.models.integrations import LumiclipProject
+from app.models.integrations import LumiclipProject, YtImport
 from app.models.matching import BeatMatch
 from app.models.publishing import InsightSnapshot, PublishJob, YtMetricDaily, YtVideo
 from app.models.scripts import Script, ScriptBeat
@@ -23,6 +24,9 @@ __all__ = [
     "BeatMatch",
     "Clip",
     "Comment",
+    "CommunityComment",
+    "CommunityLike",
+    "CommunityPost",
     "ContentItem",
     "CreatorProfile",
     "DirectorOutput",
@@ -49,6 +53,7 @@ __all__ = [
     "Workspace",
     "WorkspaceMember",
     "YoutubeConnection",
+    "YtImport",
     "YtMetricDaily",
     "YtVideo",
     "new_id",

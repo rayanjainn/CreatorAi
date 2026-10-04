@@ -12,6 +12,7 @@ import {
   Settings,
   Sparkles,
   SplitSquareHorizontal,
+  Users,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -49,6 +50,7 @@ export const NAV: NavGroup[] = [
     items: [
       { label: 'Insights', href: '/analytics', Icon: BarChart3 },
       { label: 'Creative Twin', href: '/creative-twin', Icon: Gauge },
+      { label: 'Community', href: '/community', Icon: Users },
     ],
   },
   {
@@ -74,6 +76,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   repurpose: 'Repurpose',
   analytics: 'Insights',
   'creative-twin': 'Creative Twin',
+  community: 'Community',
   jobs: 'Jobs & Activity',
   settings: 'Settings',
   editor: 'Editor',

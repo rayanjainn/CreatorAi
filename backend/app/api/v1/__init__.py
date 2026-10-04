@@ -37,14 +37,11 @@ ROUTER_MODULES: list[str] = [
     "edits",
     "renders",
     "lumiclip",
+    "yt_import",
+    "community",
     "sponsors",
     "publish",
     "youtube",
-    "insights",
-    "twin",
-    "research",
-    "twin",
-    "research",
 ]
 
 

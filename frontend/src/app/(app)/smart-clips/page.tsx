@@ -13,11 +13,12 @@ import { useProjects } from '@/components/hubs/use-projects'
 import { LinkButton } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { LumiclipStudio } from '@/components/smart-clips/lumiclip-studio'
+import { YoutubeImport } from '@/components/smart-clips/youtube-import'
 import { useAllClips } from '@/lib/api/hooks'
 import { stripDemo } from '@/lib/format'
 import type { Clip, ClipStatus } from '@/lib/api/types'
 
-type Tab = 'mine' | 'link'
+type Tab = 'mine' | 'youtube' | 'link'
 
 /** Smart Clips: your projects' clips (the local AI clipper), or clip a video link in the cloud (LumiClip). */
 export default function SmartClipsPage() {
@@ -31,14 +32,20 @@ export default function SmartClipsPage() {
 function SmartClips() {
   const router = useRouter()
   const params = useSearchParams()
-  const tab: Tab = params.get('tab') === 'link' ? 'link' : 'mine'
-  const setTab = (t: Tab) => router.replace(t === 'link' ? '/smart-clips?tab=link' : '/smart-clips')
+  const raw = params.get('tab')
+  const tab: Tab = raw === 'link' || raw === 'youtube' ? raw : 'mine'
+  const setTab = (t: Tab) => router.replace(t === 'mine' ? '/smart-clips' : `/smart-clips?tab=${t}`)
+  const descriptions: Record<Tab, string> = {
+    mine: 'The best-scoring moments across all your projects. Accept, edit, open in the editor or render them here.',
+    youtube: 'Find a YouTube video on a topic (or paste a link). It is downloaded, transcribed and indexed like an upload, then cut into short clips.',
+    link: 'Paste a video link and get ready-made short clips, cut in the cloud. Save the ones you like to your library.',
+  }
   return (
     <div className="page">
       <PageHeader
         eyebrow="CreatorAI / AI tools"
         title="Smart Clips"
-        description={tab === 'mine' ? 'The best-scoring moments across all your projects. Accept, edit, open in the editor or render them here.' : 'Paste a video link and get ready-made short clips, cut in the cloud. Save the ones you like to your library.'}
+        description={descriptions[tab]}
       />
       <div className="toolbar">
         <Segmented<Tab>
@@ -47,11 +54,12 @@ function SmartClips() {
           onChange={setTab}
           options={[
             { value: 'mine', label: 'Your projects' },
-            { value: 'link', label: 'Clip a video link' },
+            { value: 'youtube', label: 'From YouTube' },
+            { value: 'link', label: 'Cloud clipper' },
           ]}
         />
       </div>
-      {tab === 'mine' ? <YourClips /> : <LumiclipStudio />}
+      {tab === 'mine' ? <YourClips /> : tab === 'youtube' ? <YoutubeImport /> : <LumiclipStudio />}
     </div>
   )
 }

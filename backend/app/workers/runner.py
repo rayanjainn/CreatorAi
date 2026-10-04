@@ -37,6 +37,7 @@ DEFAULT_QUEUES: dict[str, str] = {
     "publish.upload": "io",
     "analytics.sync": "io",
     "twin.update": "llm",
+    "youtube.import": "io",
 }
 
 JOB_HANDLERS: dict[str, JobHandler] = {}

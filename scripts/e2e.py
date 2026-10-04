@@ -43,6 +43,10 @@ def main() -> int:
         "GEMINI_API_KEY": "",
         "GROQ_API_KEY": "",
         "OLLAMA_API_KEY": "",
+        # hermetic whatever the local .env says: no web search, one account per server unless invited
+        "SERPER_API_KEY": "",
+        "TAVILY_API_KEY": "",
+        "AUTH_ALLOW_MULTI": "false",
         "UPLOAD_CHUNK_SIZE": "65536",  # small chunks so the e2e upload really is chunked
         "CORS_ORIGINS": f"http://localhost:{WEB_PORT},http://127.0.0.1:{WEB_PORT}",
         "NEXT_PUBLIC_API_URL": f"http://localhost:{API_PORT}",

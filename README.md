@@ -106,6 +106,8 @@ A result mixing sources shows the weakest one. The topbar chip and the `DataMode
 | Smart clips | scores windows, reframes 9:16 with face detection, rerank + copy | copy needs an AI key, otherwise labelled heuristic |
 | Timeline editor | tracks, trim/split/reorder, captions, revisions with conflict handling, autosave, accept/reject AI layers | Edit and Preview modes only |
 | Render / export | YouTube Short, Reels, TikTok, YouTube long presets with burned-in captions, downloads | |
+| YouTube import | Smart Clips > From YouTube: find videos on a topic (web search) or paste a link; yt-dlp downloads it, the normal pipeline transcribes and indexes it, Smart Clips cuts 9:16 clips | topic search needs `SERPER_API_KEY` or `TAVILY_API_KEY`; import only videos you may reuse |
+| Community | a feed shared by every account on the server: post a render or video for YouTube / Instagram / TikTok, likes, threaded feedback | more than one account needs `AUTH_ALLOW_MULTI=true` or invite links |
 | Jobs and settings | live job progress (SSE), retry/cancel, AI status, key test | |
 
 Not built yet (the pages say so honestly): YouTube connection and publishing (so no platform performance numbers), and the Twin's trim and hook actions apply only in the editor.

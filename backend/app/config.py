@@ -65,6 +65,13 @@ class Settings(BaseSettings):
     cloudinary_api_key: str = ""
     cloudinary_api_secret: str = ""
 
+    # --- YouTube import (yt-dlp) -------------------------------------------------------------
+    # Longest video accepted, download resolution cap, and an optional Netscape cookies.txt for
+    # videos YouTube only serves to signed-in viewers (age-restricted, "confirm you're not a bot").
+    yt_import_max_sec: int = 1800
+    yt_import_max_height: int = 720
+    yt_import_cookies_file: str = ""
+
     # --- Uploads and ingest ----------------------------------------------------------------
     max_upload_bytes: int = 8 * 1024**3
     upload_chunk_size: int = 8 * 1024 * 1024

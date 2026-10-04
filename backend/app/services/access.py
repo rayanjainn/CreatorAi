@@ -53,6 +53,9 @@ VIEWER_WRITES = [
     re.compile(r"^/comments/\{comment_id\}$"),
     re.compile(r"^/content/\{item_id\}/presence$"),
     re.compile(r"^/invites/\{token\}/accept$"),
+    # the community feed: anyone signed in may like and comment; authors edit their own posts
+    re.compile(r"^/community/posts/\{post_id\}(/like|/comments)?$"),
+    re.compile(r"^/community/comments/\{community_comment_id\}$"),
 ]
 
 

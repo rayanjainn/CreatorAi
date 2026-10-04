@@ -181,6 +181,11 @@ data); movable, styled text overlays; `make showcase` for real content; empty fi
 (style profile learned from approved scripts, memories from approved scripts and accepted clips, chat with suggested actions; in the editor
 the "Ask" tab applies pause tightening, caption style and music changes as new revisions); **calendar planner** (`scheduled_for`, month view); **Research agent** (project Research tab: web search via Tavily/Serper, brief cited only from the results; port of Menil's design).
 
+Done on `feat/yt-import-community`: **YouTube import** (Smart Clips > From YouTube: topic search via Serper/Tavily, yt-dlp download, the
+normal ingest, automatic Smart Clips) and **Community** (posts of renders/videos shared by every account on the server, likes, threaded
+feedback). Also fixed there: transcripts no longer reorder words when Whisper timestamps run backwards (`transcribe.spoken_order`),
+and duplicate router registrations. Found there: the default Gemini and Groq chat model ids no longer work (RUNBOOK section 2).
+
 Still open:
 1. **YouTube connection**: OAuth, publishing and real performance metrics (Insights shows none until this exists).
 2. Twin event `layer_rejected` and trim/hook actions are not wired (those open the editor instead of applying).

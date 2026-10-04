@@ -24,6 +24,15 @@ os.environ.update(
         "OLLAMA_API_KEY": "",
         "OLLAMA_BASE_URL": "https://ollama.com",
         "LLM_PROVIDER_ORDER": "gemini,groq,ollama",
+        # keys a developer's .env may hold must never reach the tests
+        "SEARCH_PROVIDER": "tavily",
+        "TAVILY_API_KEY": "",
+        "SERPER_API_KEY": "",
+        "LUMICLIP_API_KEY": "",
+        "CLOUDINARY_CLOUD_NAME": "",
+        "CLOUDINARY_API_KEY": "",
+        "CLOUDINARY_API_SECRET": "",
+        "YT_IMPORT_COOKIES_FILE": "",
         "APP_SECRET": "",
         "MEDIA_SIGNING_SECRET": "",
         # Tests only: mock is NEVER the default (config default is false); opt in explicitly here.

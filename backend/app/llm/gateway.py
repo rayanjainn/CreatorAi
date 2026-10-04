@@ -224,7 +224,7 @@ class Gateway:
                 task="llm.test",
                 prompt='Reply with exactly this JSON object: {"ok": true}',
                 schema_json={"type": "object", "properties": {"ok": {"type": "boolean"}}},
-                max_tokens=32,
+                max_tokens=256,  # reasoning models (gpt-oss) need room to think first
                 model=model,
             )
             started = self.clock()

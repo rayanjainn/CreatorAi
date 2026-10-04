@@ -231,6 +231,21 @@ export type LumiclipProject = S['LumiclipProjectOut']
 export type LumiclipClip = S['LumiclipClipOut']
 export type LumiclipStart = S['LumiclipStart']
 
+/* YouTube import (Smart Clips > From YouTube) */
+export type YtImportStatus = S['YtImportStatus']
+export type YtVideoResult = S['YtVideoResult']
+export type YtSearchOut = S['YtSearchOut']
+export type YtImport = S['YtImportOut']
+export type YtImportCreate = S['YtImportCreate']
+
+/* Community feed (shared by every account on the server) */
+export type CommunityPost = S['PostOut']
+export type CommunityPostPage = S['PostPage']
+export type CommunityPostCreate = S['PostCreate']
+export type CommunityPostPatch = S['PostPatch']
+export type CommunityComment = S['CommunityCommentOut']
+export type CommunityPlatform = CommunityPost['platforms'][number]
+
 export type Workspace = S['WorkspaceOut']
 export type Member = S['MemberOut']
 export type Invite = S['InviteOut']

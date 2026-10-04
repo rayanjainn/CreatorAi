@@ -37,6 +37,8 @@ Status key: **done** = implemented and tested; **partial** = works with stated l
 | Asset library, search, upload dialog, asset drawer | `components/{library,media}`, `lib/upload.ts` | done | `e2e/library.spec.ts` |
 | Project pages: plan, script, footage, match, clips (+renders), AI hubs | `app/(app)/projects/[id]/*`, `components/{plan,script,match,clips,hubs,projects}` | done | `e2e/projects.spec.ts`, `e2e/mock/generation.spec.ts` |
 | Timeline editor | `app/(app)/editor/[clipId]`, `components/editor`, `lib/timeline`, `lib/editor`, `stores/editor.ts` | done for Edit and Preview modes | vitest (golden, 150 randomized sequences, engine, merge) + `e2e/editor.spec.ts` |
+| YouTube import (search, yt-dlp download, ingest, auto clips) | `integrations/{ytdlp,websearch}.py`, `services/yt_import.py`, `api/v1/yt_import.py`, `workers/tasks/youtube_import.py`, migration 009, `components/smart-clips/youtube-import.tsx` | done | `test_yt_import_units`, `test_yt_import_flow`, `e2e/youtube-import.spec.ts` (full network run with `E2E_YOUTUBE=1`) |
+| Community feed (posts, likes, threaded comments, across workspaces) | `services/community.py`, `api/v1/community.py`, `models/community.py`, migration 010, `app/(app)/community`, `components/community` | done | `test_community`, `e2e/community.spec.ts` |
 | Landing page (marketing) | `components/landing`, `app/(public)/page.tsx` | partial: visual only, uses third-party promo videos (section 8) | none |
 
 ## 3. What is NOT built
