@@ -184,5 +184,4 @@ Still open, in priority order:
 2. **AI revise by instruction** in the editor (allow-listed ops) and a **research agent** with cited sources.
 3. **YouTube connection**: OAuth, publishing and real performance metrics (Insights shows none until this exists).
 4. **Calendar scheduling** for the board.
-5. A pending backend test run: the full `pytest` run stalled near 91% in the last session. Run `cd backend && .venv/bin/python -m pytest -x -v` to find the test that hangs (it was not isolated).
-6. Sponsors (Plan 8.10) were dropped on purpose.
+5. Sponsors (Plan 8.10) were dropped on purpose.
