@@ -238,3 +238,34 @@ export type InvitePreview = S['InvitePreview']
 export type ProjectMember = S['ProjectMemberOut']
 export type Comment = S['CommentOut']
 export type Presence = S['PresenceOut']
+
+/** GET /insights/production: counts from the creator's own workspace (see backend/app/services/insights.py). */
+export type InsightsReport = {
+  generated_at: string
+  range_days: number
+  basis: string
+  pipeline: {
+    total: number
+    by_stage: Record<string, number>
+    weekly: { week: string; created: number; published: number }[]
+    avg_days_to_publish: number | null
+    stale: { id: string; title: string; stage: string; days: number }[]
+    stale_days: number
+  }
+  footage: { assets: number; ready: number; hours: number; gigabytes: number; by_kind: Record<string, number>; failed: number }
+  clips: {
+    total: number
+    by_status: Record<string, number>
+    by_kind: Record<string, number>
+    accept_rate: number | null
+    avg_score: number | null
+    score_buckets: { from: number; to: number; count: number }[]
+    avg_length_sec: number | null
+    accepted_avg_length_sec: number | null
+  }
+  scripts: { count: number; avg_length_sec: number | null; by_platform: Record<string, number>; by_tone: Record<string, number> }
+  renders: { total: number; done: number; failed: number; by_preset: Record<string, number>; minutes: number }
+  activity: { date: string; count: number }[]
+  performance: { available: boolean; reason: string }
+  nudges: { kind: string; text: string; href: string }[]
+}

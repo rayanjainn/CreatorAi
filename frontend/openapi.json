@@ -2067,6 +2067,53 @@
         }
       }
     },
+    "/api/v1/insights/production": {
+      "get": {
+        "tags": [
+          "insights"
+        ],
+        "summary": "Production",
+        "operationId": "production_api_v1_insights_production_get",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 365,
+              "minimum": 7,
+              "default": 90,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Production Api V1 Insights Production Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/content/{item_id}/director/plan": {
       "post": {
         "tags": [
@@ -3724,12 +3771,12 @@
           }
         }
       },
-      "post": {
+      "put": {
         "tags": [
           "assets"
         ],
         "summary": "Attach an SRT, VTT or words.json transcript and re-run from transcription",
-        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_post",
+        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_put",
         "parameters": [
           {
             "name": "asset_id",
@@ -3781,12 +3828,12 @@
           }
         }
       },
-      "put": {
+      "post": {
         "tags": [
           "assets"
         ],
         "summary": "Attach an SRT, VTT or words.json transcript and re-run from transcription",
-        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_post",
+        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_put",
         "parameters": [
           {
             "name": "asset_id",
@@ -5598,12 +5645,12 @@
       }
     },
     "/media/{key}": {
-      "get": {
+      "head": {
         "tags": [
           "media"
         ],
         "summary": "Serve Media",
-        "operationId": "serve_media_media__key__get",
+        "operationId": "serve_media_media__key__head",
         "parameters": [
           {
             "name": "key",
@@ -5685,12 +5732,12 @@
           }
         }
       },
-      "head": {
+      "get": {
         "tags": [
           "media"
         ],
         "summary": "Serve Media",
-        "operationId": "serve_media_media__key__get",
+        "operationId": "serve_media_media__key__head",
         "parameters": [
           {
             "name": "key",

@@ -110,7 +110,7 @@ test('settings: data mode, test keys with no providers, honest YouTube state', a
 
 test('deferred features render the honest not-available state', async ({ page }) => {
   await login(page)
-  for (const route of ['/analytics', '/monetization', '/creative-twin']) {
+  for (const route of ['/creative-twin']) {
     await page.goto(route)
     await expect(page.getByTestId('not-available')).toContainText('not built yet')
   }
@@ -118,6 +118,16 @@ test('deferred features render the honest not-available state', async ({ page })
   await page.waitForURL('**/calendar')
   await page.goto('/does-not-exist')
   await expect(page.getByText('This page does not exist')).toBeVisible()
+})
+
+test('insights page: real counts, suggestions and the honest no-performance note', async ({ page }) => {
+  await login(page)
+  await page.goto('/analytics')
+  await expect(page.getByTestId('insights-page')).toBeVisible()
+  await expect(page.getByTestId('performance-note')).toContainText('YouTube')
+  await expect(page.getByRole('heading', { name: 'Where your projects are' })).toBeVisible()
+  await page.getByRole('button', { name: '30 days' }).click()
+  await expect(page.getByRole('heading', { name: 'Where your projects are' })).toBeVisible()
 })
 
 test('jobs & activity page lists seeded jobs and activity', async ({ page }) => {
