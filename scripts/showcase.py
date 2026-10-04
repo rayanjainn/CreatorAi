@@ -23,6 +23,7 @@ Use only videos you may reuse (your own, public domain, or Creative Commons with
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import shutil
 import sys
@@ -72,9 +73,7 @@ class Api:
 def fetch(url: str, dest_dir: Path) -> Path:
     """Download a direct file URL, or use yt-dlp for page URLs (YouTube etc.)."""
     dest_dir.mkdir(parents=True, exist_ok=True)
-    direct = (
-        url.split("?")[0].lower().endswith((".mp4", ".mov", ".webm", ".mkv", ".m4v"))
-    )
+    direct = url.split("?")[0].lower().endswith((".mp4", ".mov", ".webm", ".mkv", ".m4v"))
     if direct:
         out = dest_dir / Path(url.split("?")[0]).name
         if out.exists():
@@ -122,9 +121,7 @@ def ai_ready(api: Api) -> bool:
 
 def run_job(api: Api, res: httpx.Response, label: str) -> None:
     if res.status_code >= 400:
-        say(
-            f"  {label}: skipped ({res.status_code} {res.json().get('message', '')[:90]})"
-        )
+        say(f"  {label}: skipped ({res.status_code} {res.json().get('message', '')[:90]})")
         return
     job_id = (res.json() or {}).get("job_id") or (res.json() or {}).get("id")
     if not job_id:
@@ -133,9 +130,7 @@ def run_job(api: Api, res: httpx.Response, label: str) -> None:
     wait(
         api,
         label,
-        lambda: (
-            api.get(f"/jobs/{job_id}")["status"] in ("succeeded", "failed", "canceled")
-        ),
+        lambda: api.get(f"/jobs/{job_id}")["status"] in ("succeeded", "failed", "canceled"),
     )
     say(f"  {label}: {api.get(f'/jobs/{job_id}')['status']}")
 
@@ -158,21 +153,15 @@ def process(api: Api, path: Path, title: str, idea: str, use_ai: bool) -> None:
     )
     status = api.get(f"/assets/{asset_id}")["status"]
     if not ok or status != "ready":
-        say(
-            f"  footage did not become ready ({status}); see the Jobs page. Continuing."
-        )
+        say(f"  footage did not become ready ({status}); see the Jobs page. Continuing.")
         return
     say("  footage is ready (transcribed and indexed)")
     if use_ai:
         hooks = api.post(f"/content/{item['id']}/hooks")
         run_job(api, hooks, "hooks")
-        opts = []
-        try:
-            opts = (
-                api.get(f"/content/{item['id']}/script").get("hook_options", []) or []
-            )
-        except httpx.HTTPError:
-            pass
+        opts: list[Any] = []
+        with contextlib.suppress(httpx.HTTPError):
+            opts = api.get(f"/content/{item['id']}/script").get("hook_options", []) or []
         hook = (
             opts[0].get("text")
             if opts and isinstance(opts[0], dict)
@@ -185,9 +174,7 @@ def process(api: Api, path: Path, title: str, idea: str, use_ai: bool) -> None:
             api.post(f"/content/{item['id']}/script/generate", json={"hook": hook}),
             "script",
         )
-        run_job(
-            api, api.post(f"/content/{item['id']}/match"), "script-to-footage match"
-        )
+        run_job(api, api.post(f"/content/{item['id']}/match"), "script-to-footage match")
         run_job(api, api.post(f"/content/{item['id']}/director/plan"), "director plan")
     run_job(api, api.post(f"/content/{item['id']}/clips/generate"), "short clips")
 
@@ -200,9 +187,7 @@ def main() -> None:
     ap.add_argument("--email", default="creator@creatorai.local")
     ap.add_argument("--password", default="creatorai-showcase")
     ap.add_argument("--name", default="Creator")
-    ap.add_argument(
-        "--file", action="append", default=[], help="local video file (repeatable)"
-    )
+    ap.add_argument("--file", action="append", default=[], help="local video file (repeatable)")
     ap.add_argument("--url", action="append", default=[], help="video URL (repeatable)")
     ap.add_argument(
         "--title",
@@ -224,17 +209,13 @@ def main() -> None:
         jobs.append(
             {
                 key: f,
-                "title": args.title[i]
-                if i < len(args.title)
-                else Path(f).stem.replace("_", " "),
+                "title": args.title[i] if i < len(args.title) else Path(f).stem.replace("_", " "),
             }
         )
     if args.sources:
         jobs += json.loads(Path(args.sources).read_text())
     if not jobs:
-        sys.exit(
-            "Nothing to do: pass --file, --url or --sources (see the top of this file)."
-        )
+        sys.exit("Nothing to do: pass --file, --url or --sources (see the top of this file).")
 
     api = Api(args.api, args.email, args.password, args.name)
     use_ai = not args.no_ai and ai_ready(api)
@@ -244,18 +225,12 @@ def main() -> None:
         else "no AI key configured: footage and clips only (add a key to .env for the rest)"
     )
     for job in jobs:
-        path = (
-            Path(job["file"]).expanduser()
-            if job.get("file")
-            else fetch(job["url"], CACHE)
-        )
+        path = Path(job["file"]).expanduser() if job.get("file") else fetch(job["url"], CACHE)
         if not path.exists():
             say(f"missing file {path}")
             continue
         process(api, path, job["title"], job.get("idea", ""), use_ai)
-    say(
-        "done. Open the app: the board, library, Smart Clips and Insights now show your real projects."
-    )
+    say("done. The board, library, Smart Clips and Insights now show your real projects.")
     shutil.rmtree(CACHE / ".tmp", ignore_errors=True)
 
 
