@@ -258,3 +258,11 @@ transitions, no per-chunk ASR checkpointing (a failed long transcription redoes 
 | Why is it built this way? | [LOCAL_FIRST.md](LOCAL_FIRST.md), section 4 above, [Plan.md](../Plan.md) |
 | How do I run, reset, fix it? | [RUNBOOK.md](RUNBOOK.md) |
 | How do I demo it? | [DEMO_GUIDE.md](DEMO_GUIDE.md) |
+
+## Frontend branch (Vansh's standalone app) — what was taken
+
+`origin/frontend` holds a separate Next app (`build-creator-ai-app 2/`). Its Smart Clips Studio, LumiClip flow and Twin panel were ported into this app
+(`frontend/src/components/smart-clips`, `components/twin`) with server-side keys and no invented persona. Its latest commits restyle those
+screens inside the standalone app (our versions already cover the same options) and add a sponsor pitch generator and sponsor-page scraper
+(`app/api/pitch-generator`, `app/api/scrape-sponsor`), which were left out because sponsorship was dropped. The branch is recorded as merged
+(`-s ours`) so history is joined without duplicating a second app in the tree.

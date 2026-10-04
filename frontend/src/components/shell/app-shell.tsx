@@ -15,8 +15,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const setMobile = useUi((s) => s.setMobileNav)
 
-  useEffect(() => hydrateUi(), [])
-  useEffect(() => setMobile(false), [pathname, setMobile])
+  useEffect(() => {
+    hydrateUi()
+  }, [])
+  useEffect(() => {
+    setMobile(false)
+  }, [pathname, setMobile])
 
   // "/" focuses global search (like most dev tools), unless typing somewhere.
   useEffect(() => {

@@ -40,7 +40,9 @@ export default function FootagePage({ params }: { params: Promise<{ id: string }
   const primary = useProjectUi((s) => s.primary[id])
   const setPrimary = useProjectUi((s) => s.setPrimary)
   const hydrate = useProjectUi((s) => s.hydrate)
-  useEffect(() => hydrate(), [hydrate])
+  useEffect(() => {
+    hydrate()
+  }, [hydrate])
 
   const assets = attached.data?.items ?? []
   const unattached = useMemo(() => (library.data?.items ?? []).filter((a) => !a.content_item_id && a.status === 'ready').slice(0, 25), [library.data])
