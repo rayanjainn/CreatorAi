@@ -173,3 +173,16 @@ Intentionally not built: it is a planning estimate. If wanted, a usage page can 
 - Edits payload only carries words for the ranges used at load, so `rebuild_captions` falls back to a server op (note 28).
 - The landing page marketing assets and 3D visuals are unfinished; the `board` redirect and `frontend/openapi.json` generation could be CI-checked (fail when `make gen-api` produces a diff).
 - Docs: keep `docs/API.md` in step; add sections for every new router.
+
+## Status update (latest)
+
+Done since the last list: teams and RBAC with invites, comments and presence; creator intelligence (production insights, `/analytics`);
+movable, styled text overlays; `make showcase` for real content; empty first run (no seed needed); landing page fixes.
+
+Still open, in priority order:
+1. **Digital Twin**: style profile, memories, chat (`twin.chat`), listeners on `script_approved` / `clip_accepted` / `layer_rejected`. The UI is a placeholder.
+2. **AI revise by instruction** in the editor (allow-listed ops) and a **research agent** with cited sources.
+3. **YouTube connection**: OAuth, publishing and real performance metrics (Insights shows none until this exists).
+4. **Calendar scheduling** for the board.
+5. A pending backend test run: the full `pytest` run stalled near 91% in the last session. Run `cd backend && .venv/bin/python -m pytest -x -v` to find the test that hangs (it was not isolated).
+6. Sponsors (Plan 8.10) were dropped on purpose.
