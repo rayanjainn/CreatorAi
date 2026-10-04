@@ -11,7 +11,7 @@ HAS_WEB := $(wildcard frontend/package.json)
 help: ## Show this help
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-15s %s\n", $$1, $$2}'
 	@echo ""
-	@echo "  First time:  make setup && make seed && make dev   (then open http://localhost:3000)"
+	@echo "  First time:  make setup && make dev   (then open http://localhost:3000)"
 	@echo "  Ports:       make dev API_PORT=8010 WEB_PORT=3010   (CORS is adjusted automatically)"
 
 doctor: ## Check prerequisites (Python 3.11+, Node 20+, ffmpeg (libass optional), ports, network)
@@ -32,7 +32,7 @@ setup: ## One-time (re-runnable): doctor, venv, deps, .env, migrations, model do
 	$(PY) backend/scripts/migrate.py
 	@$(PY) backend/scripts/download_models.py || echo "WARNING: model download failed (offline?). Embeddings use a labelled heuristic fallback until you run 'make models' while online."
 	@echo ""
-	@echo "Setup done. Next: make seed (demo data), then make dev, then open http://localhost:3000"
+	@echo "Setup done. Next: make dev, then open http://localhost:3000 and create your account (optional: make seed for labelled demo data)"
 	@echo "AI features need one free key in .env (GEMINI_API_KEY, GROQ_API_KEY or OLLAMA_API_KEY); without it they report 'not configured'."
 
 models: ## Download the embedding model (needs internet once)

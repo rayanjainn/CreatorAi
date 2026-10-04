@@ -15,12 +15,12 @@ never fakes AI output: without a key the AI tools say so and the rest keeps work
 ```bash
 git clone <this repo> && cd BNB26_PookieBlinder_Internal_Round
 make setup     # checks prerequisites, venv + dependencies, .env, database, model download (1 to 3 min)
-make seed      # demo user, board, hero project with real pipeline output (~10 s)
 make dev       # API on :8000 and web on :3000
-# open http://localhost:3000   and sign in:  demo@creatorai.local / demo1234
+# open http://localhost:3000, create your account (one minute), then add an idea or upload footage
 ```
 
-That is all you need to look around. To switch the AI tools on, put **one** free key in `.env` (see
+The app starts empty on purpose: nothing is pre-filled. (Want a populated tour? `make seed` adds a clearly
+labelled demo user and project, see below. It is optional.) To switch the AI tools on, put **one** free key in `.env` (see
 [AI keys](#ai-keys)) and restart `make dev`. Not sure your machine is ready? Run `make doctor` first.
 
 Seeded content is clearly marked: cards are titled `[DEMO] ...` and carry a Demo badge. The hero project

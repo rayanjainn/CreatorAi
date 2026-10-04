@@ -96,7 +96,7 @@ export default function ProjectsPage() {
         ) : (
           <EmptyState
             title="No projects yet"
-            description="Create a content item and it shows up here. Run `make seed` for clearly labelled [DEMO] examples."
+            description="Create a content item and it shows up here."
             actions={<Button onClick={() => openNew()}>New content</Button>}
           />
         )
