@@ -21,7 +21,9 @@ def _token_response(db: DbDep, user_id: str, workspace_id: str) -> TokenOut:
 
 @router.post("/signup", response_model=TokenOut, status_code=201)
 def signup(body: SignupRequest, db: DbDep) -> TokenOut:
-    user, workspace = accounts.signup(db, body.email, body.password, body.display_name)
+    user, workspace = accounts.signup(
+        db, body.email, body.password, body.display_name, body.invite_token
+    )
     return _token_response(db, user.id, workspace.id)
 
 

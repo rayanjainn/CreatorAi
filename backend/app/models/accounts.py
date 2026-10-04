@@ -16,6 +16,7 @@ class User(Base):
     id: Mapped[str] = pk()
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String, nullable=False)
+    display_name: Mapped[str | None] = mapped_column(String)
     created_at: Mapped[str] = created_at_col()
 
 

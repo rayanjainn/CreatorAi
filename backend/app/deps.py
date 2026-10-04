@@ -11,8 +11,9 @@ from sqlalchemy.orm import Session
 
 from app.db import get_session_factory
 from app.errors import AppError
-from app.models import User, Workspace
+from app.models import User
 from app.security import verify_token
+from app.services import access
 
 
 def get_db() -> Iterator[Session]:
@@ -30,10 +31,14 @@ def get_db() -> Iterator[Session]:
 
 @dataclass(frozen=True)
 class Ctx:
-    """Who is calling and which workspace every query must be scoped to."""
+    """Who is calling, which workspace every query is scoped to, and their role in it."""
 
     user_id: str
     workspace_id: str
+    role: str = "owner"
+
+    def can(self, need: str) -> bool:
+        return access.at_least(self.role, need)
 
 
 def _extract_token(request: Request) -> str:
@@ -48,19 +53,48 @@ def _extract_token(request: Request) -> str:
     raise AppError("UNAUTHORIZED", "Authentication required")
 
 
-def get_ctx(request: Request, db: Annotated[Session, Depends(get_db, scope="function")]) -> Ctx:
-    """Validate the bearer token and confirm the user and workspace still exist."""
+def get_user_id(request: Request, db: Annotated[Session, Depends(get_db, scope="function")]) -> str:
+    """The signed-in user, without choosing a workspace (invite acceptance, the account page)."""
     claims = verify_token(_extract_token(request))
-    user_id, workspace_id = str(claims["sub"]), str(claims["ws"])
-    owned = (
-        db.query(Workspace.id)
-        .join(User, User.id == Workspace.owner_id)
-        .filter(User.id == user_id, Workspace.id == workspace_id)
-        .first()
-    )
-    if owned is None:
+    user_id = str(claims["sub"])
+    if db.get(User, user_id) is None:
         raise AppError("UNAUTHORIZED", "Account no longer exists")
-    return Ctx(user_id=user_id, workspace_id=workspace_id)
+    db.info["user_id"] = user_id
+    return user_id
+
+
+def get_ctx(request: Request, db: Annotated[Session, Depends(get_db, scope="function")]) -> Ctx:
+    """Validate the token, pick the workspace, and enforce the role policy for this request.
+
+    The workspace is the ``X-Workspace-Id`` header (or ``?workspace=`` on GET, for EventSource),
+    defaulting to the user's own. The caller must be a member of it.
+    """
+    claims = verify_token(_extract_token(request))
+    user_id, home = str(claims["sub"]), str(claims["ws"])
+    if db.get(User, user_id) is None:
+        raise AppError("UNAUTHORIZED", "Account no longer exists")
+    requested = request.headers.get("x-workspace-id") or (
+        request.query_params.get("workspace") if request.method == "GET" else None
+    )
+    workspace_id = requested or home
+    role = access.workspace_role(db, user_id, workspace_id)
+    if role is None:
+        if requested and requested != home:
+            raise AppError("FORBIDDEN", "You are not a member of that workspace", status=403)
+        raise AppError("UNAUTHORIZED", "Account no longer exists")
+    route = request.scope.get("route")
+    template = getattr(route, "path", None) or request.url.path
+    access.authorize(
+        db,
+        user_id=user_id,
+        workspace_id=workspace_id,
+        role=role,
+        method=request.method,
+        template=template,
+        params={k: str(v) for k, v in request.path_params.items()},
+    )
+    db.info["user_id"] = user_id  # lets log_activity record who did it
+    return Ctx(user_id=user_id, workspace_id=workspace_id, role=role)
 
 
 @dataclass(frozen=True)
@@ -77,6 +111,7 @@ def pagination_params(
 
 
 CtxDep = Annotated[Ctx, Depends(get_ctx)]
+UserDep = Annotated[str, Depends(get_user_id)]
 # scope="function" commits before the response is sent, so a client that reads its own write
 # immediately after a 2xx never races the transaction.
 DbDep = Annotated[Session, Depends(get_db, scope="function")]

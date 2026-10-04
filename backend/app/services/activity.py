@@ -25,6 +25,7 @@ def log_activity(
         entity_type=entity_type,
         entity_id=entity_id,
         meta=meta,
+        user_id=db.info.get("user_id"),  # set by deps.get_ctx; background jobs have none
     )
     db.add(row)
     db.flush()

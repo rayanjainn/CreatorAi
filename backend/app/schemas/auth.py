@@ -26,6 +26,8 @@ class Credentials(BaseModel):
 
 class SignupRequest(Credentials):
     display_name: str | None = Field(default=None, max_length=80)
+    # An invite link lets someone create an account on a machine that already has one.
+    invite_token: str | None = Field(default=None, max_length=200)
 
 
 class LoginRequest(BaseModel):
@@ -41,6 +43,7 @@ class LoginRequest(BaseModel):
 class UserOut(BaseModel):
     id: str
     email: str
+    display_name: str = ""
 
 
 class ProfileOut(BaseModel):
@@ -55,10 +58,19 @@ class ProfileOut(BaseModel):
     onboarding_done: bool
 
 
+class WorkspaceRef(BaseModel):
+    id: str
+    name: str
+    role: Literal["viewer", "editor", "admin", "owner"]
+    is_home: bool
+
+
 class MeOut(BaseModel):
     user: UserOut
     workspace_id: str
     workspace_name: str
+    role: Literal["viewer", "editor", "admin", "owner"] = "owner"
+    workspaces: list[WorkspaceRef] = Field(default_factory=list)
     profile: ProfileOut
 
 
