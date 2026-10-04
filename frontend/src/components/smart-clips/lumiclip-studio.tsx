@@ -18,6 +18,7 @@ import { ClipSettings, DEFAULT_SETTINGS, type ClipSettingsValues } from './clip-
 import { LumiClipCard } from './lumi-clip-card'
 import { ProjectProgress } from './project-progress'
 import { LumiclipSetupCard } from './setup-card'
+import { YoutubeDownloader } from './youtube-downloader'
 import type { LumiclipProject } from '@/lib/api/types'
 
 type Source = 'url' | 'library'
@@ -29,12 +30,24 @@ export function LumiclipStudio() {
   const [selected, setSelected] = useState<string | null>(null)
   if (status.isPending) return <Skeleton style={{ height: 320 }} />
   if (status.isError) return <ErrorState error={status.error} onRetry={() => void status.refetch()} title="Could not check the LumiClip setup" />
-  if (!status.data.configured) return <LumiclipSetupCard />
+  if (!status.data.configured) {
+    return (
+      <div className="sc-layout">
+        <div className="sc-side">
+          <YoutubeDownloader />
+        </div>
+        <div className="sc-main">
+          <LumiclipSetupCard />
+        </div>
+      </div>
+    )
+  }
 
   const active = selected ?? projects.data?.[0]?.id ?? null
   return (
     <div className="sc-layout">
       <div className="sc-side">
+        <YoutubeDownloader />
         <StartForm cloudinary={status.data.cloudinary_configured} onStarted={(id) => setSelected(id)} />
         <ProjectList items={projects.data} loading={projects.isPending} selected={active} onSelect={setSelected} />
       </div>

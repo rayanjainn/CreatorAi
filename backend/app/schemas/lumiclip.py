@@ -88,3 +88,29 @@ class LumiclipImportOut(BaseModel):
 
 class LumiclipExport(BaseModel):
     quality: Literal["720p", "1080p"] = "1080p"
+
+
+class YtdlpDownloadRequest(BaseModel):
+    url: str = Field(min_length=1, max_length=2000)
+    content_item_id: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_url(self) -> YtdlpDownloadRequest:
+        u = self.url.strip().lower()
+        if not u.startswith(("http://", "https://")):
+            raise ValueError("URL must start with http:// or https://")
+        return self
+
+
+class YtdlpDownloadOut(BaseModel):
+    asset_id: str
+    filename: str
+    title: str
+    duration_sec: float | None = None
+    size_bytes: int
+    download_url: str
+    stream_url: str
+    thumbnail_url: str | None = None
+    duplicate: bool
+    job_id: str | None = None
+

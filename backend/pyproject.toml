@@ -25,6 +25,7 @@ dependencies = [
   "vaderSentiment>=3.3.2",
   "fastembed>=0.4",        # real embeddings (ONNX MiniLM, no torch); model downloads on first use
   "faster-whisper>=1.0",   # local ASR fallback (CTranslate2, no torch)
+  "yt-dlp>=2024.1",        # YouTube video downloader
 ]
 
 [project.optional-dependencies]

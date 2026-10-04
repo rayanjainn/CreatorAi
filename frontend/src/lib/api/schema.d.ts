@@ -1778,6 +1778,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/lumiclip/yt-download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Download Youtube
+         * @description Download a video from YouTube using yt-dlp, save to library, and return download link.
+         */
+        post: operations["download_youtube_api_v1_lumiclip_yt_download_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/media/{key}": {
         parameters: {
             query?: never;
@@ -1786,13 +1806,13 @@ export interface paths {
             cookie?: never;
         };
         /** Serve Media */
-        get: operations["serve_media_media__key__get"];
+        get: operations["serve_media_media__key__head"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         /** Serve Media */
-        head: operations["serve_media_media__key__get"];
+        head: operations["serve_media_media__key__head"];
         patch?: never;
         trace?: never;
     };
@@ -4257,6 +4277,36 @@ export interface components {
         WorkspaceRename: {
             /** Name */
             name: string;
+        };
+        /** YtdlpDownloadOut */
+        YtdlpDownloadOut: {
+            /** Asset Id */
+            asset_id: string;
+            /** Filename */
+            filename: string;
+            /** Title */
+            title: string;
+            /** Duration Sec */
+            duration_sec?: number | null;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Download Url */
+            download_url: string;
+            /** Stream Url */
+            stream_url: string;
+            /** Thumbnail Url */
+            thumbnail_url?: string | null;
+            /** Duplicate */
+            duplicate: boolean;
+            /** Job Id */
+            job_id?: string | null;
+        };
+        /** YtdlpDownloadRequest */
+        YtdlpDownloadRequest: {
+            /** Url */
+            url: string;
+            /** Content Item Id */
+            content_item_id?: string | null;
         };
     };
     responses: never;
@@ -8043,7 +8093,40 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__get: {
+    download_youtube_api_v1_lumiclip_yt_download_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["YtdlpDownloadRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["YtdlpDownloadOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    serve_media_media__key__head: {
         parameters: {
             query?: {
                 exp?: number | null;
@@ -8078,7 +8161,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__get: {
+    serve_media_media__key__head: {
         parameters: {
             query?: {
                 exp?: number | null;

@@ -277,3 +277,42 @@ def test_another_workspace_cannot_see_the_project(
 ) -> None:
     res = client.get(f"{V1}/lumiclip/projects/not-mine", headers=auth)
     assert res.status_code == 404
+
+
+def test_yt_download_with_ytdlp(
+    client: TestClient, auth: Hdr, tiny_media: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class FakeYtdlp:
+        def __init__(self, opts: dict[str, Any]) -> None:
+            self.opts = opts
+
+        def __enter__(self) -> FakeYtdlp:
+            return self
+
+        def __exit__(self, *args: Any) -> None:
+            pass
+
+        def extract_info(self, url: str, download: bool = True) -> dict[str, Any]:
+            out = Path(self.opts["outtmpl"].replace("%(ext)s", "mp4"))
+            shutil.copyfile(tiny_media.video, out)
+            return {"title": "Sample YouTube Video", "duration": 15.0, "ext": "mp4"}
+
+        def prepare_filename(self, info: dict[str, Any]) -> str:
+            return self.opts["outtmpl"].replace("%(ext)s", "mp4")
+
+    import yt_dlp
+
+    monkeypatch.setattr(yt_dlp, "YoutubeDL", FakeYtdlp)
+
+    res = client.post(
+        f"{V1}/lumiclip/yt-download",
+        json={"url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"},
+        headers=auth,
+    )
+    assert res.status_code == 201, res.text
+    data = res.json()
+    assert data["title"] == "Sample YouTube Video"
+    assert "dl=" in data["download_url"]
+    assert data["size_bytes"] > 0
+    assert data["asset_id"]
+

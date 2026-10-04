@@ -2,6 +2,7 @@ import {
   BarChart3,
   Bot,
   Clapperboard,
+  CreditCard,
   FolderKanban,
   FolderOpen,
   Gauge,
@@ -48,6 +49,7 @@ export const NAV: NavGroup[] = [
     label: 'Grow',
     items: [
       { label: 'Insights', href: '/analytics', Icon: BarChart3 },
+      { label: 'Monetization', href: '/monetization', Icon: CreditCard },
       { label: 'Creative Twin', href: '/creative-twin', Icon: Gauge },
     ],
   },
@@ -73,6 +75,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   'smart-clips': 'Smart Clips',
   repurpose: 'Repurpose',
   analytics: 'Insights',
+  monetization: 'Monetization Studio',
   'creative-twin': 'Creative Twin',
   jobs: 'Jobs & Activity',
   settings: 'Settings',

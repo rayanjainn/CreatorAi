@@ -666,6 +666,7 @@ export default function LandingPage() {
                    style={{
                      width: 'min(56vw, 40rem)',
                      aspectRatio: '16 / 11',
+                     backgroundImage: 'url(https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/d0f628cf-26bf-473d-81b9-50e422c51521_3840w.png)',
                      backgroundSize: 'contain',
                      backgroundRepeat: 'no-repeat',
                      backgroundPosition: 'center center',

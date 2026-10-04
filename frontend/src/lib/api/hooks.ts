@@ -26,6 +26,8 @@ import type {
   HooksOut,
   LumiclipProject,
   LumiclipStart,
+  YtdlpDownloadOut,
+  YtdlpDownloadRequest,
   Comment,
   Invite,
   InvitePreview,
@@ -1055,6 +1057,17 @@ export function useDeleteLumiclipProject() {
   return useMutation({
     mutationFn: (id: string) => unwrap(api.DELETE('/api/v1/lumiclip/projects/{project_id}', { params: { path: { project_id: id } } })),
     onSuccess: () => void qc.invalidateQueries({ queryKey: qk.lumiclipProjects }),
+  })
+}
+
+export function useDownloadYtdlp() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: YtdlpDownloadRequest) =>
+      unwrap(api.POST('/api/v1/lumiclip/yt-download', { body })) as Promise<YtdlpDownloadOut>,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: qk.assets })
+    },
   })
 }
 

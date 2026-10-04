@@ -15,6 +15,8 @@ from app.schemas.lumiclip import (
     LumiclipProjectOut,
     LumiclipStart,
     LumiclipStatus,
+    YtdlpDownloadOut,
+    YtdlpDownloadRequest,
 )
 from app.services import lumiclip as svc
 
@@ -104,3 +106,10 @@ def export_clip(
 ) -> dict[str, Any]:
     """Ask LumiClip to render a clip at a quality; returns its ``{status, url, ...}``."""
     return svc.export_clip(db, ctx.workspace_id, project_id, clip_id, body.quality)
+
+
+@router.post("/yt-download", response_model=YtdlpDownloadOut, status_code=201)
+def download_youtube(body: YtdlpDownloadRequest, ctx: CtxDep, db: DbDep) -> dict[str, Any]:
+    """Download a video from YouTube using yt-dlp, save to library, and return download link."""
+    return svc.download_yt_video(db, ctx.workspace_id, body.url, content_item_id=body.content_item_id)
+

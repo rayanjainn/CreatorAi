@@ -26,6 +26,7 @@ from app.media.kinds import safe_filename
 from app.models import Asset, LumiclipProject
 from app.models.base import new_id
 from app.schemas.common import Provenance
+from app.security import sign_media
 from app.services import assets as asset_service
 from app.services.activity import log_activity
 from app.storage.local import get_storage
@@ -291,3 +292,115 @@ def import_clip(
     db.flush()
     log_activity(db, workspace_id, "lumiclip_clip_imported", "asset", asset.id, clip_id=clip_id)
     return row, asset, duplicate, job_id
+
+
+def download_yt_video(
+    db: Session,
+    workspace_id: str,
+    url: str,
+    content_item_id: str | None = None,
+) -> dict[str, Any]:
+    """Download a video using yt-dlp, register it into workspace assets, and return direct download URL."""
+    import yt_dlp
+
+    url_str = url.strip()
+    if not url_str.lower().startswith(("http://", "https://")):
+        raise AppError("VALIDATION_ERROR", "The video link must start with http:// or https://")
+
+    tmp_dir = get_settings().tmp_dir / "ytdlp" / workspace_id
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    temp_id = new_id()
+    out_template = str(tmp_dir / f"{temp_id}.%(ext)s")
+
+    ydl_opts = {
+        "format": "b/best[ext=mp4]/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best",
+        "outtmpl": out_template,
+        "quiet": True,
+        "no_warnings": True,
+        "noprogress": True,
+        "merge_output_format": "mp4",
+        "nocheckcertificate": True,
+    }
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url_str, download=True)
+            if info is None:
+                raise AppError("YTDLP_FAILED", "Could not extract video info from the URL.", status=400)
+
+            downloaded_file: Path | None = None
+            if info.get("requested_downloads") and len(info["requested_downloads"]) > 0:
+                fp = info["requested_downloads"][0].get("filepath")
+                if fp and Path(fp).exists():
+                    downloaded_file = Path(fp)
+
+            if not downloaded_file:
+                fn = ydl.prepare_filename(info)
+                base_path = Path(out_template.replace("%(ext)s", ""))
+                if Path(fn).exists():
+                    downloaded_file = Path(fn)
+                else:
+                    mp4_file = Path(str(base_path) + ".mp4")
+                    if mp4_file.exists():
+                        downloaded_file = mp4_file
+                    else:
+                        matches = [p for p in tmp_dir.glob(f"{temp_id}.*") if not p.name.endswith(".part")]
+                        if matches:
+                            downloaded_file = matches[0]
+
+            if not downloaded_file or not downloaded_file.exists():
+                raise AppError("YTDLP_FAILED", "Failed to locate downloaded video file.", status=500)
+
+            raw_title = info.get("title") or "YouTube Video"
+            safe_name = safe_filename(f"{raw_title}.mp4")
+
+            digest = hashlib.sha256()
+            size = 0
+            with downloaded_file.open("rb") as f:
+                while chunk := f.read(1024 * 1024):
+                    size += len(chunk)
+                    digest.update(chunk)
+
+            asset, duplicate = asset_service.register_file(
+                db,
+                workspace_id,
+                tmp_path=downloaded_file,
+                filename=safe_name,
+                mime="video/mp4",
+                sha256=digest.hexdigest(),
+                size_bytes=size,
+                content_item_id=content_item_id,
+            )
+
+            job_id = None
+            if not duplicate:
+                job_id = asset_service.start_processing(db, workspace_id, asset)
+
+            log_activity(db, workspace_id, "ytdlp_download", "asset", asset.id, url=url_str)
+
+            download_url = sign_media(asset.storage_key, download_name=asset.filename)
+            stream_url = sign_media(asset.storage_key)
+            thumbnail_url = sign_media(asset.thumb_key) if asset.thumb_key else None
+
+            return {
+                "asset_id": asset.id,
+                "filename": asset.filename,
+                "title": raw_title,
+                "duration_sec": asset.duration_sec or info.get("duration"),
+                "size_bytes": asset.size_bytes,
+                "download_url": download_url,
+                "stream_url": stream_url,
+                "thumbnail_url": thumbnail_url,
+                "duplicate": duplicate,
+                "job_id": job_id,
+            }
+    except Exception as exc:
+        if isinstance(exc, AppError):
+            raise exc
+        log.warning(f"yt-dlp download failed for {url_str}: {exc}")
+        raise AppError(
+            "YTDLP_DOWNLOAD_FAILED",
+            f"Could not download video with yt-dlp: {str(exc)}",
+            status=502,
+        ) from exc
+
