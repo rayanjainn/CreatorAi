@@ -31,7 +31,7 @@ export function SmartClipsStudio() {
   const [sourceMode, setSourceMode] = useState<VideoSourceMode>('url');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
-  const [videoUrl, setVideoUrl] = useState<string>('https://www.youtube.com/watch?v=jNQXAC9IVRw');
+  const [videoUrl, setVideoUrl] = useState<string>('');
 
   const [urlError, setUrlError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
@@ -327,38 +327,19 @@ export function SmartClipsStudio() {
   return (
     <div className="space-y-8 pb-16">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[#252530]">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-bold text-violet-400 uppercase tracking-widest">
-              Smart Clips AI Engine
-            </span>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2 border-b border-[#252530]/50">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-[#211938] border border-[#3b2b63] flex items-center justify-center text-violet-400 shadow-lg shadow-violet-950/40 flex-shrink-0">
+            <Sparkles size={24} />
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
-            Smart Clips
-          </h1>
-          <p className="text-sm md:text-base text-zinc-400 mt-1 max-w-2xl leading-relaxed">
-            Turn long-form videos into engaging short-form content with AI.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            disabled={isCTADisabled}
-            onClick={handleGenerateClips}
-            className={`px-6 py-3 bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-xl shadow-violet-950/60 transition-all ${
-              isCTADisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-[1.02]'
-            }`}
-          >
-            {isGenerating ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Sparkles size={16} />
-            )}
-            <span>{isGenerating ? 'Processing AI Clips...' : 'Generate AI Clips'}</span>
-          </button>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+              Smart Clips
+            </h1>
+            <p className="text-sm text-zinc-400 mt-0.5 leading-relaxed">
+              Turn long-form videos into engaging short-form content with AI.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -522,16 +503,10 @@ export function SmartClipsStudio() {
 
 
 
-      {/* Main Grid: Upload & Source Input (Left) vs Settings (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* Main Grid: Upload & Source Input (Left) vs Settings (Right) - Equal Size (50/50 & Stretched Height) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
         {/* Left Column: Video Source */}
-        <div className="lg:col-span-7 space-y-4">
-          <VideoSourceSelector
-            mode={sourceMode}
-            onChangeMode={setSourceMode}
-            disabled={isGenerating}
-          />
-
+        <div className="h-full">
           <VideoUploader
             sourceMode={sourceMode}
             selectedFile={selectedFile}
@@ -547,13 +522,32 @@ export function SmartClipsStudio() {
         </div>
 
         {/* Right Column: Settings */}
-        <div className="lg:col-span-5">
+        <div className="h-full">
           <ClipSettings
             values={clipSettings}
             onChange={setClipSettings}
             disabled={isGenerating}
           />
         </div>
+      </div>
+
+      {/* Bottom Centered Generate Button */}
+      <div className="flex justify-center pt-2">
+        <button
+          type="button"
+          disabled={isCTADisabled}
+          onClick={handleGenerateClips}
+          className={`px-10 py-4 bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-extrabold text-sm md:text-base rounded-2xl flex items-center gap-3 shadow-2xl shadow-violet-950/70 transition-all ${
+            isCTADisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-[1.03] active:scale-95'
+          }`}
+        >
+          {isGenerating ? (
+            <Loader2 size={20} className="animate-spin" />
+          ) : (
+            <Sparkles size={20} />
+          )}
+          <span>{isGenerating ? 'Processing AI Clips...' : 'Generate AI Clips'}</span>
+        </button>
       </div>
 
       {/* Active Processing Status Section */}

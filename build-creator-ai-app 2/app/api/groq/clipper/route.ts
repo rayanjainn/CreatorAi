@@ -83,7 +83,7 @@ ${start_time !== undefined && end_time !== undefined ? `Target Constraint: Clip 
 
 Analyze the spoken dialogue and content to select the best viral clips with accurate start_time and end_time timestamps. Return strictly JSON.`;
 
-    const candidateModels = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+    const candidateModels = ['llama-3.3-70b-versatile', 'llama3-70b-8192', 'llama3-8b-8192'];
     let aiResponseText = '';
 
     for (const model of candidateModels) {
