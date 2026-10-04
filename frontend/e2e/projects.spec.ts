@@ -205,3 +205,13 @@ test('the API list endpoints behind the hubs answer', async ({ request }) => {
   expect((await request.get(`${API}/api/v1/clips`, { headers: h })).ok()).toBeTruthy()
   expect((await request.get(`${API}/api/v1/renders`, { headers: h })).ok()).toBeTruthy()
 })
+
+test('research: without a search key it says what to add, and no brief is invented', async ({ page, request }) => {
+  const id = await createItem(request, `E2E research ${Date.now()}`)
+  await login(page)
+  await page.goto(`/projects/${id}/research`)
+  await page.getByTestId('research-topic').fill('video pacing for shorts')
+  await page.getByTestId('research-run').click()
+  await expect(page.getByTestId('search-not-configured')).toContainText('TAVILY_API_KEY')
+  await expect(page.getByTestId('research-brief')).toHaveCount(0)
+})

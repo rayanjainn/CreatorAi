@@ -13,7 +13,7 @@ import type { Card } from '@/lib/api/types'
 import { LinkButton } from '@/components/ui/button'
 import { EmptyState } from '@/components/common/empty-state'
 
-const TABS = ['plan', 'script', 'footage', 'match', 'clips', 'sponsors', 'publish']
+const TABS = ['plan', 'script', 'footage', 'match', 'clips', 'research', 'publish']
 
 /**
  * Project shell (header + tabs) shared by every /projects/[id]/* page.

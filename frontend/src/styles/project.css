@@ -1530,3 +1530,36 @@
     justify-content: flex-start;
   }
 }
+
+/* ---------- research ---------- */
+.research-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.research-form input {
+  flex: 1;
+  min-width: 0;
+}
+.research-brief p {
+  line-height: 1.6;
+  margin: 8px 0 14px;
+}
+.research-brief h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9c988f;
+  margin: 14px 0 6px;
+}
+.research-brief ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.research-sources a {
+  color: #b9a5ff;
+}

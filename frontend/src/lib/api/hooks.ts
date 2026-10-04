@@ -9,6 +9,7 @@ import { toast } from '@/stores/toasts'
 import { trackJob } from '@/lib/track-job'
 import type {
   InsightsReport,
+  ResearchBrief,
   TwinApplied,
   TwinMessage,
   TwinOverview,
@@ -1244,5 +1245,20 @@ export function useTwinClear() {
   return useMutation({
     mutationFn: () => unwrap(api.DELETE('/api/v1/twin/messages' as never, {} as never)),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['twin', 'messages'] }),
+  })
+}
+
+/* ---------- research agent ---------- */
+export function useResearch(itemId: string) {
+  return useQuery({
+    queryKey: ['research', itemId],
+    queryFn: () => unwrap(api.GET('/api/v1/research' as never, { params: { query: { content_item_id: itemId } } } as never)) as unknown as Promise<ResearchBrief[]>,
+  })
+}
+export function useRunResearch(itemId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (topic: string) => unwrap(api.POST('/api/v1/research' as never, { body: { topic, content_item_id: itemId } } as never)) as unknown as Promise<ResearchBrief>,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['research', itemId] }),
   })
 }

@@ -53,6 +53,10 @@ class Settings(BaseSettings):
 
     # --- Optional cloud clipper (LumiClip) and its media host (Cloudinary) ----------------------
     # Keys live only on the server; the browser never sees them.
+    # Web search for the research agent: "tavily" or "serper" (free tiers exist for both).
+    search_provider: str = "tavily"
+    tavily_api_key: str = ""
+    serper_api_key: str = ""
     lumiclip_api_key: str = ""
     lumiclip_base_url: str = "https://api.lumiclip.ai"
     # Tests against a local fake (scripts/fake_lumiclip.py) only: allow loopback clip downloads.
@@ -134,6 +138,11 @@ class Settings(BaseSettings):
     caption_renderer: CaptionRenderer = "auto"
     ffmpeg_bin: str = "ffmpeg"
     ffprobe_bin: str = "ffprobe"
+
+    @property
+    def search_configured(self) -> bool:
+        key = self.serper_api_key if self.search_provider == "serper" else self.tavily_api_key
+        return bool(key)
 
     @property
     def lumiclip_configured(self) -> bool:

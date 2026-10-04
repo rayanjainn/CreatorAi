@@ -52,6 +52,7 @@ TASK_SPECS: dict[str, TaskSpec] = {
     "match.disambiguate": TaskSpec(300, "lite"),
     "clips.rerank_copy": TaskSpec(1500),
     "sponsors.integration": TaskSpec(600),
+    "research.brief": TaskSpec(1400),
     "twin.chat": TaskSpec(700),
     "twin.style_extract": TaskSpec(600, "lite"),
     "insights.narrate_ideas": TaskSpec(1000),

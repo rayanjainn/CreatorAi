@@ -357,6 +357,17 @@ def _tighten(v: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _research(v: dict[str, Any]) -> dict[str, Any]:
+    results = [r for r in v.get("results") or [] if isinstance(r, dict)]
+    return {
+        "summary": f"Mock brief on {v.get('topic', 'the topic')} ({len(results)} result(s)).",
+        "key_points": [str(r.get("snippet") or r.get("title"))[:200] for r in results[:3]]
+        or ["No results."],
+        "trends": [],
+        "sources": [{"title": str(r.get("title")), "url": str(r.get("url"))} for r in results[:3]],
+    }
+
+
 def _ideas(v: dict[str, Any]) -> dict[str, Any]:
     topic = _clip_words(_topic(v), 6)
     existing = {
@@ -606,6 +617,7 @@ _HANDLERS: dict[str, HookFn] = {
     "match.disambiguate": _disambiguate,
     "clips.rerank_copy": _rerank,
     "sponsors.integration": _sponsor,
+    "research.brief": _research,
     "twin.chat": _twin_chat,
     "twin.style_extract": _style_extract,
     "insights.narrate_ideas": _narrate,
@@ -626,6 +638,7 @@ _MARKED: dict[str, list[tuple[str, int | None, int | None]]] = {
     "assets.caption_keyframes": [("description", None, None)],
     "clips.rerank_copy": [("clips.*.title", None, 70), ("clips.*.hook", 15, None)],
     "sponsors.integration": [("slots.*.integration_script", None, None)],
+    "research.brief": [("summary", None, None)],
     "twin.chat": [("reply", None, None)],
     "twin.style_extract": [("summary", None, None)],
     "insights.narrate_ideas": [("narrative.*", None, None), ("ideas.*.title", None, 80)],
