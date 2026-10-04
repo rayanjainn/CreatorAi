@@ -62,6 +62,7 @@ and skips unconfigured ones. Put keys in `.env` (created by `make setup`), then 
 |---|---|---|
 | Gemini (Google AI Studio) | https://aistudio.google.com/apikey | `GEMINI_API_KEY` |
 | Groq | https://console.groq.com/keys | `GROQ_API_KEY` (also enables Whisper transcription) |
+| Tavily or Serper (optional, for the Research tab) | https://tavily.com, https://serper.dev | `TAVILY_API_KEY`, or `SERPER_API_KEY` with `SEARCH_PROVIDER=serper` |
 | Ollama Cloud | https://ollama.com/settings/keys | `OLLAMA_API_KEY` (model: `OLLAMA_MODEL`) |
 | Ollama on your machine | install Ollama, `ollama pull <model>` | `OLLAMA_BASE_URL=http://localhost:11434`, `OLLAMA_MODEL=<model>`, no key |
 
@@ -107,8 +108,7 @@ A result mixing sources shows the weakest one. The topbar chip and the `DataMode
 | Render / export | YouTube Short, Reels, TikTok, YouTube long presets with burned-in captions, downloads | |
 | Jobs and settings | live job progress (SSE), retry/cancel, AI status, key test | |
 
-Not built yet (the pages say so honestly): sponsorships, YouTube connection and publishing, analytics/insights, and
-the Creative Twin chat. See [docs/TODO.md](docs/TODO.md).
+Not built yet (the pages say so honestly): YouTube connection and publishing (so no platform performance numbers), and the Twin's trim and hook actions apply only in the editor.
 
 ## Architecture
 

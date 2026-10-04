@@ -41,21 +41,19 @@ Status key: **done** = implemented and tested; **partial** = works with stated l
 
 ## 3. What is NOT built
 
-Routers `sponsors`, `publish`, `youtube`, `insights`, `twin` are listed in `api/v1/__init__.py` but their modules do
-not exist, so there are **no endpoints** for them, although the migration already created their tables
-(`sponsor_briefs`, `sponsor_slots`, `publish_jobs`, `yt_*`, `insight_snapshots`, `twin_memories`, `twin_messages`).
+Routers `sponsors`, `publish` and `youtube` are listed in `api/v1/__init__.py` but their modules do not exist, so there are **no
+endpoints** for them (their tables exist from the first migration). Built since the first handoff: teams and RBAC (`team`, `comments`),
+`insights`, `twin`, `research`, calendar scheduling (`content_items.scheduled_for`) and styled text overlays.
 
-| Feature | Plan section | State in the UI |
+| Feature | Plan section | State |
 |---|---|---|
-| Sponsorship / monetization | 8.10 | `/monetization` and project "Sponsors" tab show "not available" pages |
-| YouTube OAuth and publishing | 12, 8.9 | project "Publish" tab: "not available"; `NO_YOUTUBE_CONNECTION` error code exists |
-| Creator intelligence / Insights | 8.12 | `/analytics` "not available". `make seed` does insert 24 synthetic `yt_videos` + metrics that nothing reads yet |
-| Digital Twin (chat, actions, style profile, memories) | 8.11 | `/creative-twin` and the drawer are "not available". Starter memories are seeded |
-| Content calendar / scheduling | UI spec | `/calendar` is the Content Board; no dates or scheduling |
+| YouTube OAuth, publishing, real performance metrics | 12, 8.9 | project "Publish" tab and Insights say "not available" / no performance numbers; `NO_YOUTUBE_CONNECTION` error code exists |
+| Sponsorship / monetization | 8.10 | dropped on purpose (removed from the UI) |
+| Twin actions `trim_clip`, `regenerate_hooks`; `layer_rejected` event | 8.11 | the chat suggests them but they open the editor instead of applying |
 | Editor Audio, Color, Structure modes | UI spec | not present (no backend) |
-| Multi-user, teams, password reset by email, Google sign-in | 0 | deferred by decision |
-| Plan 7.4 token budget | 7.4 | intentionally not built (planning estimate) |
-| S3/R2 storage, Redis/Postgres | 3 | deferred by the owner; interfaces exist for storage |
+| Password reset by email, Google sign-in | 0 | deferred by decision |
+| Plan 7.4 token budget | 7.4 | intentionally not built |
+| S3/R2 storage, Redis/Postgres | 3 | deferred; interfaces exist for storage |
 
 Full, prioritised list with acceptance criteria: [TODO.md](TODO.md).
 

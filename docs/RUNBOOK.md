@@ -88,6 +88,8 @@ override it. Restart the API after editing (`make dev` auto-reloads Python code,
 | `GEMINI_API_KEY` | blank | Google AI Studio key |
 | `GEMINI_MODEL_MAIN` / `GEMINI_MODEL_LITE` | `gemini-2.5-flash` / `gemini-2.5-flash-lite` | heavy tasks / cheap tasks (**ids unverified against the live API**, see HANDOFF) |
 | `GROQ_API_KEY` | blank | Groq key (also used for Whisper) |
+| `SEARCH_PROVIDER`, `TAVILY_API_KEY`, `SERPER_API_KEY` | `tavily`, blank | web search for the Research tab (optional; free tiers) |
+| `LUMICLIP_API_KEY`, `CLOUDINARY_*` | blank | optional cloud clipper and the library-video upload it needs |
 | `GROQ_CHAT_MODEL` | `llama-3.3-70b-versatile` | |
 | `OLLAMA_API_KEY` | blank | Ollama Cloud key; blank for a local server |
 | `OLLAMA_BASE_URL` | `https://ollama.com` | `http://localhost:11434` for a local server. **Do not set it to an empty value**: an empty string counts as "configured" |

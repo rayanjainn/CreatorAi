@@ -485,3 +485,16 @@ A denied request is `403 FORBIDDEN` with `details: {role, needs, workspace_role}
 | `POST /content/{item_id}/presence {where}` | Heartbeat every ~10 s while a project is open; returns the others who are here now (in memory, 30 s) |
 
 `GET /activity` rows carry `user_id` (who did it) for everything done through the API.
+
+## Insights, Twin, Research, scheduling
+
+| Endpoint | Notes |
+|---|---|
+| `GET /insights/production?days=30..365` | Counts from the workspace's own data: pipeline by stage, weekly created/published, stalled projects, footage hours, clip statuses and score spread, accept rate (needs 3 decisions), exports, 30-day activity, rule-based `nudges`. `provenance.source = "user"`; `performance.available = false` (no YouTube). |
+| `GET /twin`, `GET /twin/messages`, `DELETE /twin/messages` | Style profile (+ revision, approvals since the last update), recent memories, chat history. |
+| `POST /twin/chat` `{message, content_item_id?, clip_id?}` | `twin.chat` LLM call; the reply carries `provenance`; it may carry one suggested action. `LLM_NOT_CONFIGURED` without a key. |
+| `POST /twin/messages/{id}/apply` `{index}` | Applies one suggestion: `create_idea` adds an idea; `tighten_pauses`, `set_caption_style`, `toggle_music` run as a new edit revision (`reload: true`); others return `open_editor`. |
+| `POST /twin/style/update` | Re-learns the style from approved scripts (`NOTHING_TO_LEARN` 409 if none). Memories are written by the `script_approved` / `clip_accepted` events. |
+| `POST /research` `{topic, content_item_id?}`, `GET /research?content_item_id=` | Web search (`SEARCH_PROVIDER` tavily or serper) then a `research.brief` LLM call. Sources are limited in code to URLs the search returned. Errors: `SEARCH_NOT_CONFIGURED` 503, `SEARCH_FAILED` 502, `NO_RESULTS` 404, `BAD_OUTPUT` 502. |
+| `PATCH /content/{id}` `{scheduled_for: "YYYY-MM-DD" \| null}` | Plans a project on a day (nothing is posted). |
+| Timeline overlay `style` | Optional on `text` and `lower_third` overlays: `{x, y, font: montserrat\|inter\|serif\|mono, size, color, bg, bg_opacity, align, width, shadow}`. The renderer draws it (`media/cards.py`). |
