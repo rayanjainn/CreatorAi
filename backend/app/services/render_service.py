@@ -232,7 +232,13 @@ def _run(ctx: JobContext, render_id: str, workdir: Path) -> dict[str, Any]:
     )
     for card in plan.cards:
         render_card(
-            card.kind, card.text, target.width, target.height, workdir / card.filename, faces
+            card.kind,
+            card.text,
+            target.width,
+            target.height,
+            workdir / card.filename,
+            faces,
+            card.style,
         )
     if plan.caption_track is not None:  # no libass: Pillow PNG states + concat lists
         write_track(plan.caption_track, target.width, target.height, faces, workdir)

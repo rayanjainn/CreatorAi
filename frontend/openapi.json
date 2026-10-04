@@ -3771,12 +3771,12 @@
           }
         }
       },
-      "put": {
+      "post": {
         "tags": [
           "assets"
         ],
         "summary": "Attach an SRT, VTT or words.json transcript and re-run from transcription",
-        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_put",
+        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_post",
         "parameters": [
           {
             "name": "asset_id",
@@ -3828,12 +3828,12 @@
           }
         }
       },
-      "post": {
+      "put": {
         "tags": [
           "assets"
         ],
         "summary": "Attach an SRT, VTT or words.json transcript and re-run from transcription",
-        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_put",
+        "operationId": "_put_transcript_api_v1_assets__asset_id__transcript_post",
         "parameters": [
           {
             "name": "asset_id",
@@ -5645,12 +5645,12 @@
       }
     },
     "/media/{key}": {
-      "head": {
+      "get": {
         "tags": [
           "media"
         ],
         "summary": "Serve Media",
-        "operationId": "serve_media_media__key__head",
+        "operationId": "serve_media_media__key__get",
         "parameters": [
           {
             "name": "key",
@@ -5732,12 +5732,12 @@
           }
         }
       },
-      "get": {
+      "head": {
         "tags": [
           "media"
         ],
         "summary": "Serve Media",
-        "operationId": "serve_media_media__key__head",
+        "operationId": "serve_media_media__key__get",
         "parameters": [
           {
             "name": "key",
@@ -9780,6 +9780,16 @@
             ],
             "title": "Kind"
           },
+          "style": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TextStyle"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "tl_start": {
             "type": "number",
             "minimum": 0.0,
@@ -11964,6 +11974,93 @@
         "type": "object",
         "title": "SwapRequest",
         "description": "Either ``alternative_index`` or a custom ``asset_id`` + ``start_sec`` + ``end_sec``."
+      },
+      "TextStyle": {
+        "properties": {
+          "x": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "X",
+            "default": 0.5
+          },
+          "y": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Y",
+            "default": 0.25
+          },
+          "font": {
+            "type": "string",
+            "enum": [
+              "montserrat",
+              "inter",
+              "serif",
+              "mono"
+            ],
+            "title": "Font",
+            "default": "montserrat"
+          },
+          "size": {
+            "type": "number",
+            "maximum": 0.2,
+            "minimum": 0.015,
+            "title": "Size",
+            "default": 0.045
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$",
+            "title": "Color",
+            "default": "#FFFFFF"
+          },
+          "bg": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bg"
+          },
+          "bg_opacity": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Bg Opacity",
+            "default": 0.6
+          },
+          "align": {
+            "type": "string",
+            "enum": [
+              "left",
+              "center",
+              "right"
+            ],
+            "title": "Align",
+            "default": "center"
+          },
+          "width": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.2,
+            "title": "Width",
+            "default": 0.8
+          },
+          "shadow": {
+            "type": "boolean",
+            "title": "Shadow",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "TextStyle",
+        "description": "How a text overlay looks and where it sits.\n\n``x``/``y`` are the centre of the box as a share of the frame (0 to 1); ``size`` is the text\nheight as a share of the frame height; ``width`` is the wrap width as a share of the frame\nwidth. ``None`` on the item means the built-in look."
       },
       "TightenRequest": {
         "properties": {

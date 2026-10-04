@@ -63,6 +63,7 @@ class CardSpec:
     filename: str
     kind: str  # sponsor_card | lower_third | text
     text: str
+    style: dict | None = None  # TextStyle as a dict (text / lower_third only)
 
 
 @dataclass
@@ -246,7 +247,9 @@ def build_plan(
         s, e = time_map(ov.tl_start), min(end_map(ov.tl_end), out_duration)
         if e - s < 0.04:
             continue
-        card = CardSpec(f"card_o{j}.png", _card_kind(ov), ov.text)
+        card = CardSpec(
+            f"card_o{j}.png", _card_kind(ov), ov.text, ov.style.model_dump() if ov.style else None
+        )
         cards.append(card)
         idx = add_input("-i", card.filename)
         chains.append(

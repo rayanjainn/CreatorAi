@@ -23,6 +23,12 @@ The app starts empty on purpose: nothing is pre-filled. (Want a populated tour? 
 labelled demo user and project, see below. It is optional.) To switch the AI tools on, put **one** free key in `.env` (see
 [AI keys](#ai-keys)) and restart `make dev`. Not sure your machine is ready? Run `make doctor` first.
 
+**Want it populated with real work?** Run `make showcase ARGS="--file ~/Videos/talk.mp4 --title 'How I plan a week of content'"`
+(repeat `--file`/`--url`, or pass `--sources showcase/sources.json`). It uploads your videos with clear English speech, runs the
+real pipeline (transcription, matching, clips) and, if an AI key is set, hooks, script and Director plan. The projects are ordinary
+content with plain titles, so Insights, the board and Smart Clips fill up with real numbers. Use videos you may reuse (your own, public
+domain, or Creative Commons with credit); `pip install yt-dlp` lets `--url` take a YouTube link.
+
 Seeded content is clearly marked: cards are titled `[DEMO] ...` and carry a Demo badge. The hero project
 (`[DEMO] My whole editing workflow in under a minute`) comes with generated footage, a script, a Director plan,
 a match report and two clips. A 5 to 7 minute tour is in [docs/DEMO_GUIDE.md](docs/DEMO_GUIDE.md).

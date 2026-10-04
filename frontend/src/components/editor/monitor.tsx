@@ -14,6 +14,7 @@ import {
   locate,
   buildSegments,
   overlaysAt,
+  patchLayer,
   timecode,
   type CaptionItem,
   type OverlayItem,
@@ -141,11 +142,89 @@ const MonitorLayers = memo(function MonitorLayers({ timeline }: { timeline: Time
   )
 })
 
+const FONT_STACK: Record<string, string> = {
+  montserrat: 'Montserrat, Inter, ui-sans-serif, system-ui, sans-serif',
+  inter: 'Inter, ui-sans-serif, system-ui, sans-serif',
+  serif: 'Georgia, "DejaVu Serif", "Times New Roman", serif',
+  mono: 'ui-monospace, "SF Mono", Menlo, "DejaVu Sans Mono", monospace',
+}
+
+/**
+ * A text overlay. With a style it is positioned by its centre (x, y as a share of the frame) and can be dragged with the mouse
+ * while it is selected; the same numbers drive the exported video, so what you place is what renders.
+ */
 function OverlayView({ o }: { o: OverlayItem }) {
+  const selected = useEditor((s) => s.selection.includes(o.id))
+  const locked = useEditor((s) => !!s.preview || !!s.busy || s.viewOnly || s.locked.overlays)
+  const apply = useEditor((s) => s.apply)
+  const select = useEditor((s) => s.select)
+  const st = o.style
+  const styled = !!st && o.kind !== 'sponsor_card'
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!styled) return
+    e.stopPropagation()
+    select([o.id], e.shiftKey)
+    if (locked) return
+    const frame = e.currentTarget.closest('.monitor-frame') as HTMLElement | null
+    if (!frame) return
+    const rect = frame.getBoundingClientRect()
+    const start = { px: e.clientX, py: e.clientY, x: st!.x, y: st!.y }
+    const el = e.currentTarget
+    el.setPointerCapture(e.pointerId)
+    const move = (ev: PointerEvent) => {
+      const x = start.x + (ev.clientX - start.px) / rect.width
+      const y = start.y + (ev.clientY - start.py) / rect.height
+      apply((t) => patchLayer(t, o.id, { style: { x, y } }), { key: `opos:${o.id}`, note: 'Moved text' })
+    }
+    const up = () => {
+      el.removeEventListener('pointermove', move)
+      el.removeEventListener('pointerup', up)
+      el.removeEventListener('pointercancel', up)
+      useEditor.getState().endGesture()
+    }
+    el.addEventListener('pointermove', move)
+    el.addEventListener('pointerup', up)
+    el.addEventListener('pointercancel', up)
+  }
+
+  if (!styled) {
+    return (
+      <div className={`monitor-overlay mo-${o.kind}`} data-testid="monitor-overlay" data-kind={o.kind}>
+        {o.kind === 'sponsor_card' && <small>Sponsor</small>}
+        <span>{o.text || (o.kind === 'sponsor_card' ? 'Sponsor card' : '')}</span>
+      </div>
+    )
+  }
+  const bgOn = !!st!.bg
   return (
-    <div className={`monitor-overlay mo-${o.kind}`} data-testid="monitor-overlay" data-kind={o.kind}>
-      {o.kind === 'sponsor_card' && <small>Sponsor</small>}
-      <span>{o.text || (o.kind === 'sponsor_card' ? 'Sponsor card' : '')}</span>
+    <div
+      className="monitor-overlay mo-styled"
+      data-testid="monitor-overlay"
+      data-kind={o.kind}
+      data-selected={selected}
+      data-locked={locked}
+      onPointerDown={onPointerDown}
+      style={{
+        left: `${st!.x * 100}%`,
+        top: `${st!.y * 100}%`,
+        width: `${st!.width * 100}%`,
+        fontFamily: FONT_STACK[st!.font],
+        fontSize: `${st!.size * 100}cqh`,
+        fontWeight: st!.font === 'inter' ? 500 : 800,
+        color: st!.color,
+        textAlign: st!.align,
+        textShadow: st!.shadow ? '0 0.25cqh 1cqh #000a' : 'none',
+      }}
+    >
+      <span
+        style={{
+          background: bgOn ? `${st!.bg}${Math.round(st!.bg_opacity * 255).toString(16).padStart(2, '0')}` : 'transparent',
+          padding: bgOn ? '0.45em 0.6em' : 0,
+        }}
+      >
+        {o.text}
+      </span>
     </div>
   )
 }

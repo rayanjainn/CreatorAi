@@ -37,6 +37,75 @@ def _wrap(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFont, ma
     return "\n".join(lines)
 
 
+_FONT_SEARCH = {
+    "serif": [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf",
+        "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
+        "/Library/Fonts/Georgia Bold.ttf",
+        "C:/Windows/Fonts/georgiab.ttf",
+    ],
+    "mono": [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationMono-Bold.ttf",
+        "/System/Library/Fonts/Supplemental/Courier New Bold.ttf",
+        "/Library/Fonts/Courier New Bold.ttf",
+        "C:/Windows/Fonts/courbd.ttf",
+    ],
+}
+
+
+def _styled_font(name: str, faces: dict[str, FontFace], size: int) -> ImageFont.FreeTypeFont:
+    """The font a text style asks for; a family that is not installed falls back to Montserrat."""
+    if name in _FONT_SEARCH:
+        for candidate in _FONT_SEARCH[name]:
+            if Path(candidate).is_file():
+                return ImageFont.truetype(candidate, max(8, size))
+    face = faces["regular"] if name == "inter" else faces["bold"]
+    return _font(face, size)
+
+
+def _rgba(value: str, alpha: float = 1.0) -> tuple[int, int, int, int]:
+    h = value.lstrip("#")
+    return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), round(255 * alpha)
+
+
+def _draw_styled(
+    draw: ImageDraw.ImageDraw,
+    text: str,
+    width: int,
+    height: int,
+    style: dict,
+    faces: dict[str, FontFace],
+) -> None:
+    """A text box the creator placed: ``style`` sets font, size, colours, alignment, position."""
+    font = _styled_font(style["font"], faces, round(style["size"] * height))
+    wrapped = _wrap(draw, text or " ", font, int(width * style["width"]))
+    gap = round(style["size"] * height * 0.18)
+    box = draw.multiline_textbbox((0, 0), wrapped, font=font, align=style["align"], spacing=gap)
+    w, h = box[2] - box[0], box[3] - box[1]
+    pad = round(style["size"] * height * 0.45) if style.get("bg") else 0
+    cx, cy = style["x"] * width, style["y"] * height
+    x0 = min(max(cx - w / 2, pad), max(pad, width - w - pad))
+    y0 = min(max(cy - h / 2, pad), max(pad, height - h - pad))
+    if style.get("bg"):
+        draw.rounded_rectangle(
+            [x0 - pad, y0 - pad, x0 + w + pad, y0 + h + pad],
+            radius=round(pad * 0.6),
+            fill=_rgba(style["bg"], style["bg_opacity"]),
+        )
+    if style.get("shadow", True):
+        off = max(2, round(style["size"] * height * 0.04))
+        draw.multiline_text(
+            (x0 - box[0] + off, y0 - box[1] + off), wrapped, font=font,
+            fill=(0, 0, 0, 160), align=style["align"], spacing=gap,
+        )  # fmt: skip
+    draw.multiline_text(
+        (x0 - box[0], y0 - box[1]), wrapped, font=font,
+        fill=_rgba(style["color"]), align=style["align"], spacing=gap,
+    )  # fmt: skip
+
+
 def render_card(
     kind: str,
     text: str,
@@ -44,6 +113,7 @@ def render_card(
     height: int,
     dest: Path,
     faces: dict[str, FontFace],
+    style: dict | None = None,
 ) -> Path:
     """Write the PNG for ``kind`` (``sponsor_card`` | ``lower_third`` | ``text``) to ``dest``."""
     k = scale_for(width, height)
@@ -55,7 +125,9 @@ def render_card(
         return round(value * k)
 
     margin = px(80)
-    if kind == "sponsor_card":
+    if style and kind in ("text", "lower_third"):
+        _draw_styled(draw, text, width, height, style, faces)
+    elif kind == "sponsor_card":
         label, body, small = _font(bold, px(46)), _font(bold, px(92)), _font(regular, px(44))
         top = height // 2
         draw.rectangle([margin, top - px(330), margin + px(150), top - px(322)], fill=ACCENT)

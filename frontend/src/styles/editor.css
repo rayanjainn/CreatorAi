@@ -1035,10 +1035,14 @@
   border-bottom: 1px solid var(--ed-line);
 }
 .insp-tabs button {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 8px 8px 9px;
+  padding: 8px 4px 9px;
   background: transparent;
   color: var(--dim);
   font-size: 12px;
@@ -2462,4 +2466,103 @@ body[data-resizing] video {
   box-shadow: 0 0 12px var(--ed-sel);
   z-index: 8;
   pointer-events: none;
+}
+
+/* styled (movable) text overlays: positioned by their centre, drag while selected */
+.monitor-overlay.mo-styled {
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: grab;
+  line-height: 1.15;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  touch-action: none;
+  border-radius: 0.6cqh;
+  outline: 1px dashed transparent;
+  outline-offset: 0.6cqh;
+}
+.monitor-overlay.mo-styled > span {
+  display: inline-block;
+  border-radius: 0.8cqh;
+  box-decoration-break: clone;
+}
+.monitor-overlay.mo-styled:hover {
+  outline-color: #ffffff66;
+}
+.monitor-overlay.mo-styled[data-selected="true"] {
+  outline: 1.5px dashed #b9a5ff;
+}
+.monitor-overlay.mo-styled[data-locked="true"] {
+  cursor: default;
+}
+.monitor-overlay.mo-styled:active:not([data-locked="true"]) {
+  cursor: grabbing;
+}
+
+/* inspector: text style controls */
+.insp-colors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.insp-color {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 9px;
+  background: #ffffff0a;
+  border: 1px solid #ffffff14;
+  font-size: 12px;
+  min-width: 0;
+}
+.insp-color input[type="color"] {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  flex: none;
+}
+.insp-color span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.insp-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.insp-swatches button {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #ffffff2a;
+}
+.insp-swatches button[aria-pressed="true"] {
+  border-color: #fff;
+}
+.insp-aligns {
+  display: flex;
+  gap: 4px;
+}
+.insp-aligns button {
+  flex: 1;
+  padding: 6px 0;
+  border-radius: 8px;
+  background: #ffffff0a;
+  color: #bdb9b0;
+  border: 1px solid #ffffff14;
+  display: grid;
+  place-items: center;
+}
+.insp-aligns button[aria-pressed="true"] {
+  background: #8b5cf633;
+  color: #fff;
+  border-color: #8b5cf6;
 }

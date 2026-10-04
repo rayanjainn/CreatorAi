@@ -1147,9 +1147,9 @@ export interface paths {
         /** Get Transcript */
         get: operations["get_transcript_api_v1_assets__asset_id__transcript_get"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
+        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_put"];
+        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1682,13 +1682,13 @@ export interface paths {
             cookie?: never;
         };
         /** Serve Media */
-        get: operations["serve_media_media__key__head"];
+        get: operations["serve_media_media__key__get"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         /** Serve Media */
-        head: operations["serve_media_media__key__head"];
+        head: operations["serve_media_media__key__get"];
         patch?: never;
         trace?: never;
     };
@@ -2988,6 +2988,7 @@ export interface components {
              * @enum {string}
              */
             kind: "sponsor_card" | "lower_third" | "text";
+            style?: components["schemas"]["TextStyle"] | null;
             /** Tl Start */
             tl_start: number;
             /** Tl End */
@@ -3753,6 +3754,65 @@ export interface components {
             start_sec?: number | null;
             /** End Sec */
             end_sec?: number | null;
+        };
+        /**
+         * TextStyle
+         * @description How a text overlay looks and where it sits.
+         *
+         *     ``x``/``y`` are the centre of the box as a share of the frame (0 to 1); ``size`` is the text
+         *     height as a share of the frame height; ``width`` is the wrap width as a share of the frame
+         *     width. ``None`` on the item means the built-in look.
+         */
+        TextStyle: {
+            /**
+             * X
+             * @default 0.5
+             */
+            x?: number;
+            /**
+             * Y
+             * @default 0.25
+             */
+            y?: number;
+            /**
+             * Font
+             * @default montserrat
+             * @enum {string}
+             */
+            font?: "montserrat" | "inter" | "serif" | "mono";
+            /**
+             * Size
+             * @default 0.045
+             */
+            size?: number;
+            /**
+             * Color
+             * @default #FFFFFF
+             */
+            color?: string;
+            /** Bg */
+            bg?: string | null;
+            /**
+             * Bg Opacity
+             * @default 0.6
+             */
+            bg_opacity?: number;
+            /**
+             * Align
+             * @default center
+             * @enum {string}
+             */
+            align?: "left" | "center" | "right";
+            /**
+             * Width
+             * @default 0.8
+             */
+            width?: number;
+            /**
+             * Shadow
+             * @default true
+             */
+            shadow?: boolean;
         };
         /** TightenRequest */
         TightenRequest: {
@@ -6487,7 +6547,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_put: {
+    _put_transcript_api_v1_assets__asset_id__transcript_post: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -6520,7 +6580,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_put: {
+    _put_transcript_api_v1_assets__asset_id__transcript_post: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -7625,7 +7685,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__head: {
+    serve_media_media__key__get: {
         parameters: {
             query?: {
                 exp?: number | null;
@@ -7660,7 +7720,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__head: {
+    serve_media_media__key__get: {
         parameters: {
             query?: {
                 exp?: number | null;

@@ -302,9 +302,25 @@ test('overlays, library audio and track locks', async ({ page, request }) => {
   await page.getByTestId('overlay-text').fill('Hello e2e')
   await page.getByTestId('overlay-text').blur()
   await expect(page.getByTestId('monitor-overlay').first()).toContainText('Hello e2e')
+  // restyle: font, colour, then drag the text on the preview
+  await page.getByTestId('text-font').selectOption('serif')
+  await page.getByTestId('text-color').fill('#ff4d6d')
+  const box = page.getByTestId('monitor-overlay').first()
+  const before = (await box.boundingBox())!
+  await page.mouse.move(before.x + before.width / 2, before.y + before.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(before.x + before.width / 2, before.y + before.height / 2 + 120, { steps: 8 })
+  await page.mouse.up()
+  const after = (await box.boundingBox())!
+  expect(after.y).toBeGreaterThan(before.y + 80)
+  await expect(box).toHaveCSS('color', 'rgb(255, 77, 109)')
   await page.getByTestId('tool-lower-third').click()
   await saved(page)
   let api = await edit(request, id)
+  const styled = api.timeline.tracks.overlays.find((o) => o.kind === 'text') as unknown as { style: { font: string; color: string; y: number } }
+  expect(styled.style.font).toBe('serif')
+  expect(styled.style.color.toLowerCase()).toBe('#ff4d6d')
+  expect(styled.style.y).toBeGreaterThan(0.3)
   expect(api.timeline.tracks.overlays.map((o) => o.kind).sort()).toEqual(['lower_third', 'text'])
   expect(api.timeline.tracks.overlays.some((o) => o.text === 'Hello e2e')).toBe(true)
   // your own layers carry the orange "You" chip and are accepted
