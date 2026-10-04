@@ -1,5 +1,6 @@
 'use client'
 
+import { useRole } from '@/lib/use-role'
 import Link from 'next/link'
 import { memo, type DragEvent, type KeyboardEvent } from 'react'
 import { motion } from 'framer-motion'
@@ -24,12 +25,13 @@ type Props = {
 }
 
 function ContentCardImpl({ card, dragging, dropBefore, onDragStart, onDragEnd, onMove, onDelete }: Props) {
+  const { canEdit } = useRole()
   const demo = isDemoTitle(card.title)
   const idx = STAGES.findIndex((s) => s.id === card.stage)
 
   // Keyboard alternative to dragging: Alt + Left/Right moves the card between columns.
   const onKeyDown = (e: KeyboardEvent) => {
-    if (!e.altKey) return
+    if (!e.altKey || !canEdit) return
     if (e.key === 'ArrowRight' && idx < STAGES.length - 1) {
       e.preventDefault()
       onMove(card, STAGES[idx + 1].id)
@@ -46,7 +48,7 @@ function ContentCardImpl({ card, dragging, dropBefore, onDragStart, onDragEnd, o
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18 }}
       className={cn('kanban-card', dragging && 'kanban-dragging', dropBefore && 'drop-before')}
-      draggable
+      draggable={canEdit}
       onDragStart={(e) => onDragStart(e as unknown as DragEvent, card)}
       onDragEnd={onDragEnd}
       onKeyDown={onKeyDown}

@@ -51,3 +51,10 @@ Backend gaps and oddities hit while wiring the frontend. Each is worked around i
 27. **Twin chat** is an honest "not available" card; the left panel only shows real layers, activity and revisions.
 28. `rebuild_captions` uses local words when they cover the edited ranges, else the server op (the edit payload only carries words for the ranges used at load).
 
+
+## Collaboration UI
+
+- Sidebar `WorkspaceSwitcher` (role chip; switching reloads so no data of the old workspace lingers); the active workspace is sent as `X-Workspace-Id` (`src/lib/workspace.ts`).
+- `/invite/[token]` is public: preview, then sign up (new email) or sign in (existing) and accept. No email is sent; admins copy the link from Settings -> Team or a project's Share popover.
+- Project header: presence avatars, Comments popover, Share popover (per-project roles). Editor: presence, a Notes tab (comments pinned to the playhead) and a view-only mode (`viewOnly` in the editor store) for viewers.
+- `useRole` / `useProjectRole` only decide what to show; the server enforces every permission.

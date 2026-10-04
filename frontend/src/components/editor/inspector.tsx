@@ -1,8 +1,9 @@
 'use client'
 
+import { CommentsPanel } from '@/components/team/comments-panel'
 import { useMemo, useState } from 'react'
 import { useResettable } from '@/lib/editor/use-resettable'
-import { Check, Clapperboard, Layers, Music, RotateCcw, Scissors, SlidersHorizontal, Sparkles, Trash2, Type, WandSparkles, X } from 'lucide-react'
+import { Check, Clapperboard, Layers, MessageSquare, Music, RotateCcw, Scissors, SlidersHorizontal, Sparkles, Trash2, Type, WandSparkles, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, Textarea } from '@/components/ui/field'
 import { Segmented } from '@/components/common/segmented'
@@ -40,7 +41,7 @@ export function Inspector({ clip }: { clip?: Clip }) {
   const timeline = useEditor(viewTimeline)
   const hasSel = selection.length > 0
   // jump to the selection when something gets selected, back to the project when it is cleared
-  const [tab, setTab] = useResettable<'selection' | 'project'>(hasSel ? 'selection' : 'project', hasSel)
+  const [tab, setTab] = useResettable<'selection' | 'project' | 'comments'>(hasSel ? 'selection' : 'project', hasSel)
   const t = totals(timeline)
   return (
     <aside className="inspector" aria-label="Inspector" data-testid="inspector">
@@ -51,8 +52,13 @@ export function Inspector({ clip }: { clip?: Clip }) {
         <button type="button" role="tab" aria-selected={tab === 'project'} className={tab === 'project' ? 'active' : ''} onClick={() => setTab('project')} data-testid="inspector-tab-project">
           <Layers size={13} /> Project {t.suggested > 0 && <span className="insp-count amber">{t.suggested}</span>}
         </button>
+        <button type="button" role="tab" aria-selected={tab === 'comments'} className={tab === 'comments' ? 'active' : ''} onClick={() => setTab('comments')} data-testid="inspector-tab-comments">
+          <MessageSquare size={13} /> Notes
+        </button>
       </div>
-      <div className="insp-body">{tab === 'selection' ? <SelectionPanel /> : <ProjectPanel clip={clip} />}</div>
+      <div className="insp-body">
+        {tab === 'selection' ? <SelectionPanel /> : tab === 'comments' ? <EditorComments clip={clip} /> : <ProjectPanel clip={clip} />}
+      </div>
     </aside>
   )
 }
@@ -91,7 +97,7 @@ function Hint() {
 }
 
 function useReadOnly(track: 'video' | 'captions' | 'audio' | 'overlays') {
-  return useEditor((s) => !!s.preview || !!s.busy || s.locked[track])
+  return useEditor((s) => !!s.preview || !!s.busy || s.viewOnly || s.locked[track])
 }
 
 function ItemHead({ icon, title, item, track }: { icon: React.ReactNode; title: string; item: VideoItem | CaptionItem | AudioItem | OverlayItem; track: 'video' | 'captions' | 'audio' | 'overlays' }) {
@@ -375,7 +381,7 @@ function OverlayPanel({ item }: { item: OverlayItem }) {
 
 /* ---- several selected ------------------------------------------------------------------------ */
 function MultiPanel({ ids, count }: { ids: string[]; count: number }) {
-  const preview = useEditor((s) => !!s.preview || !!s.busy)
+  const preview = useEditor((s) => !!s.preview || !!s.busy || s.viewOnly)
   return (
     <div className="insp-stack" data-testid="inspector-multi">
       <div className="insp-head">
@@ -408,7 +414,7 @@ function ProjectPanel({ clip }: { clip?: Clip }) {
   const timeline = useEditor(viewTimeline)
   const apply = useEditor((s) => s.apply)
   const assets = useEditor((s) => s.assets)
-  const ro = useEditor((s) => !!s.preview || !!s.busy)
+  const ro = useEditor((s) => !!s.preview || !!s.busy || s.viewOnly)
   const busy = useEditor((s) => s.busy)
   const [keep, setKeep] = useState(0.15)
   const [confirm, setConfirm] = useState(false)
@@ -517,3 +523,9 @@ function ProjectPanel({ clip }: { clip?: Clip }) {
   )
 }
 
+
+function EditorComments({ clip }: { clip?: Clip }) {
+  const playhead = useEditor((s) => s.playhead)
+  if (!clip) return null
+  return <CommentsPanel itemId={clip.content_item_id} clipId={clip.id} atSec={playhead} onSeek={(t) => useEditor.getState().setPlayhead(t)} />
+}

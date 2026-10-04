@@ -1,5 +1,6 @@
 'use client'
 
+import { useRole } from '@/lib/use-role'
 import { useCallback, useRef, useState, type DragEvent } from 'react'
 import { Plus } from 'lucide-react'
 import { ContentCard } from './content-card'
@@ -38,6 +39,7 @@ export function BoardSkeleton() {
 export function Board({ board }: { board: BoardData }) {
   const move = useMoveContent()
   const openNew = useUi((s) => s.openNewContent)
+  const { canEdit } = useRole()
   const [dragId, setDragId] = useState<string | null>(null)
   const [drop, setDrop] = useState<DropTarget>(null)
   const [toDelete, setToDelete] = useState<Card | null>(null)
@@ -87,7 +89,7 @@ export function Board({ board }: { board: BoardData }) {
               data-testid={`column-${col.stage}`}
               aria-label={`${stageMeta.label} column, ${col.count} item${col.count === 1 ? '' : 's'}`}
               onDragOver={(e) => {
-                if (!dragRef.current) return
+                if (!dragRef.current || !canEdit) return
                 e.preventDefault()
                 e.dataTransfer.dropEffect = 'move'
                 const index = indexFromPointer(col.stage, e.clientY)
@@ -98,6 +100,7 @@ export function Board({ board }: { board: BoardData }) {
               }}
               onDrop={(e) => {
                 e.preventDefault()
+                if (!canEdit) return
                 const id = e.dataTransfer.getData('text/plain') || dragRef.current
                 dragRef.current = null
                 const card = col.cards.find((c) => c.id === id) ?? board.columns.flatMap((c) => c.cards).find((c) => c.id === id)
@@ -115,9 +118,11 @@ export function Board({ board }: { board: BoardData }) {
                 <span className="kanban-dot" aria-hidden />
                 <h2 style={{ fontSize: 'inherit', fontWeight: 'inherit', fontFamily: 'inherit' }}>{stageMeta.label}</h2>
                 <small>{col.count}</small>
-                <button className="kanban-add" aria-label={`Add content to ${stageMeta.label}`} onClick={() => openNew({ stage: col.stage })}>
-                  <Plus size={15} />
-                </button>
+                {canEdit && (
+                  <button className="kanban-add" aria-label={`Add content to ${stageMeta.label}`} onClick={() => openNew({ stage: col.stage })}>
+                    <Plus size={15} />
+                  </button>
+                )}
               </header>
               <div className="kanban-cards" ref={(el) => void (colRefs.current[col.stage] = el)}>
                 {col.cards.length === 0 && (

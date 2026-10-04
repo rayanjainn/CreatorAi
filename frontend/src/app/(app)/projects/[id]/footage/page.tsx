@@ -1,5 +1,6 @@
 'use client'
 
+import { useProjectRole } from '@/lib/use-role'
 import Link from 'next/link'
 import { use, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -24,6 +25,7 @@ import { useProjectUi } from '@/stores/project-ui'
 import type { Card } from '@/lib/api/types'
 
 export default function FootagePage({ params }: { params: Promise<{ id: string }> }) {
+  const { canEdit } = useProjectRole(use(params).id)
   const { id } = use(params)
   const router = useRouter()
   const qc = useQueryClient()
@@ -65,7 +67,7 @@ export default function FootagePage({ params }: { params: Promise<{ id: string }
             <h2>Add footage to this project</h2>
           </div>
           <div className="page-actions">
-            <UploadPill contentItemId={id} onOpen={() => setUploadOpen(true)} />
+            {canEdit && <UploadPill contentItemId={id} onOpen={() => setUploadOpen(true)} />}
             <Menu.Root>
               <Menu.Trigger className="button button-secondary button-sm" data-testid="add-from-library">
                 <FolderPlus size={13} /> Add from library
@@ -86,9 +88,9 @@ export default function FootagePage({ params }: { params: Promise<{ id: string }
             </Menu.Root>
           </div>
         </div>
-        <div style={{ marginTop: 14 }}>
+        {canEdit && <div style={{ marginTop: 14 }}>
           <UploadZone compact onFiles={onFiles} title="Drop this project's footage" hint="It is transcribed and indexed as soon as it uploads, and linked to this project." />
-        </div>
+        </div>}
       </section>
 
       <section className="card">

@@ -143,6 +143,8 @@ def test_activity_records_who_did_it(client: TestClient, auth: Hdr, workspace_id
         editor_id = rows[0].user_id
     members = client.get(f"{V1}/workspace/members", headers=auth).json()
     assert editor_id in {m["user_id"] for m in members}
+    feed = client.get(f"{V1}/activity?action=stage_moved", headers=auth).json()["items"]
+    assert feed[0]["user_id"] == editor_id and feed[0]["actor_name"] == "e"
 
 
 # ── per-project overrides ────────────────────────────────────────────────────────────────────

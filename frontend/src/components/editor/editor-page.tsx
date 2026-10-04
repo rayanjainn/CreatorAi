@@ -25,6 +25,7 @@ import { useEditorBootstrap } from '@/lib/editor/use-bootstrap'
 import { useFrames } from '@/lib/editor/use-frames'
 import { totals } from '@/lib/timeline'
 import { useMediaQuery } from '@/lib/use-media'
+import { useProjectRole } from '@/lib/use-role'
 import { toast } from '@/stores/toasts'
 import { useEditor, viewTimeline } from '@/stores/editor'
 import { LAYOUT_LIMITS, useEditorLayout } from '@/stores/editor-layout'
@@ -91,6 +92,12 @@ function Workspace({ clip }: { clip: Clip }) {
   const ids = useMemo(() => Array.from(new Set(timeline.tracks.video.map((v) => v.asset_id).filter((x): x is string => !!x))), [timeline])
   const frames = useFrames(ids, assets)
   const revision = useEditor((s) => s.revision)
+  const { readOnly } = useProjectRole(clip.content_item_id)
+  const setViewOnly = useEditor((s) => s.setViewOnly)
+  useEffect(() => {
+    setViewOnly(readOnly)
+    return () => setViewOnly(false)
+  }, [readOnly, setViewOnly])
   const exportClip: Clip = { ...clip, timeline_duration: timeline.duration, edit_revision: revision }
 
   const startExport = async () => {
@@ -122,6 +129,11 @@ function Workspace({ clip }: { clip: Clip }) {
   return (
     <div className="editor" data-testid="editor" data-mode={mode} data-previewing={!!preview} style={{ '--ed-timeline': `${layout.timeline}px` } as React.CSSProperties}>
       <EditorHeader clip={clip} onExport={() => void startExport()} exporting={exporting} />
+      {readOnly && (
+        <div className="ed-banner" role="status" data-testid="view-only-banner">
+          <Eye size={14} aria-hidden /> You can look and comment, but not edit: your role on this project is view only.
+        </div>
+      )}
       {preview && <PreviewBanner />}
       <div className="ed-body" style={{ gridTemplateColumns: columns }}>
         {showLeft && <LeftPanel clipId={clip.id} contentItemId={clip.content_item_id} />}

@@ -12,6 +12,8 @@ import { ProvenanceBadge } from '@/components/provenance/provenance-badge'
 import { DOMAINS } from '@/components/board/new-content-dialog'
 import { CaptionPreview, CAPTION_STYLES } from '@/components/onboarding/caption-preview'
 import { useAuth } from '@/components/auth-provider'
+import { useRole } from '@/lib/use-role'
+import { TeamCard } from '@/components/team/team-card'
 import { useHealth, useLlmStatus, useLlmTest, useUpdateProfile } from '@/lib/api/hooks'
 import type { DataMode, Domain, Profile, Provenance } from '@/lib/api/types'
 import { errorMessage } from '@/lib/api/errors'
@@ -325,6 +327,7 @@ function DefaultsCard({ profile }: { profile: Profile }) {
 
 export default function SettingsPage() {
   const { me, profile, logout } = useAuth()
+  const { canAdmin, known } = useRole()
 
   useEffect(() => {
     if (window.location.hash === '#llm') document.getElementById('llm')?.scrollIntoView({ behavior: 'smooth' })
@@ -334,8 +337,22 @@ export default function SettingsPage() {
     <div className="page">
       <PageHeader eyebrow="CreatorAI / System" title="Settings" description="Your profile, AI providers, local engine status and defaults." />
       <div className="settings-grid">
-        {profile && <ProfileCard key={profile.display_name + profile.domain} profile={profile} />}
-        {profile && <DefaultsCard key={`d-${profile.style_profile_rev}-${JSON.stringify(profile.style_profile).length}`} profile={profile} />}
+        {known && !canAdmin && (
+          <p className="notice span-2" role="status" data-testid="settings-readonly">
+            You can look at these settings, but only workspace admins can change them.
+          </p>
+        )}
+        {profile && (
+          <fieldset className="settings-fieldset" disabled={known && !canAdmin}>
+            <ProfileCard key={profile.display_name + profile.domain} profile={profile} />
+          </fieldset>
+        )}
+        {profile && (
+          <fieldset className="settings-fieldset" disabled={known && !canAdmin}>
+            <DefaultsCard key={`d-${profile.style_profile_rev}-${JSON.stringify(profile.style_profile).length}`} profile={profile} />
+          </fieldset>
+        )}
+        <TeamCard />
         <LlmCard />
         <PipelineCard />
 

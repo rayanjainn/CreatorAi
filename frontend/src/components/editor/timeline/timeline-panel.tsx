@@ -42,7 +42,7 @@ export function TimelinePanel({ frames, contentItemId }: { frames: Frames; conte
   const tool = useEditor((s) => s.tool)
   const locked = useEditor((s) => s.locked)
   const muted = useEditor((s) => s.muted)
-  const readOnly = useEditor((s) => !!s.preview || !!s.busy)
+  const readOnly = useEditor((s) => !!s.preview || !!s.busy || s.viewOnly)
   const setZoom = useEditor((s) => s.setZoom)
   const scroller = useRef<HTMLDivElement>(null)
   const content = useRef<HTMLDivElement>(null)
@@ -168,7 +168,7 @@ export function TimelinePanel({ frames, contentItemId }: { frames: Frames; conte
     e.stopPropagation()
     select(e, item.id)
     const s = useEditor.getState()
-    if (s.preview || s.busy || s.locked.video || s.tool === 'trim' || e.shiftKey || e.metaKey || e.ctrlKey) return
+    if (s.preview || s.busy || s.viewOnly || s.locked.video || s.tool === 'trim' || e.shiftKey || e.metaKey || e.ctrlKey) return
     const list = activeVideo
     const from = list.findIndex((v) => v.id === item.id)
     if (from < 0 || list.length < 2) return

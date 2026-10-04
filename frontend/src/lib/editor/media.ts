@@ -59,6 +59,10 @@ const audioKindFor = (name: string): AudioKind => (/sfx|effect|whoosh|click|hit|
 /** Put one library asset on the timeline: audio on the audio track, video and images on the video track. */
 export async function addAssetToTimeline(assetId: string, place: DropPlace = {}): Promise<boolean> {
   const s = useEditor.getState()
+  if (s.viewOnly) {
+    toast.info('View only', 'Your role on this project cannot change the timeline.')
+    return false
+  }
   if (s.preview || s.busy) {
     toast.info('Leave the preview first', 'Go back to the latest revision to edit.')
     return false

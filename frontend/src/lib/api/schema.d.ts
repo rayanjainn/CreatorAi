@@ -124,6 +124,234 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workspace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Workspace */
+        get: operations["get_workspace_api_v1_workspace_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Rename */
+        patch: operations["rename_api_v1_workspace_patch"];
+        trace?: never;
+    };
+    "/api/v1/workspace/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Members */
+        get: operations["members_api_v1_workspace_members_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspace/members/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove
+         * @description Remove someone, or leave yourself (``user_id`` = you). The last owner cannot leave.
+         */
+        delete: operations["remove_api_v1_workspace_members__user_id__delete"];
+        options?: never;
+        head?: never;
+        /** Set Role */
+        patch: operations["set_role_api_v1_workspace_members__user_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/workspace/invites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Invites */
+        get: operations["invites_api_v1_workspace_invites_get"];
+        put?: never;
+        /**
+         * Invite
+         * @description Create an invite link. No email is sent: copy the link and share it with the person.
+         */
+        post: operations["invite_api_v1_workspace_invites_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspace/invites/{invite_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Revoke */
+        delete: operations["revoke_api_v1_workspace_invites__invite_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invites/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview
+         * @description What an invite is for, so the invited person can decide. Public: the token is the secret.
+         */
+        get: operations["preview_api_v1_invites__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invites/{token}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept */
+        post: operations["accept_api_v1_invites__token__accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/content/{item_id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Project Members */
+        get: operations["project_members_api_v1_content__item_id__members_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspace/projects/{project_item_id}/members/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set Project Role
+         * @description Override a member's role on one project (admins only; admins/owners are unrestricted).
+         */
+        put: operations["set_project_role_api_v1_workspace_projects__project_item_id__members__user_id__put"];
+        post?: never;
+        /** Clear Project Role */
+        delete: operations["clear_project_role_api_v1_workspace_projects__project_item_id__members__user_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/content/{item_id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Comments */
+        get: operations["list_comments_api_v1_content__item_id__comments_get"];
+        put?: never;
+        /**
+         * Add Comment
+         * @description Anyone in the workspace can comment, including viewers.
+         */
+        post: operations["add_comment_api_v1_content__item_id__comments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/comments/{comment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Comment */
+        delete: operations["delete_comment_api_v1_comments__comment_id__delete"];
+        options?: never;
+        head?: never;
+        /** Patch Comment */
+        patch: operations["patch_comment_api_v1_comments__comment_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/content/{item_id}/presence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Presence
+         * @description Heartbeat (every ~10 s while a project is open); returns the others who are here now.
+         */
+        post: operations["presence_api_v1_content__item_id__presence_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/jobs": {
         parameters: {
             query?: never;
@@ -1437,13 +1665,13 @@ export interface paths {
             cookie?: never;
         };
         /** Serve Media */
-        get: operations["serve_media_media__key__head"];
+        get: operations["serve_media_media__key__get"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         /** Serve Media */
-        head: operations["serve_media_media__key__head"];
+        head: operations["serve_media_media__key__get"];
         patch?: never;
         trace?: never;
     };
@@ -1465,6 +1693,10 @@ export interface components {
             meta: {
                 [key: string]: unknown;
             };
+            /** User Id */
+            user_id?: string | null;
+            /** Actor Name */
+            actor_name?: string | null;
             /** Created At */
             created_at: string;
         };
@@ -1939,6 +2171,54 @@ export interface components {
             /** Asset Id */
             asset_id: string;
         };
+        /** CommentCreate */
+        CommentCreate: {
+            /** Body */
+            body: string;
+            /** Clip Id */
+            clip_id?: string | null;
+            /** At Sec */
+            at_sec?: number | null;
+            /** Parent Id */
+            parent_id?: string | null;
+        };
+        /** CommentOut */
+        CommentOut: {
+            /** Id */
+            id: string;
+            /** Content Item Id */
+            content_item_id: string;
+            /** Clip Id */
+            clip_id: string | null;
+            /** Parent Id */
+            parent_id: string | null;
+            /** At Sec */
+            at_sec: number | null;
+            /** Body */
+            body: string;
+            /** Resolved */
+            resolved: boolean;
+            /** Author Id */
+            author_id: string;
+            /** Author Name */
+            author_name: string;
+            /** Created At */
+            created_at: string;
+            /** Updated At */
+            updated_at: string;
+            /**
+             * Mine
+             * @default false
+             */
+            mine?: boolean;
+        };
+        /** CommentPatch */
+        CommentPatch: {
+            /** Body */
+            body?: string | null;
+            /** Resolved */
+            resolved?: boolean | null;
+        };
         /** ContentCreate */
         ContentCreate: {
             /** Title */
@@ -2228,6 +2508,98 @@ export interface components {
              */
             count?: number;
         };
+        /** InviteAccepted */
+        InviteAccepted: {
+            /** Workspace Id */
+            workspace_id: string;
+            /** Workspace Name */
+            workspace_name: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "viewer" | "editor" | "admin" | "owner";
+            /** Content Item Id */
+            content_item_id: string | null;
+        };
+        /** InviteCreate */
+        InviteCreate: {
+            /** Email */
+            email: string;
+            /**
+             * Role
+             * @default editor
+             * @enum {string}
+             */
+            role?: "viewer" | "editor" | "admin";
+            /** Content Item Id */
+            content_item_id?: string | null;
+            /** Project Role */
+            project_role?: ("viewer" | "editor") | null;
+        };
+        /** InviteOut */
+        InviteOut: {
+            /** Id */
+            id: string;
+            /** Email */
+            email: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "viewer" | "editor" | "admin";
+            /** Content Item Id */
+            content_item_id: string | null;
+            /** Project Title */
+            project_title: string | null;
+            /** Project Role */
+            project_role: ("viewer" | "editor") | null;
+            /** Invited By Name */
+            invited_by_name: string | null;
+            /** Expires At */
+            expires_at: string;
+            /** Created At */
+            created_at: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "accepted" | "expired";
+            /** Token */
+            token?: string | null;
+            /** Link */
+            link?: string | null;
+        };
+        /**
+         * InvitePreview
+         * @description What the invited person sees before accepting (no sign-in needed).
+         */
+        InvitePreview: {
+            /** Workspace Name */
+            workspace_name: string;
+            /** Inviter Name */
+            inviter_name: string | null;
+            /** Email */
+            email: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "viewer" | "editor" | "admin";
+            /** Project Title */
+            project_title: string | null;
+            /** Project Role */
+            project_role: ("viewer" | "editor") | null;
+            /** Expires At */
+            expires_at: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "accepted" | "expired";
+            /** Account Exists */
+            account_exists: boolean;
+        };
         /** JobBrief */
         JobBrief: {
             /** Id */
@@ -2468,7 +2840,44 @@ export interface components {
             workspace_id: string;
             /** Workspace Name */
             workspace_name: string;
+            /**
+             * Role
+             * @default owner
+             * @enum {string}
+             */
+            role?: "viewer" | "editor" | "admin" | "owner";
+            /** Workspaces */
+            workspaces?: components["schemas"]["WorkspaceRef"][];
             profile: components["schemas"]["ProfileOut"];
+        };
+        /** MemberOut */
+        MemberOut: {
+            /** User Id */
+            user_id: string;
+            /** Email */
+            email: string;
+            /** Display Name */
+            display_name: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "viewer" | "editor" | "admin" | "owner";
+            /** Joined At */
+            joined_at: string;
+            /**
+             * Is Me
+             * @default false
+             */
+            is_me?: boolean;
+        };
+        /** MemberRoleUpdate */
+        MemberRoleUpdate: {
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "viewer" | "editor" | "admin" | "owner";
         };
         /** MetaPatch */
         MetaPatch: {
@@ -2690,6 +3099,22 @@ export interface components {
             scenes: number;
             provenance: components["schemas"]["Provenance"];
         };
+        /** PresenceBeat */
+        PresenceBeat: {
+            /** Where */
+            where: string;
+        };
+        /** PresenceOut */
+        PresenceOut: {
+            /** User Id */
+            user_id: string;
+            /** Name */
+            name: string;
+            /** Where */
+            where: string;
+            /** Seconds Ago */
+            seconds_ago: number;
+        };
         /** ProfileOut */
         ProfileOut: {
             /** Display Name */
@@ -2760,6 +3185,35 @@ export interface components {
              * @description Checklist progress 0-100 for the card's progress ring
              */
             percent: number;
+        };
+        /** ProjectMemberOut */
+        ProjectMemberOut: {
+            /** User Id */
+            user_id: string;
+            /** Email */
+            email: string;
+            /** Display Name */
+            display_name: string;
+            /**
+             * Workspace Role
+             * @enum {string}
+             */
+            workspace_role: "viewer" | "editor" | "admin" | "owner";
+            /** Project Role */
+            project_role: ("viewer" | "editor") | null;
+            /**
+             * Effective Role
+             * @enum {string}
+             */
+            effective_role: "viewer" | "editor" | "admin" | "owner";
+        };
+        /** ProjectMemberSet */
+        ProjectMemberSet: {
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "viewer" | "editor";
         };
         /** Provenance */
         Provenance: {
@@ -3266,6 +3720,8 @@ export interface components {
             password: string;
             /** Display Name */
             display_name?: string | null;
+            /** Invite Token */
+            invite_token?: string | null;
         };
         /**
          * SwapRequest
@@ -3339,6 +3795,14 @@ export interface components {
             workspace_id: string;
             /** Workspace Name */
             workspace_name: string;
+            /**
+             * Role
+             * @default owner
+             * @enum {string}
+             */
+            role?: "viewer" | "editor" | "admin" | "owner";
+            /** Workspaces */
+            workspaces?: components["schemas"]["WorkspaceRef"][];
             profile: components["schemas"]["ProfileOut"];
             /** Access Token */
             access_token: string;
@@ -3479,6 +3943,11 @@ export interface components {
             id: string;
             /** Email */
             email: string;
+            /**
+             * Display Name
+             * @default
+             */
+            display_name?: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -3542,6 +4011,41 @@ export interface components {
             placeholder?: boolean;
             /** Text */
             text?: string | null;
+        };
+        /** WorkspaceOut */
+        WorkspaceOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "viewer" | "editor" | "admin" | "owner";
+            /** Member Count */
+            member_count: number;
+            /** Created At */
+            created_at: string;
+        };
+        /** WorkspaceRef */
+        WorkspaceRef: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "viewer" | "editor" | "admin" | "owner";
+            /** Is Home */
+            is_home: boolean;
+        };
+        /** WorkspaceRename */
+        WorkspaceRename: {
+            /** Name */
+            name: string;
         };
     };
     responses: never;
@@ -3753,6 +4257,549 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OnboardingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_workspace_api_v1_workspace_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceOut"];
+                };
+            };
+        };
+    };
+    rename_api_v1_workspace_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkspaceRename"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkspaceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    members_api_v1_workspace_members_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"][];
+                };
+            };
+        };
+    };
+    remove_api_v1_workspace_members__user_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_role_api_v1_workspace_members__user_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberRoleUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    invites_api_v1_workspace_invites_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InviteOut"][];
+                };
+            };
+        };
+    };
+    invite_api_v1_workspace_invites_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InviteCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InviteOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_api_v1_workspace_invites__invite_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invite_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_api_v1_invites__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitePreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    accept_api_v1_invites__token__accept_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InviteAccepted"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    project_members_api_v1_content__item_id__members_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectMemberOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_project_role_api_v1_workspace_projects__project_item_id__members__user_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_item_id: string;
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectMemberSet"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    clear_project_role_api_v1_workspace_projects__project_item_id__members__user_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_item_id: string;
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_comments_api_v1_content__item_id__comments_get: {
+        parameters: {
+            query?: {
+                clip_id?: string | null;
+            };
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_comment_api_v1_content__item_id__comments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommentCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_comment_api_v1_comments__comment_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                comment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_comment_api_v1_comments__comment_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                comment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommentPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    presence_api_v1_content__item_id__presence_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PresenceBeat"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresenceOut"][];
                 };
             };
             /** @description Validation Error */
@@ -6528,7 +7575,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__head: {
+    serve_media_media__key__get: {
         parameters: {
             query?: {
                 exp?: number | null;
@@ -6563,7 +7610,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__head: {
+    serve_media_media__key__get: {
         parameters: {
             query?: {
                 exp?: number | null;

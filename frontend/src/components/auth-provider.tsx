@@ -8,6 +8,7 @@ import { qk, useMe } from '@/lib/api/hooks'
 import type { Me, Profile, TokenOut } from '@/lib/api/types'
 import type { ApiError } from '@/lib/api/errors'
 import { clearToken, getToken, markSignedOut, setToken, subscribeToken } from '@/lib/auth'
+import { setActiveWorkspace } from '@/lib/workspace'
 
 type AuthStatus = 'loading' | 'authed' | 'anon' | 'error'
 
@@ -18,17 +19,20 @@ type AuthContextValue = {
   error: ApiError | null
   retry: () => void
   login: (email: string, password: string) => Promise<Profile>
-  signup: (email: string, password: string, displayName?: string) => Promise<Profile>
+  signup: (email: string, password: string, displayName?: string, inviteToken?: string) => Promise<Profile>
   logout: () => void
+  /** Work in another workspace you belong to (a full reload, so no data of the old one lingers). */
+  switchWorkspace: (workspaceId: string | null) => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-const PUBLIC_PREFIXES = ['/login', '/signup']
+const PUBLIC_PREFIXES = ['/login', '/signup', '/invite']
 
 function acceptToken(out: TokenOut, qc: ReturnType<typeof useQueryClient>): Profile {
   setToken(out.access_token)
-  const me: Me = { user: out.user, workspace_id: out.workspace_id, workspace_name: out.workspace_name, profile: out.profile }
+  setActiveWorkspace(null) // a fresh sign-in starts in your own workspace
+  const me: Me = { user: out.user, workspace_id: out.workspace_id, workspace_name: out.workspace_name, role: out.role, workspaces: out.workspaces, profile: out.profile }
   qc.setQueryData(qk.me, me)
   return out.profile
 }
@@ -43,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     markSignedOut()
     clearToken()
+    setActiveWorkspace(null)
     qc.clear()
     router.replace('/login')
   }, [qc, router])
@@ -75,14 +80,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       login: async (email, password) =>
         acceptToken(await unwrap<TokenOut>(api.POST('/api/v1/auth/login', { body: { email, password } }), { skipAuthRedirect: true }), qc),
-      signup: async (email, password, displayName) =>
+      signup: async (email, password, displayName, inviteToken) =>
         acceptToken(
           await unwrap<TokenOut>(
-            api.POST('/api/v1/auth/signup', { body: { email, password, display_name: displayName || null } }),
+            api.POST('/api/v1/auth/signup', { body: { email, password, display_name: displayName || null, invite_token: inviteToken || null } }),
             { skipAuthRedirect: true },
           ),
           qc,
         ),
+      switchWorkspace: (workspaceId) => {
+        setActiveWorkspace(workspaceId)
+        window.location.assign('/dashboard')
+      },
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, meQuery.data, meQuery.isError, meQuery.error, logout, qc])

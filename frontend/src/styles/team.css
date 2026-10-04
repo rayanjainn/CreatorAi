@@ -1,0 +1,393 @@
+/* Teams: avatars, the Team card, the invite dialog, comments, the workspace switcher. */
+.avatar-chip {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 700;
+  background: var(--av, var(--primary));
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.avatar-sm {
+  width: 24px;
+  height: 24px;
+  font-size: 9.5px;
+}
+.avatar-md {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+}
+.avatar-lg {
+  width: 44px;
+  height: 44px;
+  font-size: 15px;
+}
+.avatar-stack {
+  display: inline-flex;
+}
+.avatar-stack .avatar-chip + .avatar-chip {
+  margin-left: -7px;
+}
+.avatar-more {
+  background: #3a3a44;
+  color: var(--muted-foreground);
+}
+
+.settings-fieldset {
+  display: contents;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.settings-fieldset:disabled .card {
+  opacity: 0.72;
+}
+.notice {
+  margin: 0;
+  padding: 11px 14px;
+  border-radius: 12px;
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--cyan) 8%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--cyan) 28%, transparent);
+  font-size: 13px;
+}
+
+/* team card */
+.team-card {
+  display: grid;
+  gap: 18px;
+}
+.team-ws label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 600;
+}
+.team-ws-row {
+  display: flex;
+  gap: 8px;
+  max-width: 420px;
+}
+.team-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.team-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+.team-list li[data-status="expired"] {
+  opacity: 0.6;
+}
+.team-who {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+.team-who b {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+.team-who small {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.team-you {
+  padding: 1px 7px;
+  border-radius: 99px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #86efac;
+  background: color-mix(in srgb, var(--green) 16%, transparent);
+}
+.team-role {
+  width: 120px;
+}
+.team-badge {
+  padding: 4px 11px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #2f2f38;
+  color: var(--muted-foreground);
+}
+.team-badge.role-owner {
+  color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 14%, transparent);
+}
+.team-badge.role-admin {
+  color: var(--primary-hover);
+  background: color-mix(in srgb, var(--primary) 16%, transparent);
+}
+.team-badge.role-editor {
+  color: var(--cyan);
+  background: color-mix(in srgb, var(--cyan) 12%, transparent);
+}
+.team-mail {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--muted-foreground);
+  background: #2f2f38;
+}
+.team-invites h3 {
+  font-size: 13px;
+  margin: 0 0 8px;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* invite dialog */
+.invite-form {
+  display: grid;
+  gap: 16px;
+}
+.invite-project {
+  border: 1px solid #30303a;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.invite-project summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+.invite-project-body {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+.modal-foot-inline {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+.invite-done {
+  display: grid;
+  gap: 14px;
+}
+.invite-done p {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0;
+  line-height: 1.5;
+  font-size: 13.5px;
+}
+.invite-done p svg {
+  flex: none;
+  margin-top: 3px;
+  color: var(--green);
+}
+.invite-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid #34343e;
+}
+.invite-link input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 12.5px;
+}
+
+/* ---------- invite page ---------- */
+.invite-card {
+  display: grid;
+  gap: 4px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #ffffff0d;
+  border: 1px solid #ffffff1a;
+}
+.invite-card span {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9c988f;
+}
+.invite-card b {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.invite-card small {
+  color: #bdb9b0;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.workspace-switcher-btn {
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  border: 0;
+  cursor: pointer;
+}
+.workspace-switcher-btn:hover {
+  background: #23232b;
+}
+
+/* ---------- share + comments ---------- */
+.share-popover,
+.comments-popover {
+  width: min(420px, calc(100vw - 32px));
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
+  display: grid;
+  gap: 12px;
+}
+.share-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.share-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 10px;
+  align-items: center;
+}
+.share-list li > select,
+.share-list li > .team-badge {
+  grid-column: 2;
+  justify-self: start;
+  max-width: 100%;
+}
+.share-who {
+  min-width: 0;
+}
+.share-who b,
+.share-who small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.share-who small {
+  color: #9c988f;
+  font-size: 11.5px;
+}
+.comments {
+  display: grid;
+  gap: 12px;
+}
+.cm-form {
+  display: grid;
+  gap: 8px;
+}
+.cm-form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cm-pin {
+  font-size: 12px;
+  color: #bdb9b0;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.cm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.cm {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+}
+.cm.resolved {
+  opacity: 0.6;
+}
+.cm-meta {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+}
+.cm-meta small {
+  color: #9c988f;
+}
+.cm-time {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #8b5cf633;
+  color: #d8ccff;
+  border: 0;
+}
+.cm-body p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.cm-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+.cm-actions button,
+.cm-toggle {
+  background: none;
+  border: 0;
+  color: #9c988f;
+  font-size: 11.5px;
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 0;
+}
+.cm-actions button:hover,
+.cm-toggle:hover {
+  color: #fff;
+}
+.cm-empty {
+  color: #9c988f;
+  font-size: 12.5px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+}
+.act-by{font-weight:400;color:#9c988f}

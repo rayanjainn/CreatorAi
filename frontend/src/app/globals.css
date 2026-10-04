@@ -11,6 +11,7 @@
 @import "../styles/project.css";
 @import "../styles/editor.css";
 @import "../styles/smart-clips.css";
+@import "../styles/team.css";
 
 @custom-variant dark (&:is(.dark *));
 
