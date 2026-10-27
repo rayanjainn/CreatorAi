@@ -91,7 +91,8 @@ def _iter_file(key: str, start: int, end: int) -> Iterator[bytes]:
             yield data
 
 
-@router.api_route("/media/{key:path}", methods=["GET", "HEAD"])
+@router.head("/media/{key:path}", include_in_schema=False)
+@router.get("/media/{key:path}")
 def serve_media(
     key: str,
     request: Request,

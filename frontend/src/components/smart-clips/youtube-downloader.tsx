@@ -1,13 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { Download, Film, CheckCircle2, Video, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Download, Film, CheckCircle2, Loader2 } from 'lucide-react'
+import { Button, LinkButton, buttonVariants } from '@/components/ui/button'
 import { Field, Input } from '@/components/ui/field'
-import { isApiError, errorMessage } from '@/lib/api/errors'
+import { errorMessage } from '@/lib/api/errors'
+import { mediaUrl } from '@/lib/api/client'
 import { useDownloadYtdlp } from '@/lib/api/hooks'
 import { formatBytes, formatDuration } from '@/lib/format'
 import type { YtdlpDownloadOut } from '@/lib/api/types'
+import { trackJob } from '@/lib/track-job'
 
 function YoutubeIcon({ size = 15, style }: { size?: number; style?: React.CSSProperties }) {
   return (
@@ -41,6 +43,7 @@ export function YoutubeDownloader() {
       {
         onSuccess: (data) => {
           setResult(data)
+          void trackJob(data.job_id)
         },
       }
     )
@@ -55,7 +58,7 @@ export function YoutubeDownloader() {
           </div>
           <h2>Download YouTube Video</h2>
           <p className="muted small" style={{ marginTop: '4px' }}>
-            Paste any YouTube video link to download it directly using <code>yt-dlp</code>. The video file will be saved to your computer and library.
+            Paste a link to a video you own or may reuse. It is saved to your library and analysed like any upload.
           </p>
         </div>
       </div>
@@ -143,7 +146,7 @@ export function YoutubeDownloader() {
           {result.stream_url && (
             <div style={{ borderRadius: '10px', overflow: 'hidden', background: '#000', maxHeight: '200px', width: '100%' }}>
               <video
-                src={result.stream_url}
+                src={mediaUrl(result.stream_url) ?? undefined}
                 controls
                 style={{ width: '100%', maxHeight: '200px', objectFit: 'contain', display: 'block' }}
               />
@@ -152,20 +155,16 @@ export function YoutubeDownloader() {
 
           <div className="sc-ytdlp-actions">
             <a
-              href={result.download_url}
+              className={buttonVariants({ block: true })}
+              href={mediaUrl(result.download_url) ?? undefined}
               download={result.filename}
-              target="_blank"
-              rel="noreferrer"
+              data-testid="ytdlp-download-file-btn"
             >
-              <Button type="button" block variant="primary" data-testid="ytdlp-download-file-btn">
-                <Download size={15} /> Save MP4 File to Computer
-              </Button>
+              <Download size={15} /> Save to computer
             </a>
-            <a href="/library">
-              <Button type="button" block variant="outline">
-                <Film size={15} /> Open in Library
-              </Button>
-            </a>
+            <LinkButton href={`/assets?asset=${result.asset_id}`} block variant="secondary">
+              <Film size={15} /> Open in library
+            </LinkButton>
           </div>
         </div>
       )}

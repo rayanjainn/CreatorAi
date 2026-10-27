@@ -125,7 +125,7 @@ test('clips: generate key-less (fallback copy), edit, accept, render, download, 
   await login(page)
   await page.goto(`/projects/${id}/clips`)
   await page.getByTestId('generate-clips-btn').click()
-  await expect(page.getByTestId('clips-progress').or(page.getByTestId('clip-card').first())).toBeVisible()
+  await expect(page.getByTestId('clips-progress').or(page.getByTestId('clip-card')).first()).toBeVisible()
   await expect(page.getByTestId('clips-warnings')).toContainText('fallback copy', { timeout: 60_000 })
   const card = page.getByTestId('clip-card').first()
   await expect(card.locator('.prov[data-source=heuristic]').first()).toBeVisible()

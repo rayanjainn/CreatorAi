@@ -113,4 +113,3 @@ class YtdlpDownloadOut(BaseModel):
     thumbnail_url: str | None = None
     duplicate: bool
     job_id: str | None = None
-

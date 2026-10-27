@@ -40,17 +40,12 @@ ROUTER_MODULES: list[str] = [
     "sponsors",
     "publish",
     "youtube",
-    "insights",
-    "twin",
-    "research",
-    "twin",
-    "research",
 ]
 
 
 def build_router() -> APIRouter:
     api = APIRouter()
-    for name in ROUTER_MODULES:
+    for name in dict.fromkeys(ROUTER_MODULES):  # a module listed twice is included once
         path = f"{__name__}.{name}"
         try:
             module = importlib.import_module(path)

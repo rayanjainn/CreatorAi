@@ -59,12 +59,15 @@ SAMPLES: dict[str, dict[str, Any]] = {
     "insights.narrate_ideas": {"tables": {"by_hook_type": [{"hook_type": "question", "avg_view_pct": 61.0}],
         "by_topic": [{"topic": "editing", "avg_views": 10200}], "by_length": [{"bucket": "30-45s"}]},
         "existing_titles": ["editing: the question version"]},
+    "research.brief": {"topic": "editing videos faster", "results": [
+        {"title": "Editing tips", "url": "https://example.com/tips", "snippet": "Cut on the beat."},
+        {"title": "Proxy workflows", "url": "https://example.com/proxy", "snippet": "Proxies speed up scrubbing."}]},
 }  # fmt: skip
 
 
 def test_every_task_has_route_schema_prompt_and_sample() -> None:
     assert set(TASK_ROUTES) == set(TASK_SCHEMAS) == set(SAMPLES)
-    assert len(TASK_ROUTES) == 15
+    assert len(TASK_ROUTES) == 16
 
 
 @pytest.mark.parametrize("task", sorted(TASK_SCHEMAS))
