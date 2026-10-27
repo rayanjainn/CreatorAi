@@ -474,11 +474,14 @@ test('transport: clock-driven playback, frame stepping, timecode and the honest 
   const rb = (await ruler.boundingBox())!
   await page.mouse.click(rb.x + 152 + 140, rb.y + 14)
   expect(Number(await page.getByTestId('playhead').getAttribute('data-time'))).toBeGreaterThan(0.5)
-  // this Chromium has no H.264: the monitor says so instead of showing a blank frame (Chrome plays it)
+  // a Chromium without H.264 says so instead of showing a blank frame; one that decodes it plays the media
+  const h264 = await page.evaluate(() => document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"') !== '')
   await page.getByTestId('go-start').click()
   await page.getByTestId('play-toggle').click()
-  await expect(page.getByTestId('engine-notice')).toBeVisible({ timeout: 10_000 })
-  await expect(page.getByTestId('engine-notice')).toContainText('clock-driven')
+  if (!h264) {
+    await expect(page.getByTestId('engine-notice')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByTestId('engine-notice')).toContainText('clock-driven')
+  }
   await page.keyboard.press('Space')
   // zoom changes the timeline scale
   const w0 = (await videoItems(page).first().boundingBox())!.width

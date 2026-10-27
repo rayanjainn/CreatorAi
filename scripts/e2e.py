@@ -43,6 +43,9 @@ def main() -> int:
         "GEMINI_API_KEY": "",
         "GROQ_API_KEY": "",
         "OLLAMA_API_KEY": "",
+        # deterministic whatever this machine has cached: the suite asserts the labelled fallbacks
+        "EMBED_BACKEND": "hashing",
+        "ASR_PROVIDER": "none",
         "UPLOAD_CHUNK_SIZE": "65536",  # small chunks so the e2e upload really is chunked
         "CORS_ORIGINS": f"http://localhost:{WEB_PORT},http://127.0.0.1:{WEB_PORT}",
         "NEXT_PUBLIC_API_URL": f"http://localhost:{API_PORT}",
