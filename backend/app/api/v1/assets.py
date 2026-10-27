@@ -213,11 +213,14 @@ def _attach(
     return {"job_id": job_id, "asset": _card(db, workspace_id, asset_id)}
 
 
-router.add_api_route(
-    "/{asset_id}/transcript",
-    _put_transcript,
-    methods=["PUT", "POST"],
-    response_model=ReprocessOut,
-    status_code=202,
-    summary="Attach an SRT, VTT or words.json transcript and re-run from transcription",
-)
+for _method in ("PUT", "POST"):  # POST kept for multipart clients that cannot send PUT
+    router.add_api_route(
+        "/{asset_id}/transcript",
+        _put_transcript,
+        methods=[_method],
+        response_model=ReprocessOut,
+        status_code=202,
+        summary="Attach an SRT, VTT or words.json transcript and re-run from transcription",
+        operation_id=f"attach_transcript_{_method.lower()}",
+        include_in_schema=_method == "PUT",
+    )

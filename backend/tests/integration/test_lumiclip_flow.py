@@ -303,6 +303,7 @@ def test_yt_download_with_ytdlp(
     import yt_dlp
 
     monkeypatch.setattr(yt_dlp, "YoutubeDL", FakeYtdlp)
+    monkeypatch.setattr(svc, "_check_public_host", lambda url: None)  # no DNS in tests
 
     res = client.post(
         f"{V1}/lumiclip/yt-download",
@@ -316,3 +317,35 @@ def test_yt_download_with_ytdlp(
     assert data["size_bytes"] > 0
     assert data["asset_id"]
 
+
+def test_yt_download_failure_is_reported_and_cleaned(
+    client: TestClient, auth: Hdr, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    created: list[Path] = []
+
+    class BrokenYtdlp:
+        def __init__(self, opts: dict[str, Any]) -> None:
+            self.opts = opts
+
+        def __enter__(self) -> BrokenYtdlp:
+            return self
+
+        def __exit__(self, *args: Any) -> None:
+            pass
+
+        def extract_info(self, url: str, download: bool = True) -> dict[str, Any]:
+            part = Path(self.opts["outtmpl"].replace("%(ext)s", "mp4.part"))
+            part.write_bytes(b"partial")
+            created.append(part)
+            raise RuntimeError("HTTP Error 403: Forbidden")
+
+    import yt_dlp
+
+    monkeypatch.setattr(yt_dlp, "YoutubeDL", BrokenYtdlp)
+    monkeypatch.setattr(svc, "_check_public_host", lambda url: None)
+    res = client.post(
+        f"{V1}/lumiclip/yt-download", json={"url": "https://video.example/watch?v=1"}, headers=auth
+    )
+    assert res.status_code == 502
+    assert res.json()["error"]["code"] == "DOWNLOAD_FAILED"
+    assert created and not created[0].exists()

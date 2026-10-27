@@ -1066,7 +1066,7 @@ export function useDownloadYtdlp() {
     mutationFn: (body: YtdlpDownloadRequest) =>
       unwrap(api.POST('/api/v1/lumiclip/yt-download', { body })) as Promise<YtdlpDownloadOut>,
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: qk.assets })
+      void qc.invalidateQueries({ queryKey: qk.assetsAll })
     },
   })
 }

@@ -111,5 +111,6 @@ def export_clip(
 @router.post("/yt-download", response_model=YtdlpDownloadOut, status_code=201)
 def download_youtube(body: YtdlpDownloadRequest, ctx: CtxDep, db: DbDep) -> dict[str, Any]:
     """Download a video from YouTube using yt-dlp, save to library, and return download link."""
-    return svc.download_yt_video(db, ctx.workspace_id, body.url, content_item_id=body.content_item_id)
-
+    return svc.download_yt_video(
+        db, ctx.workspace_id, body.url, content_item_id=body.content_item_id
+    )

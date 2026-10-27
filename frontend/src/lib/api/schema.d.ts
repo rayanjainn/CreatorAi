@@ -1251,9 +1251,8 @@ export interface paths {
         /** Get Transcript */
         get: operations["get_transcript_api_v1_assets__asset_id__transcript_get"];
         /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        put: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
-        /** Attach an SRT, VTT or words.json transcript and re-run from transcription */
-        post: operations["_put_transcript_api_v1_assets__asset_id__transcript_post"];
+        put: operations["attach_transcript_put"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1806,13 +1805,12 @@ export interface paths {
             cookie?: never;
         };
         /** Serve Media */
-        get: operations["serve_media_media__key__head"];
+        get: operations["serve_media_media__key__get"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
-        /** Serve Media */
-        head: operations["serve_media_media__key__head"];
+        head?: never;
         patch?: never;
         trace?: never;
     };
@@ -6955,40 +6953,7 @@ export interface operations {
             };
         };
     };
-    _put_transcript_api_v1_assets__asset_id__transcript_post: {
-        parameters: {
-            query?: {
-                format?: string | null;
-            };
-            header?: never;
-            path: {
-                asset_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReprocessOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    _put_transcript_api_v1_assets__asset_id__transcript_post: {
+    attach_transcript_put: {
         parameters: {
             query?: {
                 format?: string | null;
@@ -8126,42 +8091,7 @@ export interface operations {
             };
         };
     };
-    serve_media_media__key__head: {
-        parameters: {
-            query?: {
-                exp?: number | null;
-                sig?: string | null;
-                dl?: string | null;
-            };
-            header?: never;
-            path: {
-                key: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    serve_media_media__key__head: {
+    serve_media_media__key__get: {
         parameters: {
             query?: {
                 exp?: number | null;
