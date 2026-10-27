@@ -91,7 +91,7 @@ The topbar chip and the banner under it show the data mode: no key = a yellow "A
 - **Settings**: "Language models" shows which providers are on, calls today, models in use; **Test my keys**. "Media & search engine" shows ffmpeg and the embedder with a Real or Heuristic label.
 
 ### 12. Close (15 s)
-Honest scope: sponsorships, YouTube publishing, analytics and the Creative Twin are the next milestones
+Honest scope: YouTube publishing, analytics and the Creative Twin are the next milestones
 ([TODO.md](TODO.md)); the Plan has them specified and the data model already exists.
 
 ## What works without keys vs with keys

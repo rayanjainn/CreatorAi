@@ -1797,6 +1797,218 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/content/{item_id}/sponsors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Briefs
+         * @description The project's sponsor briefs, each with its slots.
+         */
+        get: operations["list_briefs_api_v1_content__item_id__sponsors_get"];
+        put?: never;
+        /** Create Brief */
+        post: operations["create_brief_api_v1_content__item_id__sponsors_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sponsors/{brief_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Brief */
+        delete: operations["delete_brief_api_v1_sponsors__brief_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Brief */
+        patch: operations["update_brief_api_v1_sponsors__brief_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/sponsors/{brief_id}/find-slots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Find Slots
+         * @description Score the transcript boundaries and write the reads (replaces earlier suggestions).
+         */
+        post: operations["find_slots_api_v1_sponsors__brief_id__find_slots_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sponsor-slots/{slot_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Slot */
+        patch: operations["update_slot_api_v1_sponsor_slots__slot_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/sponsor-slots/{slot_id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept Slot
+         * @description Insert the read into the clip as a sponsor placeholder (a new edit revision).
+         */
+        post: operations["accept_slot_api_v1_sponsor_slots__slot_id__accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monetization/deals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Deals */
+        get: operations["list_deals_api_v1_monetization_deals_get"];
+        put?: never;
+        /** Create Deal */
+        post: operations["create_deal_api_v1_monetization_deals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monetization/deals/{deal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Deal */
+        delete: operations["delete_deal_api_v1_monetization_deals__deal_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Deal */
+        patch: operations["update_deal_api_v1_monetization_deals__deal_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/monetization/deals/{deal_id}/pitch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pitch
+         * @description Write an outreach email with the configured model, from the numbers given only.
+         */
+        post: operations["pitch_api_v1_monetization_deals__deal_id__pitch_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monetization/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Summary
+         * @description Pipeline value by stage, paid total, win rate, overdue and upcoming deliverables.
+         */
+        get: operations["summary_api_v1_monetization_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monetization/rate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rate
+         * @description ``views / 1000 x CPM`` for a range, plus the creator's paid-deal history (heuristic).
+         */
+        post: operations["rate_api_v1_monetization_rate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monetization/lookup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Lookup
+         * @description Read a few public pages of the brand's site; report emails and links printed there.
+         */
+        post: operations["lookup_api_v1_monetization_lookup_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/media/{key}": {
         parameters: {
             query?: never;
@@ -1818,6 +2030,11 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AcceptBody */
+        AcceptBody: {
+            /** Clip Id */
+            clip_id: string;
+        };
         /** ActivityOut */
         ActivityOut: {
             /** Id */
@@ -2166,6 +2383,46 @@ export interface components {
             /** Content Item Id */
             content_item_id?: string | null;
         };
+        /** BriefBody */
+        BriefBody: {
+            /** Brand */
+            brand: string;
+            /** Product */
+            product: string;
+            /** Key Points */
+            key_points?: string[];
+            /**
+             * Cta
+             * @default
+             */
+            cta?: string;
+            /** Do Not Say */
+            do_not_say?: string[];
+            /**
+             * Duration Sec
+             * @default 20
+             */
+            duration_sec?: number;
+            /** Deal Id */
+            deal_id?: string | null;
+        };
+        /** BriefPatch */
+        BriefPatch: {
+            /** Brand */
+            brand?: string | null;
+            /** Product */
+            product?: string | null;
+            /** Key Points */
+            key_points?: string[] | null;
+            /** Cta */
+            cta?: string | null;
+            /** Do Not Say */
+            do_not_say?: string[] | null;
+            /** Duration Sec */
+            duration_sec?: number | null;
+            /** Deal Id */
+            deal_id?: string | null;
+        };
         /** CaptionItem */
         CaptionItem: {
             /** Id */
@@ -2232,6 +2489,34 @@ export interface components {
             thumbnail_url: string | null;
             progress: components["schemas"]["ProgressOut"];
             running_jobs: components["schemas"]["RunningJobsOut"];
+        };
+        /** ChannelStats */
+        ChannelStats: {
+            /**
+             * Subscribers
+             * @default
+             */
+            subscribers?: string;
+            /**
+             * Avg Views
+             * @default
+             */
+            avg_views?: string;
+            /**
+             * Audience
+             * @default
+             */
+            audience?: string;
+            /**
+             * Top Countries
+             * @default
+             */
+            top_countries?: string;
+            /**
+             * Engagement
+             * @default
+             */
+            engagement?: string;
         };
         /** ChatBody */
         ChatBody: {
@@ -2474,6 +2759,78 @@ export interface components {
              */
             matched_sec?: number;
         };
+        /** DealBody */
+        DealBody: {
+            /** Brand */
+            brand: string;
+            /**
+             * Website
+             * @default
+             */
+            website?: string;
+            /**
+             * Contact Name
+             * @default
+             */
+            contact_name?: string;
+            /**
+             * Contact Email
+             * @default
+             */
+            contact_email?: string;
+            /**
+             * Stage
+             * @default prospect
+             * @enum {string}
+             */
+            stage?: "prospect" | "pitched" | "negotiating" | "contracted" | "delivered" | "paid" | "lost";
+            /** Fee */
+            fee?: number | null;
+            /**
+             * Currency
+             * @default USD
+             */
+            currency?: string;
+            /**
+             * Deliverables
+             * @default
+             */
+            deliverables?: string;
+            /** Due Date */
+            due_date?: string | null;
+            /**
+             * Notes
+             * @default
+             */
+            notes?: string;
+            /** Content Item Id */
+            content_item_id?: string | null;
+        };
+        /** DealPatch */
+        DealPatch: {
+            /** Brand */
+            brand?: string | null;
+            /** Website */
+            website?: string | null;
+            /** Contact Name */
+            contact_name?: string | null;
+            /** Contact Email */
+            contact_email?: string | null;
+            /** Stage */
+            stage?: ("prospect" | "pitched" | "negotiating" | "contracted" | "delivered" | "paid" | "lost") | null;
+            /** Fee */
+            fee?: number | null;
+            /** Currency */
+            currency?: string | null;
+            /** Deliverables */
+            deliverables?: string | null;
+            /** Due Date */
+            due_date?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Content Item Id */
+            content_item_id?: string | null;
+        };
         /** DeleteOut */
         DeleteOut: {
             /** Deleted */
@@ -2559,6 +2916,11 @@ export interface components {
             timeline: components["schemas"]["Timeline"];
             /** Updated At */
             updated_at: string;
+        };
+        /** FindBody */
+        FindBody: {
+            /** Asset Id */
+            asset_id?: string | null;
         };
         /** GenerateClipsRequest */
         GenerateClipsRequest: {
@@ -2812,6 +3174,11 @@ export interface components {
             email: string;
             /** Password */
             password: string;
+        };
+        /** LookupBody */
+        LookupBody: {
+            /** Website */
+            website: string;
         };
         /** LumiclipClipOut */
         LumiclipClipOut: {
@@ -3197,6 +3564,15 @@ export interface components {
             /** Offset */
             offset: number;
         };
+        /** PitchBody */
+        PitchBody: {
+            stats?: components["schemas"]["ChannelStats"];
+            /**
+             * Notes
+             * @default
+             */
+            notes?: string;
+        };
         /** PlanOut */
         PlanOut: {
             /** Id */
@@ -3389,6 +3765,20 @@ export interface components {
             provider?: string | null;
             /** Model */
             model?: string | null;
+        };
+        /** RateBody */
+        RateBody: {
+            /** Avg Views */
+            avg_views: number;
+            /** Cpm Low */
+            cpm_low?: number | null;
+            /** Cpm High */
+            cpm_high?: number | null;
+            /**
+             * Placements
+             * @default 1
+             */
+            placements?: number;
         };
         /** RegenerateSceneRequest */
         RegenerateSceneRequest: {
@@ -3892,6 +4282,17 @@ export interface components {
             display_name?: string | null;
             /** Invite Token */
             invite_token?: string | null;
+        };
+        /** SlotPatch */
+        SlotPatch: {
+            /** Integration Script */
+            integration_script?: string | null;
+            /** Lower Third */
+            lower_third?: string | null;
+            /** Transition Back */
+            transition_back?: string | null;
+            /** Status */
+            status?: ("suggested" | "rejected") | null;
         };
         /**
          * SwapRequest
@@ -8078,6 +8479,516 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["YtdlpDownloadOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_briefs_api_v1_content__item_id__sponsors_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_brief_api_v1_content__item_id__sponsors_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BriefBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_brief_api_v1_sponsors__brief_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                brief_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_brief_api_v1_sponsors__brief_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                brief_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BriefPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    find_slots_api_v1_sponsors__brief_id__find_slots_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                brief_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FindBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_slot_api_v1_sponsor_slots__slot_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slot_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SlotPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    accept_slot_api_v1_sponsor_slots__slot_id__accept_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slot_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcceptBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_deals_api_v1_monetization_deals_get: {
+        parameters: {
+            query?: {
+                stage?: ("prospect" | "pitched" | "negotiating" | "contracted" | "delivered" | "paid" | "lost") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_deal_api_v1_monetization_deals_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DealBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_deal_api_v1_monetization_deals__deal_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_deal_api_v1_monetization_deals__deal_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DealPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    pitch_api_v1_monetization_deals__deal_id__pitch_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PitchBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    summary_api_v1_monetization_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    rate_api_v1_monetization_rate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    lookup_api_v1_monetization_lookup_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LookupBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */

@@ -10,7 +10,7 @@ from app.models.integrations import LumiclipProject
 from app.models.matching import BeatMatch
 from app.models.publishing import InsightSnapshot, PublishJob, YtMetricDaily, YtVideo
 from app.models.scripts import Script, ScriptBeat
-from app.models.sponsors import SponsorBrief, SponsorSlot
+from app.models.sponsors import BrandDeal, SponsorBrief, SponsorSlot
 from app.models.system import ActivityLog, Job, LlmCache, LlmUsage
 from app.models.twin import TwinMemory, TwinMessage
 
@@ -21,6 +21,7 @@ __all__ = [
     "AssetShot",
     "Base",
     "BeatMatch",
+    "BrandDeal",
     "Clip",
     "Comment",
     "ContentItem",

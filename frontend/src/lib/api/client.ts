@@ -58,6 +58,12 @@ export async function getJson<T>(path: string, opts: { auth?: boolean } = {}): P
 export async function postJson<T>(path: string, body?: unknown): Promise<T> {
   return requestJson<T>('POST', path, body)
 }
+export async function patchJson<T>(path: string, body: unknown): Promise<T> {
+  return requestJson<T>('PATCH', path, body)
+}
+export async function deleteJson(path: string): Promise<void> {
+  await requestJson<unknown>('DELETE', path)
+}
 
 async function requestJson<T>(method: string, path: string, body?: unknown, opts: { auth?: boolean } = {}): Promise<T> {
   const headers: Record<string, string> = {}

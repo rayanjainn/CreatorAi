@@ -185,6 +185,15 @@ class SponsorIntegrationOutput(BaseModel):
     slots: list[SponsorSlotCopy]
 
 
+class SponsorPitchOutput(BaseModel):
+    """``sponsors.pitch`` output: an outreach email built only from numbers the creator typed."""
+
+    subject: str = Field(min_length=3, max_length=140)
+    email: str = Field(min_length=20)
+    talking_points: list[str] = Field(default_factory=list, max_length=8)
+    follow_up: str = ""
+
+
 # ── twin ─────────────────────────────────────────────────────────────────────────────────────
 class TwinAction(BaseModel):
     type: Literal[
@@ -272,6 +281,7 @@ TASK_SCHEMAS: dict[str, type[BaseModel]] = {
     "match.disambiguate": MatchDisambiguateOutput,
     "clips.rerank_copy": ClipRerankOutput,
     "sponsors.integration": SponsorIntegrationOutput,
+    "sponsors.pitch": SponsorPitchOutput,
     "research.brief": ResearchBriefOutput,
     "twin.chat": TwinChatOutput,
     "twin.style_extract": StyleExtractOutput,
