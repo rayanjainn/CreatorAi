@@ -59,7 +59,9 @@ the work is the services, endpoints, jobs and pages.
 - **Acceptance:** a PR shows backend, frontend and lint checks; failing tests block merge.
 - **Size:** S.
 
-### 3. Sponsorship and monetization (a)
+### 3. Sponsorship and monetization (a) — done
+**Built:** `ml/sponsor_slots.py`, `services/{sponsor_service,monetization}.py`, `api/v1/{sponsors,monetization}.py`, the project Sponsors tab and `/monetization`. Left from the original list: linking a recorded asset to a sponsor placeholder from the inspector. The original plan follows for reference.
+
 - **What:** sponsor brief, sponsor slot detection, "Accept into clip", disclosure.
 - **Why:** a named product module; the project "Sponsors" tab and `/monetization` are empty "not available" pages.
 - **Where:** Plan 8.10 and 6.1 (sponsor `VideoItem`), table `sponsor_briefs`/`sponsor_slots` (exist), LLM task `sponsors.integration` (schema, prompt, mock exist), `timeline_service.ripple_insert`, error `SLOT_OUTSIDE_CLIP` (exists).
@@ -184,4 +186,4 @@ the "Ask" tab applies pause tightening, caption style and music changes as new r
 Still open:
 1. **YouTube connection**: OAuth, publishing and real performance metrics (Insights shows none until this exists).
 2. Twin event `layer_rejected` and trim/hook actions are not wired (those open the editor instead of applying).
-3. Sponsors (Plan 8.10) were dropped on purpose.
+3. Sponsors (Plan 8.10) are built: see `docs/API.md` "Monetization and sponsors". Linking a recorded sponsor clip to a placeholder in the editor is still manual (delete the placeholder, insert the clip).

@@ -1,0 +1,310 @@
+/* ---------- monetization: deals board, pitch, rate calculator, lookup, sponsor slots ---------- */
+.mon-form {
+  display: grid;
+  gap: 14px;
+}
+.mon-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px 14px;
+}
+.mon-fee {
+  display: grid;
+  grid-template-columns: 1fr 96px;
+  gap: 10px;
+}
+.mon-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.mon-row .select {
+  width: auto;
+  max-width: 280px;
+}
+
+.mon-board {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(240px, 1fr);
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scroll-snap-type: x proximity;
+}
+.mon-col {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 140px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  scroll-snap-align: start;
+}
+.mon-col header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.mon-col[data-stage="paid"] header b {
+  color: var(--green);
+}
+.mon-col[data-stage="lost"] {
+  opacity: 0.75;
+}
+.mon-card {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.mon-card[data-overdue] {
+  border-color: color-mix(in srgb, var(--amber) 60%, transparent);
+}
+.mon-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+.mon-card h3 {
+  font-size: 14.5px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.mon-fee-tag {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+  white-space: nowrap;
+}
+.mon-deliv {
+  font-size: 12.5px;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mon-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  font-size: 12px;
+}
+.mon-due,
+.mon-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mon-due.late {
+  color: var(--amber);
+}
+.mon-contact:hover {
+  color: var(--foreground);
+}
+.mon-actions {
+  display: grid;
+  gap: 6px;
+}
+.mon-actions .select {
+  height: 32px;
+  font-size: 12.5px;
+}
+.mon-buttons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.mon-buttons > :first-child {
+  margin-right: auto;
+}
+.mon-stats {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+}
+@media (max-width: 560px) {
+  .mon-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .mon-stats .ins-stat {
+    padding: 14px;
+  }
+  .mon-stats .ins-stat b {
+    font-size: 18px;
+  }
+}
+
+.mon-pitch {
+  display: grid;
+  gap: 16px;
+}
+.mon-pitch-out {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.mon-pitch-out h4 {
+  font-size: 13px;
+  margin-top: 6px;
+}
+.mon-pitch-out ul {
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+  font-size: 13.5px;
+}
+.mon-pitch-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+.mon-email {
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--background);
+  border: 1px solid var(--line);
+}
+.mon-copy-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mon-rate-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 12px;
+  align-items: end;
+  margin-top: 14px;
+}
+.mon-rate-out {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+.mon-rate-range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.mon-rate-range > div {
+  display: grid;
+  gap: 2px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  min-width: 110px;
+}
+.mon-rate-range > div.mid {
+  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+}
+.mon-rate-range small {
+  color: var(--muted);
+}
+.mon-rate-range b {
+  font-size: 20px;
+}
+
+.mon-lookup {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+.mon-lookup-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+.mon-emails {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.mon-emails li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.mon-emails a:first-child {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.mon-socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  text-transform: capitalize;
+}
+
+.mon-points {
+  padding-left: 18px;
+  display: grid;
+  gap: 2px;
+  color: var(--muted);
+}
+.mon-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.mon-slot {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.mon-slot[data-status="accepted"] {
+  border-color: color-mix(in srgb, var(--green) 50%, transparent);
+}
+.mon-slot-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mon-slot-head > div {
+  flex: 1;
+  min-width: 0;
+}
+.mon-slot-n {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 12px;
+  font-weight: 700;
+}

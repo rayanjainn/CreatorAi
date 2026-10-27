@@ -86,6 +86,12 @@ const ACTION_LABELS: Record<string, string> = {
   review_generated: 'Generated a review',
   match_completed: 'Matched script to footage',
   clips_generated: 'Generated clips',
+  deal_created: 'Added a brand deal',
+  deal_stage_changed: 'Moved a brand deal',
+  deal_pitch_written: 'Wrote a sponsor pitch',
+  sponsor_brief_created: 'Added a sponsor brief',
+  sponsor_slots_found: 'Found sponsor slots',
+  sponsor_slot_accepted: 'Placed a sponsor read in a clip',
 }
 export function actionLabel(action: string): string {
   if (ACTION_LABELS[action]) return ACTION_LABELS[action]

@@ -498,3 +498,22 @@ A denied request is `403 FORBIDDEN` with `details: {role, needs, workspace_role}
 | `POST /research` `{topic, content_item_id?}`, `GET /research?content_item_id=` | Web search (`SEARCH_PROVIDER` tavily or serper) then a `research.brief` LLM call. Sources are limited in code to URLs the search returned. Errors: `SEARCH_NOT_CONFIGURED` 503, `SEARCH_FAILED` 502, `NO_RESULTS` 404, `BAD_OUTPUT` 502. |
 | `PATCH /content/{id}` `{scheduled_for: "YYYY-MM-DD" \| null}` | Plans a project on a day (nothing is posted). |
 | Timeline overlay `style` | Optional on `text` and `lower_third` overlays: `{x, y, font: montserrat\|inter\|serif\|mono, size, color, bg, bg_opacity, align, width, shadow}`. The renderer draws it (`media/cards.py`). |
+
+## Monetization and sponsors (`api/v1/monetization.py`, `api/v1/sponsors.py`)
+
+Every deal value is typed by the creator. Generated text carries `provenance`; the rate estimate is `heuristic`.
+
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/monetization/deals?stage=` | the workspace's deals, newest change first; each has `overdue` |
+| `POST` | `/monetization/deals` | `{brand, website?, contact_name?, contact_email?, stage?, fee?, currency?, deliverables?, due_date?, notes?, content_item_id?}`; `stage` is `prospect|pitched|negotiating|contracted|delivered|paid|lost` |
+| `PATCH`/`DELETE` | `/monetization/deals/{id}` | stage changes are logged (`deal_stage_changed`) |
+| `POST` | `/monetization/deals/{id}/pitch` | `{stats: {subscribers?, avg_views?, audience?, top_countries?, engagement?}, notes?}`, LLM task `sponsors.pitch`; stores `pitch {subject, email, talking_points, follow_up, provenance}` on the deal; `503 LLM_NOT_CONFIGURED` without a model |
+| `GET` | `/monetization/summary` | `by_stage {count, value}`, `open_value`, `booked_value`, `paid_value`, `average_paid_fee`, `win_rate`, `overdue[]`, `upcoming[]` |
+| `POST` | `/monetization/rate` | `{avg_views, cpm_low?, cpm_high?, placements?}` → `{low, mid, high, history {paid_deals, average_fee, highest_fee}}`; default CPM 20 to 40 (`default_cpm: true`) |
+| `POST` | `/monetization/lookup` | `{website}` → `{title, description, emails [{email, found_on}], socials, pages}`; reads up to 7 pages of the brand's own site; private and local addresses are refused on every redirect (`422`); `DOWNLOAD_FAILED` (502) when no page could be read |
+| `GET`/`POST` | `/content/{id}/sponsors` | list briefs (each with `slots`) / create `{brand, product, key_points[], cta, do_not_say[], duration_sec 10..60, deal_id?}` |
+| `PATCH`/`DELETE` | `/sponsors/{brief_id}` | |
+| `POST` | `/sponsors/{brief_id}/find-slots` | `{asset_id?}`; Plan 8.10 scoring over the main video's transcript, up to 3 slots, one batched `sponsors.integration` call for `integration_script`, `lower_third`, `transition_back`; without a model the slots are kept with empty reads and a warning; replaces earlier *suggested* slots only. `409 ASSET_NOT_READY` without a processed video |
+| `PATCH` | `/sponsor-slots/{id}` | `{integration_script?, lower_third?, transition_back?, status?: suggested|rejected}`; an edit makes the provenance `user` |
+| `POST` | `/sponsor-slots/{id}/accept` | `{clip_id}`: ripples a `VideoItem(kind=sponsor, placeholder)` in at the slot, adds a `lower_third` "Sponsored · brand" and estimated captions, all `suggested`, as a new edit revision. A slot inside a pause the cut removed snaps to the cut. `422 SLOT_OUTSIDE_CLIP` when the clip does not cover the moment; `409` when already placed |

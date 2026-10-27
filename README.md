@@ -106,6 +106,7 @@ A result mixing sources shows the weakest one. The topbar chip and the `DataMode
 | Smart clips | scores windows, reframes 9:16 with face detection, rerank + copy | copy needs an AI key, otherwise labelled heuristic |
 | Timeline editor | tracks, trim/split/reorder, captions, revisions with conflict handling, autosave, accept/reject AI layers | Edit and Preview modes only |
 | Render / export | YouTube Short, Reels, TikTok, YouTube long presets with burned-in captions, downloads | |
+| Monetization | brand-deal pipeline (prospect to paid) with totals and overdue deliverables, pitch emails from your own numbers, a CPM rate estimate, a brand-site contact lookup; per project: sponsor slots found in your transcript, the read written for each, placed into a clip with a "Sponsored" label | pitch and reads need an AI key; the rate estimate is labelled heuristic |
 | Jobs and settings | live job progress (SSE), retry/cancel, AI status, key test | |
 
 Not built yet (the pages say so honestly): YouTube connection and publishing (so no platform performance numbers), and the Twin's trim and hook actions apply only in the editor.

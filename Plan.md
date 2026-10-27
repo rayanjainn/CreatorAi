@@ -17,7 +17,7 @@ Snapshot of what exists in the repository (details: [docs/HANDOFF.md](docs/HANDO
 | 1.7 / 6.1 Editable timeline (API + editor UI) | implemented | Edit and Preview modes; Audio/Color/Structure not built ([TODO 15](docs/TODO.md)) |
 | 1.8 / 8.9 Repurposing, render and export | implemented | presets `yt_short`, `reels`, `tiktok`, `yt_long` |
 | 1.9 / 8.11 Creative Digital Twin | implemented | style profile, memories (approved scripts, accepted clips), chat, suggested actions; `/twin`, editor Ask tab |
-| 1.10 / 8.10 Sponsorship and monetization | dropped | removed from the UI on purpose |
+| 1.10 / 8.10 Sponsorship and monetization | implemented | project Sponsors tab (briefs, slot detection, reads, accept into a clip) and `/monetization` (deal pipeline, pitch emails, rate estimate, brand lookup) |
 | 1.11 Workflow board and jobs | implemented | publishing not built ([TODO 5](docs/TODO.md)) |
 | 1.11 YouTube OAuth and publish (`publish.upload`) | not built | [TODO 5](docs/TODO.md) |
 | 1.12 / 8.12 Creator intelligence | partly | `/insights/production` (counts from your own workspace); platform performance needs YouTube (not built) |
