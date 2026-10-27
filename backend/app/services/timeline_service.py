@@ -579,6 +579,53 @@ def ripple_insert(timeline: Timeline, at_tl: float, item: VideoItem) -> Timeline
     return _finish(timeline, out)
 
 
+def insert_sponsor(
+    timeline: Timeline,
+    at_tl: float,
+    *,
+    duration: float,
+    script: str,
+    brand: str,
+    slot_id: str | None = None,
+) -> tuple[Timeline, str]:
+    """Insert a sponsor placeholder at ``at_tl`` (Plan 8.10 step 7); returns ``(timeline, id)``.
+
+    The placeholder carries the read as ``text``; later items, captions and overlays ripple by its
+    length, a ``lower_third`` overlay "Sponsored · brand" spans it and captions estimated at 2.5
+    words per second are added for the read. Everything inserted is ``suggested`` so the creator
+    accepts it in the editor like any other suggestion.
+    """
+    item = VideoItem(
+        id=new_item_id("v"), source="ai", status="suggested", reason="sponsor slot",
+        kind="sponsor", asset_id=None, placeholder=True, src_in=0.0,
+        src_out=round(float(duration), 3), tl_start=0.0, text=script or f"Sponsor read: {brand}",
+    )  # fmt: skip
+    out = ripple_insert(timeline, at_tl, item)
+    placed = next(v for v in out.tracks.video if v.id == item.id)
+    start, end = round(placed.tl_start, 3), round(placed.tl_start + placed.duration, 3)
+    out.tracks.overlays.append(
+        OverlayItem(
+            id=new_item_id("o"), source="ai", status="suggested", reason="sponsor disclosure",
+            kind="lower_third", tl_start=start, tl_end=end, text=f"Sponsored · {brand}"[:60],
+            sponsor_slot_id=slot_id,
+        )
+    )  # fmt: skip
+    base = placed.model_copy(update={"src_in": 0.0})
+    words = _estimate_words(placed.text or "", placed.duration)
+    for t0, t1, line in _item_lines(base, words, out.caption_style, None):
+        if t1 - t0 < MIN_LAYER_SEC:
+            continue
+        out.tracks.captions.append(
+            CaptionItem(
+                id=new_item_id("c"), source="ai", status="suggested", reason="sponsor script",
+                tl_start=t0, tl_end=t1, text=" ".join(w[0] for w in line),
+                words=[CaptionWord(w=w[0], t0=round(w[1], 3), t1=round(w[2], 3)) for w in line],
+            )
+        )  # fmt: skip
+    out.tracks.captions.sort(key=lambda c: (c.tl_start, c.tl_end))
+    return out, item.id
+
+
 # ── captions (Plan 8.9) ───────────────────────────────────────────────────────────────────────
 def _norm_words(raw: Sequence[Mapping[str, Any]]) -> list[tuple[str, float, float]]:
     out = []

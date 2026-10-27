@@ -5905,6 +5905,715 @@
         }
       }
     },
+    "/api/v1/content/{item_id}/sponsors": {
+      "get": {
+        "tags": [
+          "sponsors"
+        ],
+        "summary": "List Briefs",
+        "description": "The project's sponsor briefs, each with its slots.",
+        "operationId": "list_briefs_api_v1_content__item_id__sponsors_get",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response List Briefs Api V1 Content  Item Id  Sponsors Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "sponsors"
+        ],
+        "summary": "Create Brief",
+        "operationId": "create_brief_api_v1_content__item_id__sponsors_post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BriefBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Create Brief Api V1 Content  Item Id  Sponsors Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sponsors/{brief_id}": {
+      "patch": {
+        "tags": [
+          "sponsors"
+        ],
+        "summary": "Update Brief",
+        "operationId": "update_brief_api_v1_sponsors__brief_id__patch",
+        "parameters": [
+          {
+            "name": "brief_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Brief Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BriefPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Update Brief Api V1 Sponsors  Brief Id  Patch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "sponsors"
+        ],
+        "summary": "Delete Brief",
+        "operationId": "delete_brief_api_v1_sponsors__brief_id__delete",
+        "parameters": [
+          {
+            "name": "brief_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Brief Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sponsors/{brief_id}/find-slots": {
+      "post": {
+        "tags": [
+          "sponsors"
+        ],
+        "summary": "Find Slots",
+        "description": "Score the transcript boundaries and write the reads (replaces earlier suggestions).",
+        "operationId": "find_slots_api_v1_sponsors__brief_id__find_slots_post",
+        "parameters": [
+          {
+            "name": "brief_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Brief Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Find Slots Api V1 Sponsors  Brief Id  Find Slots Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sponsor-slots/{slot_id}": {
+      "patch": {
+        "tags": [
+          "sponsors"
+        ],
+        "summary": "Update Slot",
+        "operationId": "update_slot_api_v1_sponsor_slots__slot_id__patch",
+        "parameters": [
+          {
+            "name": "slot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slot Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SlotPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Update Slot Api V1 Sponsor Slots  Slot Id  Patch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sponsor-slots/{slot_id}/accept": {
+      "post": {
+        "tags": [
+          "sponsors"
+        ],
+        "summary": "Accept Slot",
+        "description": "Insert the read into the clip as a sponsor placeholder (a new edit revision).",
+        "operationId": "accept_slot_api_v1_sponsor_slots__slot_id__accept_post",
+        "parameters": [
+          {
+            "name": "slot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slot Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Accept Slot Api V1 Sponsor Slots  Slot Id  Accept Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monetization/deals": {
+      "get": {
+        "tags": [
+          "monetization"
+        ],
+        "summary": "List Deals",
+        "operationId": "list_deals_api_v1_monetization_deals_get",
+        "parameters": [
+          {
+            "name": "stage",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "prospect",
+                    "pitched",
+                    "negotiating",
+                    "contracted",
+                    "delivered",
+                    "paid",
+                    "lost"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Stage"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response List Deals Api V1 Monetization Deals Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "monetization"
+        ],
+        "summary": "Create Deal",
+        "operationId": "create_deal_api_v1_monetization_deals_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DealBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Create Deal Api V1 Monetization Deals Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monetization/deals/{deal_id}": {
+      "patch": {
+        "tags": [
+          "monetization"
+        ],
+        "summary": "Update Deal",
+        "operationId": "update_deal_api_v1_monetization_deals__deal_id__patch",
+        "parameters": [
+          {
+            "name": "deal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Deal Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DealPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Update Deal Api V1 Monetization Deals  Deal Id  Patch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "monetization"
+        ],
+        "summary": "Delete Deal",
+        "operationId": "delete_deal_api_v1_monetization_deals__deal_id__delete",
+        "parameters": [
+          {
+            "name": "deal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Deal Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monetization/deals/{deal_id}/pitch": {
+      "post": {
+        "tags": [
+          "monetization"
+        ],
+        "summary": "Pitch",
+        "description": "Write an outreach email with the configured model, from the numbers given only.",
+        "operationId": "pitch_api_v1_monetization_deals__deal_id__pitch_post",
+        "parameters": [
+          {
+            "name": "deal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Deal Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PitchBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Pitch Api V1 Monetization Deals  Deal Id  Pitch Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monetization/summary": {
+      "get": {
+        "tags": [
+          "monetization"
+        ],
+        "summary": "Summary",
+        "description": "Pipeline value by stage, paid total, win rate, overdue and upcoming deliverables.",
+        "operationId": "summary_api_v1_monetization_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Summary Api V1 Monetization Summary Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monetization/rate": {
+      "post": {
+        "tags": [
+          "monetization"
+        ],
+        "summary": "Rate",
+        "description": "``views / 1000 x CPM`` for a range, plus the creator's paid-deal history (heuristic).",
+        "operationId": "rate_api_v1_monetization_rate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RateBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Rate Api V1 Monetization Rate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/monetization/lookup": {
+      "post": {
+        "tags": [
+          "monetization"
+        ],
+        "summary": "Lookup",
+        "description": "Read a few public pages of the brand's site; report emails and links printed there.",
+        "operationId": "lookup_api_v1_monetization_lookup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LookupBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Lookup Api V1 Monetization Lookup Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/media/{key}": {
       "get": {
         "tags": [
@@ -5997,6 +6706,19 @@
   },
   "components": {
     "schemas": {
+      "AcceptBody": {
+        "properties": {
+          "clip_id": {
+            "type": "string",
+            "title": "Clip Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "clip_id"
+        ],
+        "title": "AcceptBody"
+      },
       "ActivityOut": {
         "properties": {
           "id": {
@@ -7086,6 +7808,164 @@
         ],
         "title": "Body_upload_asset_api_v1_assets_upload_post"
       },
+      "BriefBody": {
+        "properties": {
+          "brand": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Brand"
+          },
+          "product": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Product"
+          },
+          "key_points": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Key Points"
+          },
+          "cta": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Cta",
+            "default": ""
+          },
+          "do_not_say": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Do Not Say"
+          },
+          "duration_sec": {
+            "type": "integer",
+            "maximum": 60.0,
+            "minimum": 10.0,
+            "title": "Duration Sec",
+            "default": 20
+          },
+          "deal_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deal Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "brand",
+          "product"
+        ],
+        "title": "BriefBody"
+      },
+      "BriefPatch": {
+        "properties": {
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "product": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 160
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product"
+          },
+          "key_points": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Points"
+          },
+          "cta": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cta"
+          },
+          "do_not_say": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Do Not Say"
+          },
+          "duration_sec": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 60.0,
+                "minimum": 10.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Sec"
+          },
+          "deal_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deal Id"
+          }
+        },
+        "type": "object",
+        "title": "BriefPatch"
+      },
       "CaptionItem": {
         "properties": {
           "id": {
@@ -7317,6 +8197,42 @@
           "running_jobs"
         ],
         "title": "CardOut"
+      },
+      "ChannelStats": {
+        "properties": {
+          "subscribers": {
+            "type": "string",
+            "maxLength": 60,
+            "title": "Subscribers",
+            "default": ""
+          },
+          "avg_views": {
+            "type": "string",
+            "maxLength": 60,
+            "title": "Avg Views",
+            "default": ""
+          },
+          "audience": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Audience",
+            "default": ""
+          },
+          "top_countries": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Top Countries",
+            "default": ""
+          },
+          "engagement": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Engagement",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "ChannelStats"
       },
       "ChatBody": {
         "properties": {
@@ -8095,6 +9011,255 @@
         ],
         "title": "CoverageOut"
       },
+      "DealBody": {
+        "properties": {
+          "brand": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Brand"
+          },
+          "website": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Website",
+            "default": ""
+          },
+          "contact_name": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Contact Name",
+            "default": ""
+          },
+          "contact_email": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Contact Email",
+            "default": ""
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "prospect",
+              "pitched",
+              "negotiating",
+              "contracted",
+              "delivered",
+              "paid",
+              "lost"
+            ],
+            "title": "Stage",
+            "default": "prospect"
+          },
+          "fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fee"
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Currency",
+            "default": "USD"
+          },
+          "deliverables": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Deliverables",
+            "default": ""
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Notes",
+            "default": ""
+          },
+          "content_item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Item Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "brand"
+        ],
+        "title": "DealBody"
+      },
+      "DealPatch": {
+        "properties": {
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "contact_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Name"
+          },
+          "contact_email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Email"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "prospect",
+                  "pitched",
+                  "negotiating",
+                  "contracted",
+                  "delivered",
+                  "paid",
+                  "lost"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fee"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 3,
+                "minLength": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "deliverables": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deliverables"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "content_item_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Item Id"
+          }
+        },
+        "type": "object",
+        "title": "DealPatch"
+      },
       "DeleteOut": {
         "properties": {
           "deleted": {
@@ -8287,6 +9452,23 @@
           "updated_at"
         ],
         "title": "EditSaved"
+      },
+      "FindBody": {
+        "properties": {
+          "asset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asset Id"
+          }
+        },
+        "type": "object",
+        "title": "FindBody"
       },
       "GenerateClipsRequest": {
         "properties": {
@@ -9060,6 +10242,21 @@
           "password"
         ],
         "title": "LoginRequest"
+      },
+      "LookupBody": {
+        "properties": {
+          "website": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Website"
+          }
+        },
+        "type": "object",
+        "required": [
+          "website"
+        ],
+        "title": "LookupBody"
       },
       "LumiclipClipOut": {
         "properties": {
@@ -10227,6 +11424,21 @@
         ],
         "title": "Page[IdeaOut]"
       },
+      "PitchBody": {
+        "properties": {
+          "stats": {
+            "$ref": "#/components/schemas/ChannelStats"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 600,
+            "title": "Notes",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "PitchBody"
+      },
       "PlanOut": {
         "properties": {
           "id": {
@@ -10817,6 +12029,54 @@
           "source"
         ],
         "title": "Provenance"
+      },
+      "RateBody": {
+        "properties": {
+          "avg_views": {
+            "type": "integer",
+            "maximum": 1000000000.0,
+            "minimum": 1.0,
+            "title": "Avg Views"
+          },
+          "cpm_low": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cpm Low"
+          },
+          "cpm_high": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cpm High"
+          },
+          "placements": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Placements",
+            "default": 1
+          }
+        },
+        "type": "object",
+        "required": [
+          "avg_views"
+        ],
+        "title": "RateBody"
       },
       "RegenerateSceneRequest": {
         "properties": {
@@ -12204,6 +13464,63 @@
           "password"
         ],
         "title": "SignupRequest"
+      },
+      "SlotPatch": {
+        "properties": {
+          "integration_script": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Integration Script"
+          },
+          "lower_third": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lower Third"
+          },
+          "transition_back": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 400
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transition Back"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "suggested",
+                  "rejected"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "title": "SlotPatch"
       },
       "SwapRequest": {
         "properties": {

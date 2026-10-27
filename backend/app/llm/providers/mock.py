@@ -488,6 +488,29 @@ def _sponsor(v: dict[str, Any]) -> dict[str, Any]:
 
 
 # ── twin ─────────────────────────────────────────────────────────────────────────────────────
+def _pitch(v: dict[str, Any]) -> dict[str, Any]:
+    brand = str(v.get("brand") or "your brand")
+    contact = str(v.get("contact_name") or "").strip()
+    deliverables = str(v.get("deliverables") or "a dedicated integration")
+    fee = str(v.get("fee") or "").strip()
+    greeting = f"Hi {contact}," if contact else f"Hi {brand} team,"
+    lines = [
+        greeting,
+        f"I make videos for an audience that already uses tools like {brand}, and I think a "
+        f"partnership would land well with them.",
+        f"I would like to offer {deliverables}.",
+        *([f"My rate for this package is {fee}."] if fee else []),
+        "Could we set up a 15 minute call next week to talk it through?",
+        "Thanks for reading.",
+    ]
+    return {
+        "subject": f"Partnership idea for {brand}",
+        "email": "\n\n".join(lines),
+        "talking_points": [f"Why my audience fits {brand}", f"What {deliverables} includes"],
+        "follow_up": f"Just checking in on my note about {brand}. Happy to share more details.",
+    }
+
+
 def _twin_chat(v: dict[str, Any]) -> dict[str, Any]:
     message = str(v.get("message") or "")
     low = message.lower()
@@ -617,6 +640,7 @@ _HANDLERS: dict[str, HookFn] = {
     "match.disambiguate": _disambiguate,
     "clips.rerank_copy": _rerank,
     "sponsors.integration": _sponsor,
+    "sponsors.pitch": _pitch,
     "research.brief": _research,
     "twin.chat": _twin_chat,
     "twin.style_extract": _style_extract,
@@ -638,6 +662,7 @@ _MARKED: dict[str, list[tuple[str, int | None, int | None]]] = {
     "assets.caption_keyframes": [("description", None, None)],
     "clips.rerank_copy": [("clips.*.title", None, 70), ("clips.*.hook", 15, None)],
     "sponsors.integration": [("slots.*.integration_script", None, None)],
+    "sponsors.pitch": [("subject", None, 140), ("email", None, None)],
     "research.brief": [("summary", None, None)],
     "twin.chat": [("reply", None, None)],
     "twin.style_extract": [("summary", None, None)],
