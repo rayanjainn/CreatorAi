@@ -13,7 +13,7 @@ never fakes AI output: without a key the AI tools say so and the rest keeps work
 ## Quick start
 
 ```bash
-git clone <this repo> && cd BNB26_PookieBlinder_Internal_Round
+git clone https://github.com/rayanjainn/CreatorAi.git && cd CreatorAi
 make setup     # checks prerequisites, venv + dependencies, .env, database, model download (1 to 3 min)
 make dev       # API on :8000 and web on :3000
 # open http://localhost:3000, create your account (one minute), then add an idea or upload footage

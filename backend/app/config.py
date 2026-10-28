@@ -166,6 +166,13 @@ class Settings(BaseSettings):
             self.media_signing_secret = sha256(f"media:{self.app_secret}".encode()).hexdigest()
         return self
 
+    @field_validator("ollama_base_url")
+    @classmethod
+    def _ollama_url(cls, value: str) -> str:
+        """An empty ``OLLAMA_BASE_URL=`` means the default (Ollama Cloud, which needs a key), not a
+        local server; otherwise a blank line in .env would switch the AI features on with no key."""
+        return value.strip() or OLLAMA_CLOUD_URL
+
     @field_validator("llm_provider_order")
     @classmethod
     def _check_order(cls, value: str) -> str:

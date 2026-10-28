@@ -111,3 +111,11 @@ def test_fastembed_cache_lives_in_the_data_dir_unless_overridden(
     assert settings.fastembed_cache_dir == tmp_path / "models" / "fastembed"
     monkeypatch.setenv("FASTEMBED_CACHE_PATH", str(tmp_path / "elsewhere"))
     assert settings.fastembed_cache_dir == tmp_path / "elsewhere"
+
+
+def test_an_empty_ollama_base_url_is_the_cloud_default_not_a_local_server() -> None:
+    from app.config import OLLAMA_CLOUD_URL, Settings
+
+    s = Settings(ollama_base_url="", ollama_api_key="")
+    assert s.ollama_base_url == OLLAMA_CLOUD_URL and not s.ollama_is_local
+    assert Settings(ollama_base_url="  http://localhost:11434 ").ollama_is_local
