@@ -314,6 +314,10 @@
   display: grid;
   grid-template-columns: minmax(0, 220px) 1fr;
   gap: 16px;
+  align-items: start;
+}
+.pub-grid > .mon-form {
+  align-content: start;
 }
 @media (max-width: 640px) {
   .pub-grid {
@@ -331,6 +335,7 @@
 .pub-options {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: 6px;
 }
 .pub-options .chip {
