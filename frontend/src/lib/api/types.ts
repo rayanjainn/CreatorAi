@@ -284,7 +284,7 @@ export type TwinStyle = { summary?: string; tone_descriptors?: string[]; vocabul
 export type TwinOverview = { style: TwinStyle; style_revision: number; approvals_since_update: number; update_every: number; memory_count: number; memories: { id: string; kind: string; text: string; created_at: string }[] }
 export type TwinAction = { type: string; clip_id?: string | null; content_item_id?: string | null; params?: Record<string, unknown> }
 export type TwinMessage = { id: string; role: 'user' | 'assistant'; content: string; actions: TwinAction[]; provenance?: { source: string; provider?: string | null; model?: string | null } | null; created_at: string }
-export type TwinApplied = { applied: boolean; kind: string; message: string; open_editor?: boolean; clip_id?: string | null; content_item_id?: string | null }
+export type TwinApplied = { applied: boolean; kind: string; message: string; open_editor?: boolean; clip_id?: string | null; content_item_id?: string | null; href?: string }
 
 /** Research agent (backend/app/services/research.py). */
 export type ResearchBrief = { id: string; topic: string; content_item_id: string | null; created_at: string; provenance?: { source: string; provider?: string | null; model?: string | null } | null; doc: { summary: string; key_points: string[]; trends: string[]; sources: { title: string; url: string }[] } }

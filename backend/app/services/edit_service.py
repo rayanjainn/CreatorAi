@@ -30,6 +30,7 @@ from app.schemas.common import Provenance, weakest
 from app.schemas.timeline import Timeline
 from app.security import sign_media
 from app.services import timeline_service as ts
+from app.services import twin_events
 from app.services.activity import log_activity
 
 WAVEFORM_MAX_BINS = 6000  # 0.5 s per bin = 50 min
@@ -190,6 +191,11 @@ def _commit(
     changed = ts.layer_changes(before, timeline)
     for group in changed:
         action = "layer_accepted" if group["status"] == "accepted" else "layer_rejected"
+        if action == "layer_rejected" and "ai" in group["sources"]:
+            twin_events.emit(
+                twin_events.LAYER_REJECTED, workspace_id,
+                {"clip_id": clip.id, "layer": group["layer"], "kind": group["kind"]}, db=db,
+            )  # fmt: skip
         log_activity(
             db, workspace_id, action, "clip", clip.id,
             clip_id=clip.id, content_item_id=clip.content_item_id, layer=group["layer"],

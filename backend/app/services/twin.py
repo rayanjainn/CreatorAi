@@ -158,12 +158,25 @@ def apply_action(db: Session, ws: str, message_id: str, index: int = 0) -> dict[
         )  # fmt: skip
         db.flush()
         return {"applied": True, "kind": kind, "message": f"Added “{title[:80]}” to your ideas."}
+    if kind == "regenerate_hooks" and action.get("content_item_id"):
+        from app.services import script_service
+
+        item_id = str(action["content_item_id"])
+        count = max(3, min(int(params.get("count") or 5), 10))
+        out = script_service.generate_hooks(db, ws, item_id, count, params.get("tone"), None)
+        n = len(out.get("hooks") or [])
+        return {"applied": True, "kind": kind, "content_item_id": item_id,
+                "href": f"/projects/{item_id}/script",
+                "message": f"Wrote {n} new hooks. Pick one on the Script tab."}  # fmt: skip
     clip_id = action.get("clip_id")
     op = {
         "tighten_pauses": "tighten_pauses",
         "set_caption_style": "set_caption_style",
         "toggle_music": "toggle_music",
+        "trim_clip": "trim",
     }.get(str(kind))
+    if op == "trim":  # only the fields the trim op knows; a model may add others
+        params = {k: params[k] for k in ("start_delta", "end_delta", "item_id") if k in params}
     if op and clip_id:
         edit = db.scalar(select(Edit).where(Edit.workspace_id == ws, Edit.clip_id == clip_id))
         if edit is not None:
@@ -251,6 +264,75 @@ def _on_event(event: str, ws: str, payload: dict[str, Any]) -> None:
         remember(ws, "approved_clip", text, payload["clip_id"])
 
 
+# Plan 8.11: a layer type rejected in >= 3 of the last 5 clips becomes a preference and a "don't".
+PREFERENCES = {
+    "music": ("Usually rejects AI music", "Do not add background music unless asked"),
+    "captions": ("Usually rejects AI captions", "Leave captions off unless asked"),
+    "overlays": ("Usually rejects AI text overlays", "Avoid on-screen text overlays unless asked"),
+}
+RECENT_CLIPS, REJECT_THRESHOLD = 5, 3
+
+
+def _layer_type(layer: str, kind: str) -> str | None:
+    if layer == "audio":
+        return "music" if kind == "music" else None
+    return layer if layer in ("captions", "overlays") else None
+
+
+def learn_from_rejections(ws: str) -> list[str]:
+    """Add the preferences the recent layer decisions support; returns the ones added."""
+    from app.models import ActivityLog
+
+    with session_scope() as db:
+        rows = list(
+            db.scalars(
+                select(ActivityLog)
+                .where(ActivityLog.workspace_id == ws,
+                       ActivityLog.action.in_(("layer_accepted", "layer_rejected")))
+                .order_by(ActivityLog.id.desc())
+                .limit(300)
+            )
+        )  # fmt: skip
+        clips: list[str] = []
+        rejected: dict[str, set[str]] = {}
+        for r in rows:
+            meta = r.meta or {}
+            clip_id = str(meta.get("clip_id") or r.entity_id or "")
+            if clip_id not in clips:
+                if len(clips) >= RECENT_CLIPS:
+                    continue
+                clips.append(clip_id)
+            kind = _layer_type(str(meta.get("layer")), str(meta.get("kind")))
+            if r.action == "layer_rejected" and kind and "ai" in (meta.get("sources") or ["ai"]):
+                rejected.setdefault(kind, set()).add(clip_id)
+        added = []
+        profile = db.get(CreatorProfile, ws)
+        for kind, clip_ids in rejected.items():
+            if len(clip_ids) < REJECT_THRESHOLD:
+                continue
+            text, dont = PREFERENCES[kind]
+            source = f"rejects:{kind}"
+            if db.scalar(select(TwinMemory.id).where(TwinMemory.workspace_id == ws,
+                                                     TwinMemory.source_id == source)):  # fmt: skip
+                continue
+            db.add(TwinMemory(workspace_id=ws, kind="preference", text=text, source_id=source,
+                              embedding=pack_vector(embed_texts([text])[0])))  # fmt: skip
+            if profile is not None:
+                style = dict(profile.style_profile or {})
+                donts = list(style.get("donts") or [])
+                if dont not in donts:
+                    style["donts"] = [*donts, dont]
+                    profile.style_profile = style
+            added.append(text)
+        return added
+
+
+def _on_layer_rejected(event: str, ws: str, payload: dict[str, Any]) -> None:
+    if _layer_type(str(payload.get("layer")), str(payload.get("kind"))):
+        learn_from_rejections(ws)
+
+
 def register_listeners() -> None:
     twin_events.register(twin_events.SCRIPT_APPROVED, _on_event)
     twin_events.register(twin_events.CLIP_ACCEPTED, _on_event)
+    twin_events.register(twin_events.LAYER_REJECTED, _on_layer_rejected)

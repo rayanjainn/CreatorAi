@@ -32,6 +32,7 @@ log = logging.getLogger(__name__)
 
 SCRIPT_APPROVED = "script_approved"
 CLIP_ACCEPTED = "clip_accepted"
+LAYER_REJECTED = "layer_rejected"
 
 Listener = Callable[[str, str, dict[str, Any]], None]  # (event, workspace_id, payload)
 _LISTENERS: dict[str, list[Listener]] = {}

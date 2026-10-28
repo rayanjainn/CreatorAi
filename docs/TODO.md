@@ -185,5 +185,5 @@ the "Ask" tab applies pause tightening, caption style and music changes as new r
 
 Still open:
 1. **YouTube connection** is built (OAuth, resumable upload, scheduling, stats sync). Still to do: verify against a live channel, retention curves (YouTube Analytics API), and quota handling across many uploads.
-2. Twin event `layer_rejected` and trim/hook actions are not wired (those open the editor instead of applying).
+2. Twin trim and hook actions apply directly; `layer_rejected` turns a type rejected in 3 of the last 5 clips into a preference memory and a "don't" (Plan 8.11). Not done: the EMA pacing stats from accepted clips.
 3. Sponsors (Plan 8.10) are built: see `docs/API.md` "Monetization and sponsors". Linking a recorded sponsor clip to a placeholder in the editor is still manual (delete the placeholder, insert the clip).
