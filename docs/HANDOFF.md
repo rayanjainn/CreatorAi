@@ -1,8 +1,8 @@
 # Handoff: project state for the next engineer (or agent)
 
 Read this first, then [RUNBOOK.md](RUNBOOK.md) to run it and [TODO.md](TODO.md) for what to build next.
-Snapshot: `main` after the frontend timeline editor merge, plus this docs/tooling branch. Everything below was checked
-against the code on that snapshot.
+Snapshot: `main` after the monetization, YouTube publishing, Twin actions, account security and landing clean-up merges
+(October 2026). Everything below was checked against the code on that snapshot.
 
 ## 1. What CreatorAi is, in one paragraph
 
@@ -38,6 +38,10 @@ Status key: **done** = implemented and tested; **partial** = works with stated l
 | Project pages: plan, script, footage, match, clips (+renders), AI hubs | `app/(app)/projects/[id]/*`, `components/{plan,script,match,clips,hubs,projects}` | done | `e2e/projects.spec.ts`, `e2e/mock/generation.spec.ts` |
 | Timeline editor | `app/(app)/editor/[clipId]`, `components/editor`, `lib/timeline`, `lib/editor`, `stores/editor.ts` | done for Edit and Preview modes | vitest (golden, 150 randomized sequences, engine, merge) + `e2e/editor.spec.ts` |
 | Landing page (marketing) | `components/landing`, `app/(public)/page.tsx` | done: own renders only, no third-party media | none |
+| Monetization: deals, rate estimate, pitch, brand lookup; sponsor briefs, slots, accept into a clip, link the recording | `api/v1/{monetization,sponsors}.py`, `services/{monetization,sponsor_service}.py`, `ml/sponsor_slots.py`, `/monetization`, project Sponsors tab | done | `test_monetization`, `test_sponsor_slots`, `e2e/monetization.spec.ts`, `e2e/sponsor-link.spec.ts` |
+| YouTube connection, publishing, stats sync | `api/v1/{youtube,publish}.py`, `integrations/youtube.py`, `services/{youtube,publish}_service.py`, jobs `publish.upload`, `analytics.sync` | done against a fake Google; unverified on a live channel | `test_youtube_publish`, `e2e/publish.spec.ts` |
+| Account security and data: password change, sign out everywhere, login throttling, export, wipe | `services/account_admin.py`, migration `010` | done | `test_account_security`, `e2e/account.spec.ts` |
+| AI usage report, ASR chunk checkpoints | `services/usage.py`, `services/ingest/transcribe.py` (`ChunkStore`) | done | `test_content_board` (usage), `test_ingest_units` |
 
 ## 3. What is NOT built
 
@@ -166,6 +170,25 @@ All nine `feat/*` branches are merged into `main` (merge commits, in this order)
 
 The branches still exist locally and on the remote for reference; they are fully merged and can be deleted.
 
+Later branches, each merged into `main` with a merge commit after the backend suite, the frontend checks and the e2e suite
+passed:
+
+| Branch | What it merged |
+|---|---|
+| `fix/restore-green-build` | failing tests, type and lint errors from the previous push; the simulated monetization screen removed; routers mounted twice; yt-dlp safety; deterministic e2e |
+| `feat/monetization` | brand-deal pipeline, rate estimate, pitch emails, brand lookup, sponsor slots and accept into a clip |
+| `feat/youtube-publishing` | OAuth, resumable upload, scheduling, stats sync, Insights performance |
+| `feat/twin-actions` | Twin trim and hook actions applied; preferences learned from rejected AI layers |
+| `chore/landing-assets` | third-party videos and hotlinked images removed; WebP renders; landing lint clean |
+| `fix/publish-form-layout` | publish form layout |
+| `feat/account-security` | password change, sign out everywhere, login throttling, export, wipe; Content-Disposition over CORS |
+| `feat/usage-and-asr-checkpoints` | AI usage report; per-chunk transcription checkpoints |
+| `feat/link-sponsor-footage` | link a recorded sponsor segment to its placeholder in the editor |
+| `fix/api-polish` | empty `OLLAMA_BASE_URL`, README clone path |
+
+**Git history still contains the removed third-party promo videos** (about 22 MB). Purging them needs a history rewrite
+(`git filter-repo`) and a force push of `main`; it was not done because it changes every commit id.
+
 **Teammate `frontend` branch (origin/frontend).** A teammate (Vansh Jain) pushed a Next.js app under the directory
 `build-creator-ai-app 2/` (commits `046e2e0`, `2886fb7`). On `main` that app was **moved to `frontend/`** (`1c17c9a`)
 and then rebuilt on top by `feat/frontend-shell-auth-board`. **Warning: any new push to `origin/frontend` that still
@@ -177,10 +200,10 @@ teammate to rebase onto `main` and work in `frontend/`. The landing page, 3D/GSA
 
 | Suite | Command | Count | Runtime (this sandbox) |
 |---|---|---|---|
-| Backend unit + integration (pytest) | `make test` (first half) | 608 collected: 460 unit in 30 files, 148 integration in 15 files; 1 skipped | ~105 s |
-| Frontend unit (vitest) | `cd frontend && npm test` | 330 tests in 9 files (timeline golden 114, randomized properties 151, engine 17, editing 15, playback 14, merge 8, captions 5, history 5, util 1) | ~4 s |
-| Frontend typecheck + eslint | `make test` / `make lint` | 0 errors, 8 warnings | ~15 s |
-| Playwright e2e | `make e2e` | 48 tests in 5 files (two projects: `keyless` and `mock`) | several minutes (builds the app) |
+| Backend unit + integration (pytest) | `make test` (first half) | 754 collected, 1 skipped | ~95 s |
+| Frontend unit (vitest) | `cd frontend && npm test` | 336 tests in 10 files | ~2 s |
+| Frontend typecheck + eslint | `make test` / `make lint` | 0 errors, 0 warnings | ~15 s |
+| Playwright e2e | `make e2e` | 68 tests in 13 files (two projects: `keyless` and `mock`); runs with the hashing embedder and no ASR so the result does not depend on cached models | about 4 minutes (builds the app) |
 | ruff | `make lint` | clean | ~1 s |
 
 Backend tests never touch the network and need no keys (hashing embedder, mock enabled explicitly; real providers
