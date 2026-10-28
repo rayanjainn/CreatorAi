@@ -24,7 +24,7 @@ import {
   type Transition,
   type VideoItem,
 } from './types'
-import { rippleInsert } from './ops'
+import { relayoutFrom, rippleInsert } from './ops'
 import { clamp, pyRound } from './util'
 
 export const MIN_EDIT_LAYER_SEC = 0.2
@@ -308,4 +308,36 @@ export function addVideoMedia(
     text: null,
   }
   return { timeline: rippleInsert(t, clamp(p.at, 0, Math.max(0, t.duration)), item), id: item.id }
+}
+
+/**
+ * Link the recorded sponsor segment to a sponsor placeholder: the item keeps its place and becomes real footage
+ * (`placeholder` false, the whole asset unless `srcOut` is given). Later items ripple; the "Sponsored" lower third
+ * that covered the placeholder now covers the footage, and the captions estimated from the script are dropped so the
+ * real ones can be rebuilt from the transcript.
+ */
+export function linkSponsorFootage(t: Timeline, itemId: string, assetId: string, assetDuration: number, srcOut?: number): Timeline {
+  const hit = findItem(t, itemId)
+  if (!hit || hit.track !== 'video') throw bad('link_sponsor', 'only a video item can be linked', { item_id: itemId })
+  const old = hit.item as VideoItem
+  if (old.kind !== 'sponsor' || !old.placeholder) throw bad('link_sponsor', 'this item is not a sponsor placeholder', { item_id: itemId })
+  const end = r3(Math.min(srcOut ?? assetDuration, assetDuration))
+  if (end < MIN_PIECE_SEC) throw bad('link_sponsor', 'the recording is too short', { item_id: itemId })
+  const oldStart = old.tl_start
+  const oldEnd = old.tl_start + (old.src_out - old.src_in)
+  const out = cloneTimeline(t)
+  const v = findItem(out, itemId)!.item as VideoItem
+  Object.assign(v, { asset_id: assetId, placeholder: false, src_in: 0, src_out: end, status: v.status === 'rejected' ? 'rejected' : 'accepted', source: 'user' })
+  const inside = (l: { tl_start: number; tl_end: number }) => l.tl_start >= oldStart - 1e-3 && l.tl_end <= oldEnd + 1e-3
+  out.tracks.captions = out.tracks.captions.filter((c) => !(c.reason === 'sponsor script' && inside(c)))
+  const covering = new Set(out.tracks.overlays.filter((o) => o.kind === 'lower_third' && inside(o) && Math.abs(o.tl_start - oldStart) < 1e-3).map((o) => o.id))
+  const result = relayoutFrom(t, out)
+  const placed = findItem(result, itemId)!.item as VideoItem
+  for (const o of result.tracks.overlays) {
+    if (covering.has(o.id)) {
+      o.tl_start = r3(placed.tl_start)
+      o.tl_end = r3(placed.tl_start + (placed.src_out - placed.src_in))
+    }
+  }
+  return result
 }

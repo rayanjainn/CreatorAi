@@ -60,7 +60,7 @@ the work is the services, endpoints, jobs and pages.
 - **Size:** S.
 
 ### 3. Sponsorship and monetization (a) — done
-**Built:** `ml/sponsor_slots.py`, `services/{sponsor_service,monetization}.py`, `api/v1/{sponsors,monetization}.py`, the project Sponsors tab and `/monetization`. Left from the original list: linking a recorded asset to a sponsor placeholder from the inspector. The original plan follows for reference.
+**Built:** `ml/sponsor_slots.py`, `services/{sponsor_service,monetization}.py`, `api/v1/{sponsors,monetization}.py`, the project Sponsors tab and `/monetization`. Linking the recorded asset to a placeholder is in the inspector ("Link recording"). The original plan follows for reference.
 
 - **What:** sponsor brief, sponsor slot detection, "Accept into clip", disclosure.
 - **Why:** a named product module; the project "Sponsors" tab and `/monetization` are empty "not available" pages.
@@ -191,4 +191,4 @@ the "Ask" tab applies pause tightening, caption style and music changes as new r
 Still open:
 1. **YouTube connection** is built (OAuth, resumable upload, scheduling, stats sync). Still to do: verify against a live channel, retention curves (YouTube Analytics API), and quota handling across many uploads.
 2. Twin trim and hook actions apply directly; `layer_rejected` turns a type rejected in 3 of the last 5 clips into a preference memory and a "don't" (Plan 8.11). Not done: the EMA pacing stats from accepted clips.
-3. Sponsors (Plan 8.10) are built: see `docs/API.md` "Monetization and sponsors". Linking a recorded sponsor clip to a placeholder in the editor is still manual (delete the placeholder, insert the clip).
+3. Sponsors (Plan 8.10) are built: see `docs/API.md` "Monetization and sponsors". In the editor, selecting a sponsor placeholder offers "Link recording" (`linkSponsorFootage` in `lib/timeline/edit.ts`).

@@ -170,6 +170,8 @@ function finish(old: Timeline, neu: Timeline): Timeline {
   retimeLayers(old, neu)
   return neu
 }
+/** `finish` for editor-only operations that change a video item's length (see `linkSponsorFootage`). */
+export const relayoutFrom = finish
 
 /* ---------------------------------------------------------------------------------------------- */
 /* operations                                                                                      */

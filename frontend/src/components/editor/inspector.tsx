@@ -15,6 +15,8 @@ import { Waveform } from './timeline/waveform'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { acceptAllLayers, addCaptionAtPlayhead, deleteSelection, regenerateCaptions, setItemStatus, splitAtPlayhead, tightenPausesOnServer, trimToPlayhead } from '@/lib/editor/actions'
 import { assetDurations } from '@/lib/editor/controller'
+import { linkSponsorRecording } from '@/lib/editor/media'
+import { useAssets } from '@/lib/api/hooks'
 import {
   durationOf,
   patchLayer,
@@ -174,6 +176,7 @@ function VideoPanel({ item }: { item: VideoItem }) {
         <Row label="On timeline">
           <span className="mono insp-ro">{item.tl_start.toFixed(2)} s</span>
         </Row>
+        {item.kind === 'sponsor' && item.placeholder && <LinkRecording itemId={item.id} disabled={ro} />}
         <div className="insp-btns">
           <Button size="sm" variant="secondary" disabled={ro} onClick={() => trimToPlayhead('start')} title="[ trim the start to the playhead">
             Trim start to playhead
@@ -339,6 +342,30 @@ function AudioPanel({ item }: { item: AudioItem }) {
           <Trash2 size={13} /> Delete layer
         </Button>
       </div>
+    </div>
+  )
+}
+
+/** A sponsor placeholder becomes the recorded segment: pick a processed video from the library. */
+function LinkRecording({ itemId, disabled }: { itemId: string; disabled: boolean }) {
+  const videos = useAssets({ kind: 'video', status: 'ready', limit: 100, sort: '-created_at' })
+  const [assetId, setAssetId] = useState('')
+  const [busy, setBusy] = useState(false)
+  const list = videos.data?.items ?? []
+  return (
+    <div className="insp-link" data-testid="link-recording">
+      <small className="insp-hint-line">Recorded the sponsor read? Link the file and it replaces this placeholder.</small>
+      <Select aria-label="Recorded sponsor segment" value={assetId} disabled={disabled || !list.length} onChange={(e) => setAssetId(e.target.value)} data-testid="link-recording-asset">
+        <option value="">{list.length ? 'Choose a video' : 'No processed videos yet'}</option>
+        {list.map((a) => (
+          <option key={a.id} value={a.id}>
+            {a.filename}
+          </option>
+        ))}
+      </Select>
+      <Button size="sm" disabled={disabled || !assetId} loading={busy} onClick={async () => { setBusy(true); await linkSponsorRecording(itemId, assetId); setBusy(false) }} data-testid="link-recording-apply">
+        Link recording
+      </Button>
     </div>
   )
 }

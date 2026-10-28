@@ -2567,3 +2567,10 @@ body[data-resizing] video {
   border-color: #8b5cf6;
 }
 .monitor-notice { pointer-events: none; }
+
+/* link a recorded sponsor segment to its placeholder */
+.insp-link {
+  display: grid;
+  gap: 6px;
+  margin: 6px 0 4px;
+}
