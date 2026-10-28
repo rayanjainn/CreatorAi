@@ -46,6 +46,7 @@ def reset_password(email: str | None, password: str) -> str:
                 "Several users exist; pass --email (" + ", ".join(u.email for u in users) + ")"
             )
         user.password_hash = hash_password(password)
+        user.token_version = (user.token_version or 0) + 1  # sign out every session
         return user.email
 
 

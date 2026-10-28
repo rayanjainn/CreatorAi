@@ -79,6 +79,9 @@ def _clean_state() -> Iterator[None]:
             conn.execute(text(f"delete from {table.name}"))
     pubsub.reset()
     reset_gateway()
+    from app.services.account_admin import reset_throttle
+
+    reset_throttle()
     JOB_HANDLERS.clear()
     JOB_QUEUES.clear()
     settings = get_settings()

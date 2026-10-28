@@ -87,8 +87,8 @@ function LoginForm() {
         </button>
         {forgot && (
           <p className="auth-alert info" style={{ marginTop: 10, textAlign: 'left' }}>
-            CreatorAi runs on your machine, so there is no email reset. Your account lives in <code>data/creatorai.db</code>. If you cannot
-            remember the password, run <code>make reset</code> to wipe the local database (this deletes your content) and sign up again.
+            CreatorAi runs on your machine, so there is no email reset. In the project folder run <code>make reset-password</code>: it sets a
+            new password and keeps all your work. Other open sessions are signed out.
           </p>
         )}
       </div>

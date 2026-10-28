@@ -128,6 +128,8 @@ export async function downloadAuthed(path: string, fallbackName: string): Promis
   const headers: Record<string, string> = {}
   const token = getTokenOrMemory()
   if (token) headers.Authorization = `Bearer ${token}`
+  const workspace = getActiveWorkspace()
+  if (workspace) headers['X-Workspace-Id'] = workspace
   let res: Response
   try {
     res = await fetch(`${API_URL}${path}`, { headers })

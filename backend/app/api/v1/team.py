@@ -5,8 +5,11 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, Response
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 
 from app.deps import CtxDep, DbDep, UserDep
+from app.errors import AppError
 from app.models import User
 from app.schemas.team import (
     InviteAccepted,
@@ -20,7 +23,7 @@ from app.schemas.team import (
     WorkspaceOut,
     WorkspaceRename,
 )
-from app.services import team
+from app.services import account_admin, team
 
 router = APIRouter(tags=["team"])
 
@@ -34,6 +37,27 @@ def get_workspace(ctx: CtxDep, db: DbDep) -> dict[str, Any]:
 def rename(body: WorkspaceRename, ctx: CtxDep, db: DbDep) -> dict[str, Any]:
     team.rename_workspace(db, ctx.workspace_id, body.name)
     return team.workspace_out(db, ctx.workspace_id, ctx.role)
+
+
+@router.get("/workspace/export")
+def export_data(ctx: CtxDep, db: DbDep) -> JSONResponse:
+    """Everything you made here as one JSON file (projects, scripts, plans, transcripts, deals,
+    research, Twin memories). Media files are not included."""
+    data = account_admin.export(db, ctx.workspace_id)
+    name = f"creatorai-export-{data['exported_at'][:10]}.json"
+    return JSONResponse(data, headers={"Content-Disposition": f'attachment; filename="{name}"'})
+
+
+class WipeBody(BaseModel):
+    confirm: str = Field(description='Type "DELETE" to confirm')
+
+
+@router.post("/workspace/wipe")
+def wipe_data(body: WipeBody, ctx: CtxDep, db: DbDep) -> dict[str, int]:
+    """Owner only: delete every project, file and generated row; keep the account and team."""
+    if body.confirm != "DELETE":
+        raise AppError("CONFIRMATION_REQUIRED", "Type DELETE to confirm.", status=409)
+    return account_admin.wipe(db, ctx.workspace_id, ctx.role)
 
 
 @router.get("/workspace/members", response_model=list[MemberOut])

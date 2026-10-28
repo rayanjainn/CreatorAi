@@ -536,3 +536,15 @@ with `details.env`. The refresh token is stored Fernet-encrypted; access tokens 
 | `POST` | `/publish/{id}/retry` | only a failed row |
 
 `GET /insights/production` `performance` lists those videos with their latest counters and totals; seeded demo analytics are never mixed in.
+
+## Account security and workspace data (`api/v1/auth.py`, `api/v1/team.py`, `services/account_admin.py`)
+
+| Method | Path | Notes |
+|---|---|---|
+| `POST` | `/auth/password` | `{current_password, new_password>=8}` → `{access_token}`; bumps `users.token_version`, so every other token answers `401`. Wrong current password: `422 INVALID_CREDENTIALS` |
+| `POST` | `/auth/sign-out-everywhere` | → `{access_token}` for this session only |
+| `POST` | `/auth/login` | after 5 failures for the same email and address in 15 minutes: `429 TOO_MANY_ATTEMPTS` with `Retry-After` |
+| `GET` | `/workspace/export` | admin; JSON attachment with projects, scripts, director outputs, ideas, asset metadata and transcripts, clips, deals, research, Twin memories, published videos. No media, no credentials |
+| `POST` | `/workspace/wipe` | owner; `{confirm: "DELETE"}` (else `409 CONFIRMATION_REQUIRED`); refuses while jobs run; deletes projects, files and generated rows, keeps account, team, profile settings and the YouTube connection; returns counts per table and `files` |
+
+Tokens carry `tv` (the user's `token_version` when issued); tokens issued before this change have none and count as version 0.
