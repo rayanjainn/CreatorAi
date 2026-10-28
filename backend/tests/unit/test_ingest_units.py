@@ -185,3 +185,24 @@ def test_after_ready_hooks_run_and_failures_are_isolated(monkeypatch: pytest.Mon
     monkeypatch.setattr(hooks, "_AFTER_READY", [bad, good])
     hooks.run_after_asset_ready("w1", "a1")
     assert calls == [("w1", "a1")]
+
+
+def test_a_retry_only_transcribes_the_chunks_that_failed(tmp_path: Path) -> None:
+    chunks = [Chunk(0, 0.0, 600.0), Chunk(1, 600.0, 1200.0), Chunk(2, 1200.0, 1500.0)]
+    store = tr.ChunkStore(tmp_path / "asr_chunks", "audio.mp3|1500|auto|plan-a")
+    first = FakeASR("groq", ["ok", "ok", ASRError("boom")])
+    with pytest.raises(AppError):
+        tr.transcribe_chunks([first], chunks, files, language=None, max_tries=1, store=store)
+    assert len(first.calls) == 3
+    again = FakeASR("groq", [])
+    result = tr.transcribe_chunks([again], chunks, files, language=None, max_tries=1, store=store)
+    assert again.calls == [("chunk_2.mp3", 1200.0)]  # chunks 0 and 1 came from the checkpoint
+    assert [w.start for w in result.transcript.words] == [1.0, 601.0, 1201.0]
+    assert result.providers == ["groq"]
+    # a different plan (other audio, boundaries or language) ignores the old checkpoints
+    other = FakeASR("groq", [])
+    stale = tr.ChunkStore(tmp_path / "asr_chunks", "audio.mp3|1500|en|plan-a")
+    tr.transcribe_chunks([other], chunks, files, language="en", max_tries=1, store=stale)
+    assert len(other.calls) == 3
+    stale.clear()
+    assert not list((tmp_path / "asr_chunks").glob("chunk_*.json"))

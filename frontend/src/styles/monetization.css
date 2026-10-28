@@ -411,3 +411,55 @@
   align-items: end;
   margin-top: 16px;
 }
+
+/* ---------- settings: AI usage ---------- */
+.usage-totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+  margin: 14px 0 10px;
+}
+.usage-totals > div {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.usage-totals dt {
+  font-size: 12px;
+  color: var(--muted);
+}
+.usage-totals dd {
+  font-size: 18px;
+  font-weight: 600;
+}
+.usage-days {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 56px;
+  margin-bottom: 12px;
+}
+.usage-days i {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  background: var(--primary);
+}
+.usage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.usage-table th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--muted);
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--line);
+}
+.usage-table td {
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
