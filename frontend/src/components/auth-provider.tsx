@@ -90,6 +90,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ),
       switchWorkspace: (workspaceId) => {
         setActiveWorkspace(workspaceId)
+        // A full reload on purpose: every cached query and open stream belongs to the previous workspace.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
         window.location.assign('/dashboard')
       },
     }

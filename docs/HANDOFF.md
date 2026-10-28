@@ -37,7 +37,7 @@ Status key: **done** = implemented and tested; **partial** = works with stated l
 | Asset library, search, upload dialog, asset drawer | `components/{library,media}`, `lib/upload.ts` | done | `e2e/library.spec.ts` |
 | Project pages: plan, script, footage, match, clips (+renders), AI hubs | `app/(app)/projects/[id]/*`, `components/{plan,script,match,clips,hubs,projects}` | done | `e2e/projects.spec.ts`, `e2e/mock/generation.spec.ts` |
 | Timeline editor | `app/(app)/editor/[clipId]`, `components/editor`, `lib/timeline`, `lib/editor`, `stores/editor.ts` | done for Edit and Preview modes | vitest (golden, 150 randomized sequences, engine, merge) + `e2e/editor.spec.ts` |
-| Landing page (marketing) | `components/landing`, `app/(public)/page.tsx` | partial: visual only, uses third-party promo videos (section 8) | none |
+| Landing page (marketing) | `components/landing`, `app/(public)/page.tsx` | done: own renders only, no third-party media | none |
 
 ## 3. What is NOT built
 
@@ -227,15 +227,9 @@ Do these in order; each one converts an "unverified" above into a fact. Record r
 
 ## 12. Things to fix or replace before any public demo
 
-- **Third-party promo videos:** `frontend/public/InvideoEditorPromo.mp4` (9.4 MB) and
-  `frontend/public/1InvideoEditorPromo.mp4` (12.8 MB) appear to be promotional footage from another company's product
-  (InVideo). The login page plays the first (with a fallback panel); the second is unused. Licensing and branding
-  risk: **replace or remove before any public demo or release**, with your own footage or a generated loop.
-- **Public assets are 27 MB** (`du -sh frontend/public`): the two videos are 22 MB of it and three PNGs
-  (`AI Creative Director.png`, `Asset Intelligence.png`, `Intelligent Editor.png`, ~1.8 MB each) are screenshots of a
-  product UI. Compress/convert (WebM/AVIF), lazy-load, or move out of the repo.
-- Placeholder images (`placeholder*.{png,jpg,svg}`) came with the teammate's scaffold.
-- `components/landing` has unused variables (eslint warnings) and heavy three.js/GSAP code.
+- Done: the third-party promo videos, unused placeholder images and the hotlinked hero image were removed; the product renders
+  are WebP (`public/landing`, ~80 KB each, `public` is now under 300 KB); the landing page has no lint warnings and no invented
+  social proof.
 - Root `.env` in older checkouts may ship `LLM_ALLOW_MOCK=true`; `make doctor` warns about it.
 
 ## 13. Known limitations and quirks

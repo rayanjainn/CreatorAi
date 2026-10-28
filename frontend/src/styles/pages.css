@@ -665,28 +665,23 @@ a.stat:hover {
 .promo-frame {
   width: 100%;
   max-width: 920px;
-  aspect-ratio: 16 / 9;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 1px solid #ffffff14;
-  box-shadow: 0 30px 90px #000a;
-  position: relative;
-  background: radial-gradient(120% 120% at 20% 10%, #2a1d52, #14121c 55%, #1d1610);
+  display: grid;
+  gap: 14px;
 }
-.promo-frame video {
+.promo-still {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
   display: block;
+  border-radius: 18px;
+  border: 1px solid #ffffff14;
+  box-shadow: 0 30px 90px #000a;
+  background: radial-gradient(120% 120% at 20% 10%, #2a1d52, #14121c 55%, #1d1610);
 }
 .promo-fallback {
-  position: absolute;
-  inset: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  padding: 36px;
-  align-content: center;
 }
 .promo-fallback div {
   background: #ffffff0a;
