@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Boxes, Clapperboard, Search, ShieldCheck, Sparkles } from 'lucide-react'
 
 /** Split-screen auth layout: form on the left, promo on the right (degrades to a feature panel if the video can not play). */
@@ -23,10 +23,10 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
       <div className="auth-hero" aria-hidden={false}>
         <div style={{ width: '100%', maxWidth: 920, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(32px, 3.4vw, 48px)', fontWeight: 400, textAlign: 'center', marginBottom: 12, color: '#fff' }}>
-            Introducing CreatorAI editor
+            Your whole video workflow, in one place
           </h2>
           <p style={{ color: '#ffffff99', textAlign: 'center', marginBottom: 36, fontSize: 14, maxWidth: 560 }}>
-            A professional online video editor with AI editing agents you can assign real work to.
+            Plan, script, find the right moment in hours of footage, cut clips, edit and publish. It runs on your machine and labels everything AI wrote.
           </p>
           <PromoVideo />
         </div>
@@ -42,36 +42,20 @@ const FALLBACK = [
   { Icon: ShieldCheck, t: 'Local-first', d: 'Your media and database stay on this machine. Everything generated is labelled.' },
 ]
 
+/** The product as it looks (our own render), with what it does underneath. No third-party footage. */
 function PromoVideo() {
-  const [state, setState] = useState<'loading' | 'ok' | 'failed'>('loading')
   return (
-    <div className="promo-frame">
-      {state !== 'failed' && (
-        <video
-          muted
-          loop
-          autoPlay
-          playsInline
-          preload="metadata"
-          aria-label="Product promo video"
-          onLoadedData={() => setState('ok')}
-          onError={() => setState('failed')}
-          style={{ opacity: state === 'ok' ? 1 : 0, transition: 'opacity .4s' }}
-        >
-          <source src="/InvideoEditorPromo.mp4" type="video/mp4" onError={() => setState('failed')} />
-        </video>
-      )}
-      {state !== 'ok' && (
-        <div className="promo-fallback">
-          {FALLBACK.map(({ Icon, t, d }) => (
-            <div key={t}>
-              <Icon size={18} style={{ color: '#c4b5fd', marginBottom: 10 }} />
-              <b>{t}</b>
-              <p>{d}</p>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="promo-frame" data-testid="auth-promo">
+      <img src="/landing/intelligent-editor.webp" alt="The CreatorAI timeline editor" className="promo-still" decoding="async" />
+      <div className="promo-fallback">
+        {FALLBACK.map(({ Icon, t, d }) => (
+          <div key={t}>
+            <Icon size={18} style={{ color: '#c4b5fd', marginBottom: 10 }} />
+            <b>{t}</b>
+            <p>{d}</p>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

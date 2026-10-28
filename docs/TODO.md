@@ -144,7 +144,8 @@ Consolidated from FRONTEND_NOTES (numbers refer to that file) and the module han
 ### 13. Packaging and performance (o)
 - **What:** shrink the repo and the bundle; remove third-party assets.
 - **Why:** `frontend/public` is 27 MB, includes third-party promo videos (HANDOFF section 12), and the landing page pulls three.js and GSAP.
-- **Tasks:** replace/remove `InvideoEditorPromo.mp4` and `1InvideoEditorPromo.mp4` and the product screenshots; compress/convert images, lazy-load media, code-split the landing page's 3D code; measure with `next build` output and Lighthouse; remove unused dependencies (`shadcn`, `three`, `gsap` if not needed); fix the 8 eslint warnings in `components/landing/landing-page.tsx`; consider moving media out of git (LFS) or using generated loops.
+- **Done:** third-party videos and placeholders removed, renders converted to WebP (`public` 27 MB to under 300 KB), landing lint clean.
+- **Tasks left:** lazy-load media, code-split the landing page's 3D code; measure with `next build` output and Lighthouse; remove unused dependencies (`shadcn`, `three`, `gsap` if not needed); fix the 8 eslint warnings in `components/landing/landing-page.tsx`; consider moving media out of git (LFS) or using generated loops.
 - **Acceptance:** no third-party branded media in the repo; `frontend/public` under 3 MB; first-load JS of the app shell reduced and recorded. **Size:** S to M.
 
 ### 14. Accessibility and i18n pass (p)

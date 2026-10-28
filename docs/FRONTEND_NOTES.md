@@ -19,8 +19,7 @@ Backend gaps and oddities hit while wiring the frontend. Each is worked around i
 9. **Root `.env` ships `LLM_ALLOW_MOCK=true`** in some checkouts (differs from `.env.example`, which says `false`); that
    puts the app in mock mode and shows the loud mock banner. Check `.env` if you expect "unconfigured".
 10. **Embedder download blocked offline** shows as `hashing` heuristic (`embedder.real=false`); Settings labels it as such.
-11. `public/InvideoEditorPromo.mp4` and `public/1InvideoEditorPromo.mp4` look like a third-party promo clip. The login page still
-    plays the first one (with a fallback panel if it cannot load); decide whether to keep or replace it. The second is unused.
+11. Fixed: the third-party promo videos were removed; the login page shows the product render and the feature list.
 12. Next.js `next dev` writes `AGENTS.md`/`CLAUDE.md` into `frontend/`; disabled with `agentRules: false` and git-ignored.
 13. **Empty `OLLAMA_BASE_URL=` counts as a configured Ollama provider** (data_mode becomes `real` with no key). Leave the variable
     unset (default `https://ollama.com`, which needs `OLLAMA_API_KEY`) to be "unconfigured".

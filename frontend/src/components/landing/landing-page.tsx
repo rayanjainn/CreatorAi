@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Sparkles, Play, Search, Wand2, Film, Send } from 'lucide-react'
 import * as THREE from 'three'
@@ -21,8 +21,6 @@ export default function LandingPage() {
  const sectionRef = useRef<HTMLElement>(null)
 
  const particlesRef = useRef<HTMLCanvasElement>(null)
- const [scrollProgress, setScrollProgress] = useState(0)
- const [activeBeat, setActiveBeat] = useState(0)
 
 
  // Three.js Particle Background
@@ -306,7 +304,8 @@ export default function LandingPage() {
      group.rotation.x = my * 0.22 + Math.sin(t * 0.23) * 0.1
 
 
-     composer ? composer.render() : renderer.render(scene, camera)
+     if (composer) composer.render()
+     else renderer.render(scene, camera)
      requestAnimationFrame(frame)
    }
 
@@ -357,7 +356,6 @@ export default function LandingPage() {
 
 
    function beatOpacity(p: number, s: number, e: number) {
-     const mid = (s + e) / 2
      const span = e - s
      const fade = span * 0.30
      if (p < s || p > e) return 0
@@ -370,7 +368,7 @@ export default function LandingPage() {
    // Timeline dots
    const dotRow = document.getElementById('dotRow')
    if (dotRow) {
-     beats.forEach((b, i) => {
+     beats.forEach((b) => {
        const d = document.createElement('span')
        d.style.cssText = 'width:0.5rem;height:0.5rem;border-radius:50%;background:rgba(255,255,255,0.25);transition:background .3s,transform .3s;cursor:pointer;'
        d.addEventListener('click', () => {
@@ -422,8 +420,6 @@ export default function LandingPage() {
      }
 
 
-     const petalDensity = p < 0.48 ? p * 0.3 : Math.min(1, (p - 0.40) * 2.2)
-     const windAmt = Math.max(0, (p - 0.60)) * 1.4
 
 
      if (grade) {
@@ -476,7 +472,6 @@ export default function LandingPage() {
      const scrolled = Math.min(Math.max(-rect.top, 0), travel)
      rawP = travel > 0 ? scrolled / travel : 0
      if (reduced) renderP = rawP
-     setScrollProgress(rawP)
    }
 
 
@@ -665,9 +660,12 @@ export default function LandingPage() {
                    className="z-40 relative"
                    style={{
                      width: 'min(56vw, 40rem)',
-                     aspectRatio: '16 / 11',
-                     backgroundImage: 'url(https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/d0f628cf-26bf-473d-81b9-50e422c51521_3840w.png)',
-                     backgroundSize: 'contain',
+                     aspectRatio: '16 / 9',
+                     backgroundImage: 'url(/landing/intelligent-editor.webp)',
+                     backgroundSize: 'cover',
+                     borderRadius: '1.25rem',
+                     border: '1px solid rgba(255,255,255,0.12)',
+                     boxShadow: '0 30px 120px -20px rgba(245,184,208,0.35), 0 0 0 1px rgba(0,0,0,0.4)',
                      backgroundRepeat: 'no-repeat',
                      backgroundPosition: 'center center',
                      willChange: 'transform',
@@ -837,7 +835,7 @@ export default function LandingPage() {
          {/* Feature Card 1 */}
          <div className="group flex flex-col border-white/[0.06] hover:bg-white/[0.04] transition-colors duration-500 cursor-pointer border rounded-2xl p-6 backdrop-blur-lg feature-card tilt-card">
            <div className="rounded-xl overflow-hidden mb-5 aspect-video">
-             <img src="/Asset Intelligence.png" alt="Asset Intelligence" className="w-full h-full object-cover" />
+             <img src="/landing/asset-intelligence.webp" loading="lazy" decoding="async" alt="Asset Intelligence" className="w-full h-full object-cover" />
            </div>
            <div className="flex flex-col flex-grow justify-between">
              <div>
@@ -858,7 +856,7 @@ export default function LandingPage() {
          {/* Feature Card 2 */}
          <div className="group flex flex-col border-white/[0.06] hover:bg-white/[0.04] transition-colors duration-500 cursor-pointer border rounded-2xl p-6 backdrop-blur-lg feature-card tilt-card">
            <div className="rounded-xl overflow-hidden mb-5 aspect-video">
-             <img src="/AI Creative Director.png" alt="AI Creative Director" className="w-full h-full object-cover" />
+             <img src="/landing/creative-director.webp" loading="lazy" decoding="async" alt="AI Creative Director" className="w-full h-full object-cover" />
            </div>
            <div className="flex flex-col flex-grow justify-between">
              <div>
@@ -879,7 +877,7 @@ export default function LandingPage() {
          {/* Feature Card 3 */}
          <div className="group flex flex-col border-white/[0.06] hover:bg-white/[0.04] transition-colors duration-500 cursor-pointer border rounded-2xl p-6 backdrop-blur-lg feature-card tilt-card">
            <div className="rounded-xl overflow-hidden mb-5 aspect-video">
-             <img src="/Intelligent Editor.png" alt="Intelligent Editor" className="w-full h-full object-cover" />
+             <img src="/landing/intelligent-editor.webp" loading="lazy" decoding="async" alt="Intelligent Editor" className="w-full h-full object-cover" />
            </div>
            <div className="flex flex-col flex-grow justify-between">
              <div>
@@ -943,7 +941,7 @@ export default function LandingPage() {
          Your next great story starts here.
        </h2>
        <p className="text-lg text-[#c9c4bd] max-w-2xl mx-auto mb-10">
-         Join thousands of creators who are transforming their workflow with AI-powered creativity.
+         Plan, film, cut and publish from one workspace that runs on your own machine. Free to start, no account in the cloud.
        </p>
        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
          <Link href="/signup" className="inline-flex items-center gap-2 text-sm font-medium px-6 py-3 rounded-full bg-[#f5b8d0] text-[#1a1a1a] hover:bg-[#f5b8d0]/90 transition-colors">

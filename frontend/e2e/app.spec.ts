@@ -10,7 +10,7 @@ test('guards: anonymous users go to /login; wrong password shows an error', asyn
   await page.fill('#password', 'not-the-password')
   await page.click('[data-testid=login-submit]')
   await expect(page.getByTestId('login-error')).toContainText('do not match')
-  await expect(page.getByRole('button', { name: /continue with google/i })).toBeDisabled()
+  await expect(page.getByRole('button', { name: /continue with google/i })).toHaveCount(0) // no dead buttons
 })
 
 test('signup is closed once an account exists', async ({ page }) => {

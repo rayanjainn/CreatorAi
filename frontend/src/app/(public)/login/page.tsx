@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { AuthShell } from '@/components/auth/auth-shell'
-import { GoogleButton } from '@/components/auth/google-button'
 import { useAuth } from '@/components/auth-provider'
 import { useHealth } from '@/lib/api/hooks'
 import { isApiError } from '@/lib/api/errors'
@@ -81,8 +80,6 @@ function LoginForm() {
         </button>
       </form>
 
-      <div className="auth-divider">or</div>
-      <GoogleButton />
 
       <div style={{ textAlign: 'center', marginTop: 14 }}>
         <button type="button" onClick={() => setForgot((f) => !f)} style={{ background: 'none', color: '#9c988f', fontSize: 12.5 }} aria-expanded={forgot}>

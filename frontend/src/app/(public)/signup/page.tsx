@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ArrowRight } from 'lucide-react'
 import { AuthShell } from '@/components/auth/auth-shell'
-import { GoogleButton } from '@/components/auth/google-button'
 import { useAuth } from '@/components/auth-provider'
 import { useHealth } from '@/lib/api/hooks'
 import { isApiError } from '@/lib/api/errors'
@@ -86,8 +85,6 @@ export default function SignupPage() {
           {busy ? 'Creating account…' : 'Continue'} {!busy && <ArrowRight size={15} />}
         </button>
       </form>
-      <div className="auth-divider">or</div>
-      <GoogleButton />
       <p className="auth-switch">
         Already have an account? <Link href="/login">Sign in</Link>
       </p>
