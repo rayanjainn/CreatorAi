@@ -34,8 +34,6 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
     const out: Command[] = [
       { id: 'new', group: 'Actions', label: 'New content', hint: 'Start a project from an idea', icon: <Plus size={15} />, run: () => openNewContent(), keywords: 'create idea project add' },
     ]
-    if (q.trim().length >= 2)
-      out.push({ id: 'search', group: 'Actions', label: `Search footage for “${q.trim()}”`, icon: <Search size={15} />, run: go(`/search?q=${encodeURIComponent(q.trim())}`), keywords: q })
     for (const g of NAV)
       for (const item of g.items)
         out.push({ id: `nav:${item.href}`, group: 'Go to', label: item.label, hint: g.label, icon: <item.Icon size={15} />, run: go(item.href) })
@@ -45,6 +43,9 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
       out.push({ id: `s:${p.id}`, group: 'Script & record', label: `Script: ${title}`, icon: <FileText size={15} />, run: go(`/projects/${p.id}/script`), keywords: 'write script' })
       out.push({ id: `t:${p.id}`, group: 'Script & record', label: `Teleprompter: ${title}`, icon: <Mic size={15} />, run: go(`/teleprompter/${p.id}`), keywords: 'record read prompter' })
     }
+    // last on purpose: it matches every query, so Enter should open a real match first
+    if (q.trim().length >= 2)
+      out.push({ id: 'search', group: 'Search', label: `Search footage for “${q.trim()}”`, icon: <Search size={15} />, run: go(`/search?q=${encodeURIComponent(q.trim())}`), keywords: q })
     return out
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projects.data, q])
