@@ -308,3 +308,92 @@
   font-size: 12px;
   font-weight: 700;
 }
+
+/* ---------- publishing (project Publish tab, Settings YouTube card) ---------- */
+.pub-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) 1fr;
+  gap: 16px;
+}
+@media (max-width: 640px) {
+  .pub-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.pub-preview video,
+.pub-preview .thumb {
+  width: 100%;
+  max-height: 340px;
+  border-radius: 12px;
+  background: #000;
+  object-fit: contain;
+}
+.pub-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pub-options .chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 12px;
+  text-align: left;
+}
+.pub-options .chip:hover {
+  color: var(--foreground);
+  border-color: var(--primary);
+}
+.pub-job {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.pub-job[data-status="failed"] {
+  border-color: color-mix(in srgb, var(--red) 45%, transparent);
+}
+.pub-job[data-status="published"] b::after {
+  content: " ●";
+  color: var(--green);
+}
+.yt-connected {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green);
+  font-size: 13px;
+}
+.yt-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+.yt-setup {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+.yt-uri {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--background);
+  border: 1px solid var(--line);
+  overflow-x: auto;
+}
+.yt-uri code {
+  white-space: nowrap;
+  font-size: 12.5px;
+}

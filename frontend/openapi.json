@@ -6614,6 +6614,285 @@
         }
       }
     },
+    "/api/v1/content/{item_id}/publish/defaults": {
+      "get": {
+        "tags": [
+          "publish"
+        ],
+        "summary": "Defaults",
+        "description": "Pre-filled title, description and tags, the finished renders and the connection status.",
+        "operationId": "defaults_api_v1_content__item_id__publish_defaults_get",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Defaults Api V1 Content  Item Id  Publish Defaults Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/content/{item_id}/publish": {
+      "get": {
+        "tags": [
+          "publish"
+        ],
+        "summary": "List Jobs",
+        "operationId": "list_jobs_api_v1_content__item_id__publish_get",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response List Jobs Api V1 Content  Item Id  Publish Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "publish"
+        ],
+        "summary": "Create",
+        "description": "Start the upload (job ``publish.upload``); returns the publish row and ``job_id``.",
+        "operationId": "create_api_v1_content__item_id__publish_post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Create Api V1 Content  Item Id  Publish Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/publish/{publish_id}/retry": {
+      "post": {
+        "tags": [
+          "publish"
+        ],
+        "summary": "Retry",
+        "operationId": "retry_api_v1_publish__publish_id__retry_post",
+        "parameters": [
+          {
+            "name": "publish_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Publish Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Retry Api V1 Publish  Publish Id  Retry Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/youtube/status": {
+      "get": {
+        "tags": [
+          "youtube"
+        ],
+        "summary": "Status",
+        "description": "Whether Google OAuth is configured here and which channel is connected.",
+        "operationId": "status_api_v1_youtube_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Status Api V1 Youtube Status Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/youtube/oauth/start": {
+      "post": {
+        "tags": [
+          "youtube"
+        ],
+        "summary": "Oauth Start",
+        "description": "The Google consent URL to open (admins and owners only).",
+        "operationId": "oauth_start_api_v1_youtube_oauth_start_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Oauth Start Api V1 Youtube Oauth Start Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/youtube/connection": {
+      "delete": {
+        "tags": [
+          "youtube"
+        ],
+        "summary": "Disconnect",
+        "operationId": "disconnect_api_v1_youtube_connection_delete",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/v1/youtube/sync": {
+      "post": {
+        "tags": [
+          "youtube"
+        ],
+        "summary": "Sync",
+        "description": "Refresh views, likes and comments of the videos published from CreatorAi (a job).",
+        "operationId": "sync_api_v1_youtube_sync_post",
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Sync Api V1 Youtube Sync Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/media/{key}": {
       "get": {
         "tags": [
@@ -12029,6 +12308,62 @@
           "source"
         ],
         "title": "Provenance"
+      },
+      "PublishBody": {
+        "properties": {
+          "render_id": {
+            "type": "string",
+            "title": "Render Id"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000,
+            "title": "Description",
+            "default": ""
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 60,
+            "title": "Tags"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "private",
+              "unlisted",
+              "public"
+            ],
+            "title": "Visibility",
+            "default": "private"
+          },
+          "scheduled_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "render_id",
+          "title"
+        ],
+        "title": "PublishBody"
       },
       "RateBody": {
         "properties": {

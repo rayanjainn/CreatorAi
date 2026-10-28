@@ -184,6 +184,6 @@ data); movable, styled text overlays; `make showcase` for real content; empty fi
 the "Ask" tab applies pause tightening, caption style and music changes as new revisions); **calendar planner** (`scheduled_for`, month view); **Research agent** (project Research tab: web search via Tavily/Serper, brief cited only from the results; port of Menil's design).
 
 Still open:
-1. **YouTube connection**: OAuth, publishing and real performance metrics (Insights shows none until this exists).
+1. **YouTube connection** is built (OAuth, resumable upload, scheduling, stats sync). Still to do: verify against a live channel, retention curves (YouTube Analytics API), and quota handling across many uploads.
 2. Twin event `layer_rejected` and trim/hook actions are not wired (those open the editor instead of applying).
 3. Sponsors (Plan 8.10) are built: see `docs/API.md` "Monetization and sponsors". Linking a recorded sponsor clip to a placeholder in the editor is still manual (delete the placeholder, insert the clip).

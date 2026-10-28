@@ -2,7 +2,10 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { ArrowRight, BarChart3, Clapperboard, Film, Lightbulb, Timer } from 'lucide-react'
+import { ArrowRight, BarChart3, Clapperboard, Eye, Film, Lightbulb, MessageCircle, RefreshCw, ThumbsUp, Timer } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useSyncYoutube } from '@/lib/api/publishing'
+import { relativeTime } from '@/lib/time'
 import { PageHeader } from '@/components/common/page-header'
 import { ErrorState } from '@/components/common/error-state'
 import { EmptyState } from '@/components/common/empty-state'
@@ -70,6 +73,41 @@ function Heat({ days }: { days: InsightsReport['activity'] }) {
         <i key={d.date} title={`${d.date}: ${d.count} changes`} style={{ ['--lvl' as string]: d.count === 0 ? 0 : Math.ceil((d.count / top) * 4) }} />
       ))}
     </div>
+  )
+}
+
+function Performance({ perf }: { perf: InsightsReport['performance'] }) {
+  const sync = useSyncYoutube()
+  return (
+    <section className="card ins-perf" data-testid="performance-note">
+      <div className="card-heading">
+        <div>
+          <div className="eyebrow violet-text">YouTube</div>
+          <h2>Performance on the platform</h2>
+        </div>
+        {perf.connected && (
+          <Button size="sm" variant="secondary" onClick={() => sync.mutate()} loading={sync.isPending}>
+            <RefreshCw size={13} /> Sync now
+          </Button>
+        )}
+      </div>
+      {perf.reason && <p className="muted">{perf.reason}</p>}
+      {!perf.connected && (
+        <Link href="/settings#youtube" className="link small">
+          Connect a channel
+        </Link>
+      )}
+      {perf.available && perf.totals && perf.videos && (
+        <>
+          <div className="ins-grid" style={{ marginTop: 12 }}>
+            <Stat icon={<Eye size={16} />} label="Views" value={perf.totals.views.toLocaleString()} hint={`${perf.totals.videos} published from CreatorAi`} />
+            <Stat icon={<ThumbsUp size={16} />} label="Likes" value={perf.totals.likes.toLocaleString()} />
+            <Stat icon={<MessageCircle size={16} />} label="Comments" value={perf.totals.comments.toLocaleString()} hint={perf.last_sync_at ? `synced ${relativeTime(perf.last_sync_at)}` : undefined} />
+          </div>
+          <Bars rows={perf.videos.filter((v) => v.views != null).slice(0, 8).map((v) => ({ label: v.title, value: v.views ?? 0 }))} tone="green" />
+        </>
+      )}
+    </section>
   )
 }
 
@@ -253,10 +291,7 @@ export default function AnalyticsPage() {
             </section>
           </div>
 
-          <section className="card ins-perf" data-testid="performance-note">
-            <h2>Performance on the platform</h2>
-            <p className="muted">{r.performance.reason}</p>
-          </section>
+          <Performance perf={r.performance} />
         </>
       )}
     </div>

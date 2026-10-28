@@ -19,8 +19,8 @@ Snapshot of what exists in the repository (details: [docs/HANDOFF.md](docs/HANDO
 | 1.9 / 8.11 Creative Digital Twin | implemented | style profile, memories (approved scripts, accepted clips), chat, suggested actions; `/twin`, editor Ask tab |
 | 1.10 / 8.10 Sponsorship and monetization | implemented | project Sponsors tab (briefs, slot detection, reads, accept into a clip) and `/monetization` (deal pipeline, pitch emails, rate estimate, brand lookup) |
 | 1.11 Workflow board and jobs | implemented | publishing not built ([TODO 5](docs/TODO.md)) |
-| 1.11 YouTube OAuth and publish (`publish.upload`) | not built | [TODO 5](docs/TODO.md) |
-| 1.12 / 8.12 Creator intelligence | partly | `/insights/production` (counts from your own workspace); platform performance needs YouTube (not built) |
+| 1.11 YouTube OAuth and publish (`publish.upload`) | implemented | your own Google OAuth client; resumable upload, scheduling (`publishAt`), sponsor disclosure, nightly stats sync (`analytics.sync`); verified against a fake Google only |
+| 1.12 / 8.12 Creator intelligence | implemented | `/insights/production` (counts from your own workspace) plus views, likes and comments of videos published from CreatorAi |
 | Research agent (Menil's design) | implemented | `/research`: web search (Tavily/Serper), brief cited only from the results |
 | Teams, RBAC, comments, presence | implemented | `/workspace/*`, `/invites/*`, `/content/{id}/comments`; see API.md |
 | 3 Architecture (Docker, Redis, Supabase) | replaced | [LOCAL_FIRST](docs/LOCAL_FIRST.md): SQLite, in-process jobs, local auth |

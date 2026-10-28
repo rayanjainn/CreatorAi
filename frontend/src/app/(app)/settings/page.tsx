@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useId, useState, type FormEvent } from 'react'
-import { CheckCircle2, KeyRound, LogOut, Play, Save, Video, XCircle } from 'lucide-react'
+import { useEffect, useId, useState, type FormEvent, Suspense } from 'react'
+import { CheckCircle2, KeyRound, LogOut, Play, Save, XCircle } from 'lucide-react'
 import { PageHeader } from '@/components/common/page-header'
-import { NotAvailableInline } from '@/components/common/not-available'
+import { YoutubeCard } from '@/components/settings/youtube-card'
 import { ErrorState } from '@/components/common/error-state'
 import { Button, LinkButton } from '@/components/ui/button'
 import { Field, Input, Select, Textarea } from '@/components/ui/field'
@@ -356,20 +356,9 @@ export default function SettingsPage() {
         <LlmCard />
         <PipelineCard />
 
-        <section className="card" aria-labelledby="yt-h">
-          <div className="card-heading">
-            <div>
-              <div className="eyebrow">Publishing</div>
-              <h2 id="yt-h">YouTube</h2>
-            </div>
-          </div>
-          <div style={{ marginTop: 14 }}>
-            <NotAvailableInline title="Not available yet" icon={<Video size={16} />}>
-              Connecting a channel, publishing and importing real analytics are not built in this version. Nothing here is simulated. Analytics, when
-              added, will say clearly whether numbers are real or seeded demo data.
-            </NotAvailableInline>
-          </div>
-        </section>
+        <Suspense fallback={null}>
+          <YoutubeCard canAdmin={!known || canAdmin} />
+        </Suspense>
 
         <section className="card danger-zone span-2" aria-labelledby="dz-h">
           <div className="card-heading">

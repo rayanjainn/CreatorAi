@@ -268,7 +268,14 @@ export type InsightsReport = {
   scripts: { count: number; avg_length_sec: number | null; by_platform: Record<string, number>; by_tone: Record<string, number> }
   renders: { total: number; done: number; failed: number; by_preset: Record<string, number>; minutes: number }
   activity: { date: string; count: number }[]
-  performance: { available: boolean; reason: string }
+  performance: {
+    available: boolean
+    reason: string | null
+    connected?: boolean
+    last_sync_at?: string | null
+    videos?: { youtube_video_id: string; content_item_id: string | null; title: string; format: string; published_at: string | null; views: number | null; likes: number | null; comments: number | null; as_of: string | null; url: string }[]
+    totals?: { videos: number; views: number; likes: number; comments: number }
+  }
   nudges: { kind: string; text: string; href: string }[]
 }
 
