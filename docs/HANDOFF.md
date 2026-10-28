@@ -41,13 +41,12 @@ Status key: **done** = implemented and tested; **partial** = works with stated l
 
 ## 3. What is NOT built
 
-Routers `publish` and `youtube` are listed in `api/v1/__init__.py` but their modules do not exist, so there are **no
-endpoints** for them (their tables exist from the first migration). `sponsors` and `monetization` are built (migration `009`). Built since the first handoff: teams and RBAC (`team`, `comments`),
+All routers listed in `api/v1/__init__.py` exist. `sponsors` and `monetization` (migration `009`), `publish` and `youtube`
+are built; the YouTube client was verified against a recorded fake of Google, not a live channel. Built since the first handoff: teams and RBAC (`team`, `comments`),
 `insights`, `twin`, `research`, calendar scheduling (`content_items.scheduled_for`) and styled text overlays.
 
 | Feature | Plan section | State |
 |---|---|---|
-| YouTube OAuth, publishing, real performance metrics | 12, 8.9 | project "Publish" tab and Insights say "not available" / no performance numbers; `NO_YOUTUBE_CONNECTION` error code exists |
 | Twin actions `trim_clip`, `regenerate_hooks`; `layer_rejected` event | 8.11 | the chat suggests them but they open the editor instead of applying |
 | Editor Audio, Color, Structure modes | UI spec | not present (no backend) |
 | Password reset by email, Google sign-in | 0 | deferred by decision |
@@ -110,7 +109,7 @@ Full, prioritised list with acceptance criteria: [TODO.md](TODO.md).
 - **Migrations are append-only**; update the model in the same commit.
 - **Rendering rule**: a render includes every layer whose status is not `rejected`.
 - **Auth**: bearer JWT; `GET` may use `?access_token=` (EventSource, `<video>`). Public endpoints: health, signup,
-  login only.
+  login and `GET /youtube/oauth/callback` (Google redirects the browser there; a signed, 15 minute `state` names the workspace).
 
 ## 6. How to extend
 

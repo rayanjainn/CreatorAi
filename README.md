@@ -78,6 +78,19 @@ work. **Mock mode** (`LLM_ALLOW_MOCK=true`) is an opt-in for development and tes
 provider joins the chain, its text starts with `[MOCK]`, a red banner shows on every page and every result is badged
 Mock. Never leave it on.
 
+### YouTube publishing
+
+Publishing uses **your own** free Google OAuth client, so uploads go to your channel and nothing passes through anyone else:
+
+1. In the [Google Cloud console](https://console.cloud.google.com/) create a project and enable **YouTube Data API v3**.
+2. Create an OAuth client of type **Web application** with the redirect URI `http://localhost:8000/api/v1/youtube/oauth/callback`
+   (Settings shows the exact value; change it with `GOOGLE_REDIRECT_URI` if the API runs elsewhere). On the consent screen add your
+   Google account as a test user while the app is in testing.
+3. Put `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `.env`, restart, then **Settings, YouTube, Connect**.
+
+Google may keep uploads from unverified projects private until the project passes its audit; scheduling uploads the video as private with
+a publish time, which is how YouTube schedules. The default quota allows about six uploads a day.
+
 ### What is real, mock, heuristic or demo
 
 Every generated payload carries `provenance: {source, provider, model}` and the UI renders a badge:
@@ -109,7 +122,9 @@ A result mixing sources shows the weakest one. The topbar chip and the `DataMode
 | Monetization | brand-deal pipeline (prospect to paid) with totals and overdue deliverables, pitch emails from your own numbers, a CPM rate estimate, a brand-site contact lookup; per project: sponsor slots found in your transcript, the read written for each, placed into a clip with a "Sponsored" label | pitch and reads need an AI key; the rate estimate is labelled heuristic |
 | Jobs and settings | live job progress (SSE), retry/cancel, AI status, key test | |
 
-Not built yet (the pages say so honestly): YouTube connection and publishing (so no platform performance numbers), and the Twin's trim and hook actions apply only in the editor.
+| YouTube publishing | connect your channel with your own Google OAuth client, upload a finished render (resumable, in the background), schedule it, sponsor disclosure pre-filled; views, likes and comments sync back into Insights nightly or on demand | needs `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (see [YouTube](#youtube-publishing)) |
+
+Not built yet (the pages say so honestly): the Twin's trim and hook actions apply only in the editor.
 
 ## Architecture
 

@@ -517,3 +517,22 @@ Every deal value is typed by the creator. Generated text carries `provenance`; t
 | `POST` | `/sponsors/{brief_id}/find-slots` | `{asset_id?}`; Plan 8.10 scoring over the main video's transcript, up to 3 slots, one batched `sponsors.integration` call for `integration_script`, `lower_third`, `transition_back`; without a model the slots are kept with empty reads and a warning; replaces earlier *suggested* slots only. `409 ASSET_NOT_READY` without a processed video |
 | `PATCH` | `/sponsor-slots/{id}` | `{integration_script?, lower_third?, transition_back?, status?: suggested|rejected}`; an edit makes the provenance `user` |
 | `POST` | `/sponsor-slots/{id}/accept` | `{clip_id}`: ripples a `VideoItem(kind=sponsor, placeholder)` in at the slot, adds a `lower_third` "Sponsored · brand" and estimated captions, all `suggested`, as a new edit revision. A slot inside a pause the cut removed snaps to the cut. `422 SLOT_OUTSIDE_CLIP` when the clip does not cover the moment; `409` when already placed |
+
+## YouTube and publishing (`api/v1/youtube.py`, `api/v1/publish.py`, jobs `publish.upload`, `analytics.sync`)
+
+Needs `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` (your own OAuth client); without them `oauth/start` answers `503 YOUTUBE_NOT_CONFIGURED`
+with `details.env`. The refresh token is stored Fernet-encrypted; access tokens stay in memory.
+
+| Method | Path | Notes |
+|---|---|---|
+| `GET` | `/youtube/status` | `{configured, connected, status, channel_id, channel_title, connected_at, last_sync_at, redirect_uri}` |
+| `POST` | `/youtube/oauth/start` | admin; `{url}` to open (offline access, consent prompt, signed `state`) |
+| `GET` | `/youtube/oauth/callback` | **public**, called by Google; always `303` to `FRONTEND_URL/settings?youtube=connected|denied|error&message=` |
+| `DELETE` | `/youtube/connection` | admin; revokes at Google (best effort) and forgets the channel |
+| `POST` | `/youtube/sync` | `202 {job_id}`: views, likes, comments of videos published from CreatorAi into `yt_metrics_daily` (also nightly) |
+| `GET` | `/content/{id}/publish/defaults` | title (first script title), description, tags, finished renders with `publishable` and `sponsor_brands`, `disclosure_template`, `connection` |
+| `GET` | `/content/{id}/publish` | publish rows: `status` `queued|uploading|scheduled|published|failed`, `url`, `studio_url`, `error` |
+| `POST` | `/content/{id}/publish` | `{render_id, title<=100, description, tags[], visibility, scheduled_at?}` → `202` row + `job_id`. Download-only presets (Reels, TikTok) are `422`; no usable connection is `409 NO_YOUTUBE_CONNECTION` (an expired grant marks the connection `revoked`). A schedule uploads as private with `publishAt`. On success the project moves to `published` (or gets `scheduled_for`) |
+| `POST` | `/publish/{id}/retry` | only a failed row |
+
+`GET /insights/production` `performance` lists those videos with their latest counters and totals; seeded demo analytics are never mixed in.

@@ -104,7 +104,7 @@ test('settings: data mode, test keys with no providers, honest YouTube state', a
   await page.getByTestId('test-keys').click()
   await expect(page.getByTestId('test-gemini')).toContainText('not configured')
   await expect(page.getByTestId('test-groq')).toContainText('not configured')
-  await expect(page.getByTestId('not-available-inline')).toContainText('Not available yet')
+  await expect(page.getByTestId('youtube-setup')).toContainText('GOOGLE_CLIENT_ID')
   await expect(page.getByTestId('pipeline-card')).toContainText('ffmpeg')
 })
 

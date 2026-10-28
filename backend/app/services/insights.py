@@ -2,7 +2,8 @@
 """Creator intelligence: production patterns counted from the creator's own workspace.
 
 Everything here is a count or an average over rows that exist; nothing is estimated or invented. Performance figures
-(views, retention) need a YouTube connection and are not part of this report. The response says so (``performance``).
+(views, likes, comments) come only from videos published through CreatorAi and synced from YouTube; seeded demo analytics
+are never mixed in. Without those the response says so (``performance.available = false``).
 """
 
 from __future__ import annotations
@@ -14,7 +15,17 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import ActivityLog, Asset, Clip, ContentItem, Render, Script
+from app.models import (
+    ActivityLog,
+    Asset,
+    Clip,
+    ContentItem,
+    Render,
+    Script,
+    YoutubeConnection,
+    YtMetricDaily,
+    YtVideo,
+)
 from app.models.base import utcnow
 
 STAGES = ("idea", "script", "shoot", "edit", "publish", "published")
@@ -170,13 +181,66 @@ def production_report(db: Session, workspace_id: str, days: int = 90) -> dict[st
         "scripts": script_stats,
         "renders": render_stats,
         "activity": [{"date": d, "count": per_day.get(d, 0)} for d in last30],
-        "performance": {
-            "available": False,
-            "reason": "Views and retention need a YouTube connection, which is not set up. No performance numbers are shown rather than made-up ones.",
-        },
+        "performance": performance(db, workspace_id),
     }
     report["nudges"] = nudges(report)
     return report
+
+
+def performance(db: Session, workspace_id: str) -> dict[str, Any]:
+    """Latest synced counters of the videos published from CreatorAi (never the seeded demo rows)."""
+    conn = db.get(YoutubeConnection, workspace_id)
+    videos = list(
+        db.scalars(
+            select(YtVideo).where(YtVideo.workspace_id == workspace_id, YtVideo.is_seed.is_(False))
+        )
+    )
+    if not videos:
+        reason = (
+            "Publish a video from a project's Publish tab: its views, likes and comments show up here after a sync."
+            if conn is not None
+            else "Views need a connected YouTube channel (Settings, YouTube). No performance numbers are shown rather than made-up ones."
+        )
+        return {"available": False, "reason": reason, "connected": conn is not None}
+    rows = []
+    for v in videos:
+        m = db.scalar(
+            select(YtMetricDaily)
+            .where(YtMetricDaily.yt_video_id == v.id)
+            .order_by(YtMetricDaily.day.desc())
+            .limit(1)
+        )
+        rows.append(
+            {
+                "youtube_video_id": v.youtube_video_id,
+                "content_item_id": v.content_item_id,
+                "title": v.title,
+                "format": v.format,
+                "published_at": v.published_at,
+                "views": m.views if m else None,
+                "likes": m.likes if m else None,
+                "comments": m.comments if m else None,
+                "as_of": m.day if m else None,
+                "url": f"https://youtu.be/{v.youtube_video_id}",
+            }
+        )
+    rows.sort(key=lambda r: -(r["views"] or 0))
+    synced = [r for r in rows if r["views"] is not None]
+    return {
+        "available": bool(synced),
+        "reason": None
+        if synced
+        else "Videos are published but not synced yet. Press Sync in Insights or wait for the nightly sync.",
+        "connected": conn is not None,
+        "last_sync_at": conn.last_sync_at if conn else None,
+        "videos": rows,
+        "totals": {
+            "videos": len(rows),
+            "views": sum(r["views"] or 0 for r in synced),
+            "likes": sum(r["likes"] or 0 for r in synced),
+            "comments": sum(r["comments"] or 0 for r in synced),
+        },
+    }
 
 
 def nudges(r: dict[str, Any]) -> list[dict[str, str]]:

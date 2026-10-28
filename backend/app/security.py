@@ -126,3 +126,27 @@ def decrypt_token(ciphertext: str) -> str:
         return _fernet().decrypt(ciphertext.encode()).decode()
     except InvalidToken as exc:
         raise AppError("INTERNAL_ERROR", "Stored credential cannot be decrypted") from exc
+
+
+# ── signed OAuth state (round-trips through Google, so it must be tamper-proof) ─────────────
+def sign_state(workspace_id: str, user_id: str, ttl: int = 900) -> str:
+    """``ws.user.exp.sig`` valid for ``ttl`` seconds."""
+    exp = int(time.time()) + ttl
+    body = f"{workspace_id}.{user_id}.{exp}"
+    sig = hmac.new(_derive("oauth-state"), body.encode(), hashlib.sha256).hexdigest()
+    return f"{body}.{sig}"
+
+
+def verify_state(state: str) -> tuple[str, str]:
+    """``(workspace_id, user_id)`` from a state made by :func:`sign_state`, else ``FORBIDDEN``."""
+    try:
+        ws, user, exp, sig = state.split(".")
+        expected = hmac.new(
+            _derive("oauth-state"), f"{ws}.{user}.{exp}".encode(), hashlib.sha256
+        ).hexdigest()
+        ok = hmac.compare_digest(expected, sig) and int(exp) >= time.time()
+    except ValueError:
+        ok = False
+    if not ok:
+        raise AppError("FORBIDDEN", "The connection link expired. Start again from Settings.")
+    return ws, user
