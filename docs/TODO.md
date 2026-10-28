@@ -127,7 +127,7 @@ Consolidated from FRONTEND_NOTES (numbers refer to that file) and the module han
 - **`make reset-password`** (note 6): **done**, and the login hint points to it; it also signs out every session.
 - **"Wipe my data"** (note 7): **done** as `POST /workspace/wipe {confirm: "DELETE"}` (owner), plus `GET /workspace/export`.
 - **Per-option hook provenance** (note 18), **"none yet" responses instead of 404/409 reads** (note 19), **unified `missing_scenes` shape** (note 20), **transcript endpoint for audio-less video** (note 21), **SSE starts only after the 4 s poll** (note 23; subscribe immediately after enqueue). Each S.
-- **Empty `OLLAMA_BASE_URL=` counts as configured** (note 13): treat empty as default. S.
+- **Empty `OLLAMA_BASE_URL=`** (note 13): **done**, treated as the default.
 - **Acceptance:** the console and `make gen-api` are warning-free; frontend casts listed above are gone; tests updated. **Size:** M total.
 
 ### 11. Editor polish (k)
