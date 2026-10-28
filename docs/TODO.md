@@ -122,8 +122,8 @@ Consolidated from FRONTEND_NOTES (numbers refer to that file) and the module han
 - **Duplicate OpenAPI operation ids** (note 2): set explicit `operation_id` on the transcript PUT/POST in `assets.py` and the media GET/HEAD in `media.py`. S.
 - **Typed open-object responses** (notes 3, 17, 4, 16): response models for `/health`, `/llm/status`, `/llm/test`, `PlanOut.plan`, `ReviewOut.issues/scores`, `ScriptOut.scenes/meta`, `AssetDetail.analysis`; `CardOut.stage` as the `Stage` enum; `GET /content/{id}` declared as `CardOut`; then delete the hand-written types in `lib/api/types.ts`. M.
 - **Rename workspace/channel endpoint** (note 5): accept `channel_name` in `PUT /profile` (or `PATCH /workspace`); Settings form. S.
-- **`make reset-password`** (note 6): **done** (`backend/scripts/reset_password.py`, tested). Remaining: point the login page's "Forgot password" hint at it instead of `make reset`. S.
-- **"Wipe my data" endpoint** (note 7): `DELETE /workspace/data` with confirmation; Settings danger zone. S.
+- **`make reset-password`** (note 6): **done**, and the login hint points to it; it also signs out every session.
+- **"Wipe my data"** (note 7): **done** as `POST /workspace/wipe {confirm: "DELETE"}` (owner), plus `GET /workspace/export`.
 - **Per-option hook provenance** (note 18), **"none yet" responses instead of 404/409 reads** (note 19), **unified `missing_scenes` shape** (note 20), **transcript endpoint for audio-less video** (note 21), **SSE starts only after the 4 s poll** (note 23; subscribe immediately after enqueue). Each S.
 - **Empty `OLLAMA_BASE_URL=` counts as configured** (note 13): treat empty as default. S.
 - **Acceptance:** the console and `make gen-api` are warning-free; frontend casts listed above are gone; tests updated. **Size:** M total.
@@ -139,6 +139,8 @@ Consolidated from FRONTEND_NOTES (numbers refer to that file) and the module han
 - **Why:** local mode is a single account; the JWT lives in `localStorage`; no brute-force protection.
 - **Where:** `services/accounts.py`, `api/v1/auth.py`, `security.py`, `config.py` (`AUTH_ALLOW_MULTI`), Plan section 0 (teams/RBAC deferred).
 - **Tasks:** login attempt throttling; token revocation (a `token_version` on the user so reset-password invalidates sessions); httpOnly cookie option; change-password endpoint and Settings form; if teams return, workspace membership and roles (every table already has `workspace_id`).
+- **Done:** login throttling (5 failures per email and address in 15 minutes, `429 TOO_MANY_ATTEMPTS`), `users.token_version` (password change, `sign-out-everywhere` and `make reset-password` invalidate older tokens), change-password form in Settings.
+- **Left:** httpOnly cookie option.
 - **Acceptance:** repeated bad logins are throttled; changing the password signs out other sessions. **Size:** M (multi-user: L, deferred by the owner).
 
 ### 13. Packaging and performance (o)

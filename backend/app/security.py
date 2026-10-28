@@ -59,12 +59,14 @@ def _derive(label: str) -> bytes:
     return hashlib.sha256(f"{label}:{get_settings().app_secret}".encode()).digest()
 
 
-def issue_token(user_id: str, workspace_id: str) -> str:
-    """HS256 JWT valid for ``JWT_TTL_DAYS`` (default 7) carrying the user and workspace ids."""
+def issue_token(user_id: str, workspace_id: str, token_version: int = 0) -> str:
+    """HS256 JWT valid for ``JWT_TTL_DAYS`` (default 7) carrying the user and workspace ids and
+    the user's ``token_version`` (a newer version on the user signs this token out)."""
     now = datetime.now(UTC)
     claims = {
         "sub": user_id,
         "ws": workspace_id,
+        "tv": token_version,
         "iat": now,
         "exp": now + timedelta(days=get_settings().jwt_ttl_days),
     }

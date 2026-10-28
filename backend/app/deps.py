@@ -57,10 +57,17 @@ def get_user_id(request: Request, db: Annotated[Session, Depends(get_db, scope="
     """The signed-in user, without choosing a workspace (invite acceptance, the account page)."""
     claims = verify_token(_extract_token(request))
     user_id = str(claims["sub"])
-    if db.get(User, user_id) is None:
-        raise AppError("UNAUTHORIZED", "Account no longer exists")
+    _check_user(db, user_id, claims)
     db.info["user_id"] = user_id
     return user_id
+
+
+def _check_user(db: Session, user_id: str, claims: dict[str, object]) -> None:
+    user = db.get(User, user_id)
+    if user is None:
+        raise AppError("UNAUTHORIZED", "Account no longer exists")
+    if int(claims.get("tv", 0) or 0) != (user.token_version or 0):  # type: ignore[call-overload]
+        raise AppError("UNAUTHORIZED", "You were signed out. Sign in again.")
 
 
 def get_ctx(request: Request, db: Annotated[Session, Depends(get_db, scope="function")]) -> Ctx:
@@ -71,8 +78,7 @@ def get_ctx(request: Request, db: Annotated[Session, Depends(get_db, scope="func
     """
     claims = verify_token(_extract_token(request))
     user_id, home = str(claims["sub"]), str(claims["ws"])
-    if db.get(User, user_id) is None:
-        raise AppError("UNAUTHORIZED", "Account no longer exists")
+    _check_user(db, user_id, claims)
     requested = request.headers.get("x-workspace-id") or (
         request.query_params.get("workspace") if request.method == "GET" else None
     )

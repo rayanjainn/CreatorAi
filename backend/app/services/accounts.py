@@ -58,6 +58,11 @@ def signup(
     return user, workspace
 
 
+def token_version(db: Session, user_id: str) -> int:
+    user = db.get(User, user_id)
+    return int(user.token_version or 0) if user else 0
+
+
 def login(db: Session, email: str, password: str) -> tuple[User, Workspace]:
     user = db.scalar(select(User).where(User.email == email))
     if user is None or not verify_password(password, user.password_hash):

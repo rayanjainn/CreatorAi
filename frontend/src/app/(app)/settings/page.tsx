@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useId, useState, type FormEvent, Suspense } from 'react'
-import { CheckCircle2, KeyRound, LogOut, Play, Save, XCircle } from 'lucide-react'
+import { CheckCircle2, KeyRound, Play, Save, XCircle } from 'lucide-react'
 import { PageHeader } from '@/components/common/page-header'
 import { YoutubeCard } from '@/components/settings/youtube-card'
+import { AccountCard } from '@/components/settings/account-card'
 import { ErrorState } from '@/components/common/error-state'
-import { Button, LinkButton } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Field, Input, Select, Textarea } from '@/components/ui/field'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ProvenanceBadge } from '@/components/provenance/provenance-badge'
@@ -327,7 +328,7 @@ function DefaultsCard({ profile }: { profile: Profile }) {
 
 export default function SettingsPage() {
   const { me, profile, logout } = useAuth()
-  const { canAdmin, known } = useRole()
+  const { canAdmin, known, isOwner } = useRole()
 
   useEffect(() => {
     if (window.location.hash === '#llm') document.getElementById('llm')?.scrollIntoView({ behavior: 'smooth' })
@@ -360,35 +361,7 @@ export default function SettingsPage() {
           <YoutubeCard canAdmin={!known || canAdmin} />
         </Suspense>
 
-        <section className="card danger-zone span-2" aria-labelledby="dz-h">
-          <div className="card-heading">
-            <div>
-              <div className="eyebrow" style={{ color: '#fca5a5' }}>
-                Account
-              </div>
-              <h2 id="dz-h">Session & data</h2>
-            </div>
-          </div>
-          <dl className="kv" style={{ marginTop: 14 }}>
-            <dt>Signed in as</dt>
-            <dd>{me?.user.email}</dd>
-            <dt>Workspace</dt>
-            <dd>{me?.workspace_name}</dd>
-            <dt>Your data</dt>
-            <dd>
-              Stored only on this machine (<code className="env">data/</code>). To wipe the database and media, run <code className="env">make reset</code> in the repo
-              folder.
-            </dd>
-          </dl>
-          <div style={{ display: 'flex', gap: 10, marginTop: 18, flexWrap: 'wrap' }}>
-            <LinkButton href="/onboarding?redo=1" variant="secondary">
-              Re-run onboarding
-            </LinkButton>
-            <Button variant="danger" onClick={logout} data-testid="signout">
-              <LogOut size={14} /> Sign out
-            </Button>
-          </div>
-        </section>
+        <AccountCard email={me?.user.email} workspaceName={me?.workspace_name} isOwner={isOwner} onSignOut={logout} />
       </div>
     </div>
   )
