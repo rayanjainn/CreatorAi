@@ -26,7 +26,7 @@ export function ProjectCard({ card, index = 0 }: { card: Card; index?: number })
               <Clock3 size={11} aria-hidden /> {relativeTime(card.updated_at)}
             </span>
             {card.running_jobs.active && (
-              <span style={{ color: '#cdbdff' }}>
+              <span style={{ color: 'var(--accent-text)' }}>
                 <span className="spinner" style={{ width: 9, height: 9, borderWidth: 1.5 }} aria-hidden /> working
               </span>
             )}

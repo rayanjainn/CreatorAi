@@ -1,7 +1,7 @@
 import { initials } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
-const PALETTE = ['#8b5cf6', '#38bdf8', '#f59e0b', '#ec4899', '#14b8a6', '#22c55e', '#f97316', '#6366f1']
+const PALETTE = ['#a59cf0', '#8fb3c0', '#c4ae8a', '#b39bb8', '#8fc0a0', '#a8a49c', '#9fa9d6', '#c2a3a3']
 
 /** A stable colour per person, so the same collaborator looks the same everywhere. */
 export function colorFor(id: string): string {

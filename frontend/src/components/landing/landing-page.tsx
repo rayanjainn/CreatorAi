@@ -236,11 +236,11 @@ export default function LandingPage() {
      uSize: { value: 3.0 },
      uPixelRatio: { value: pr },
      uOpacity: { value: 0.8 },
-     uColor: { value: new THREE.Color('#f5b8d0') },
-     uCore: { value: new THREE.Color('#ffd9e8') },
-     uRing0: { value: new THREE.Color('#c26a97') },
-     uRing1: { value: new THREE.Color('#f5b8d0') },
-     uRing2: { value: new THREE.Color('#ffe3ef') }
+     uColor: { value: new THREE.Color('#cfc9f7') },
+     uCore: { value: new THREE.Color('#e2defc') },
+     uRing0: { value: new THREE.Color('#847ad6') },
+     uRing1: { value: new THREE.Color('#cfc9f7') },
+     uRing2: { value: new THREE.Color('#ebe8fd') }
    }
 
 
@@ -450,7 +450,7 @@ export default function LandingPage() {
        }
        const active = p >= b.s && p <= b.e
        if (b.dot) {
-         b.dot.style.background = active ? '#f5b8d0' : 'rgba(255,255,255,0.25)'
+         b.dot.style.background = active ? '#cfc9f7' : 'rgba(255,255,255,0.25)'
          b.dot.style.transform = active ? 'scale(1.4)' : 'scale(1)'
        }
      })
@@ -595,7 +595,7 @@ export default function LandingPage() {
 
 
  return (
-   <div className="min-h-screen bg-[#0a0a0c] text-[#f4f2ef] font-sans antialiased selection:bg-[#f5b8d0]/20 selection:text-white">
+   <div className="min-h-screen bg-[#0a0a0c] text-[#f4f2ef] font-sans antialiased selection:bg-[#cfc9f7]/20 selection:text-white">
      {/* Three.js Particle Background */}
      <canvas
        ref={particlesRef}
@@ -610,7 +610,7 @@ export default function LandingPage() {
      <header className="fixed top-0 left-0 right-0 z-60 backdrop-blur-xl bg-[#0a0a0c]/55 border-b border-white/[0.06]">
        <nav className="mx-auto flex items-center justify-between px-6 py-4 max-w-[77.5rem]">
          <div className="flex items-center gap-2">
-           <Sparkles className="w-5 h-5 text-[#f5b8d0]" />
+           <Sparkles className="w-5 h-5 text-[#cfc9f7]" />
            <span className="text-sm font-medium tracking-tighter uppercase text-white">
              CreatorAI
            </span>
@@ -665,7 +665,7 @@ export default function LandingPage() {
                      backgroundSize: 'cover',
                      borderRadius: '1.25rem',
                      border: '1px solid rgba(255,255,255,0.12)',
-                     boxShadow: '0 30px 120px -20px rgba(245,184,208,0.35), 0 0 0 1px rgba(0,0,0,0.4)',
+                     boxShadow: '0 30px 120px -20px rgba(165,156,240,0.30), 0 0 0 1px rgba(0,0,0,0.4)',
                      backgroundRepeat: 'no-repeat',
                      backgroundPosition: 'center center',
                      willChange: 'transform',
@@ -697,7 +697,7 @@ export default function LandingPage() {
            id="gradeWash"
            className="absolute inset-0 z-6 pointer-events-none"
            style={{
-             background: 'radial-gradient(circle at 50% 45%, rgba(245, 184, 208, 0.1), rgba(10, 10, 12, 0.75) 70%)',
+             background: 'radial-gradient(circle at 50% 45%, rgba(165, 156, 240, 0.1), rgba(10, 10, 12, 0.75) 70%)',
              mixBlendMode: 'screen'
            }}
          />
@@ -728,12 +728,12 @@ export default function LandingPage() {
          {/* Copy beats */}
          <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none">
            <div className="beat flex flex-col items-center absolute text-center px-6" data-beat="0" style={{ opacity: 0 }}>
-             <p className="text-xs uppercase tracking-[0.35rem] text-[#f5b8d0] mb-4">
+             <p className="text-xs uppercase tracking-[0.35rem] text-[#cfc9f7] mb-4">
                THE CREATIVE INTELLIGENCE PLATFORM
              </p>
              <h1 className="tracking-tight font-medium" style={{ fontSize: 'clamp(2.5rem,8vw,6rem)', lineHeight: 0.95 }}>
                From raw footage to<br />
-               <span className="text-[#f5b8d0]">remarkable stories.</span>
+               <span className="text-[#cfc9f7]">remarkable stories.</span>
              </h1>
            </div>
            <div className="beat flex flex-col items-center absolute text-center px-6" data-beat="1" style={{ opacity: 0 }}>
@@ -745,7 +745,7 @@ export default function LandingPage() {
              </p>
            </div>
            <div className="beat flex flex-col items-center absolute text-center px-6" data-beat="2" style={{ opacity: 0 }}>
-             <p className="text-xs uppercase tracking-[0.3rem] text-[#f5b8d0] mb-3">
+             <p className="text-xs uppercase tracking-[0.3rem] text-[#cfc9f7] mb-3">
                Asset Intelligence
              </p>
              <h2 className="tracking-tight font-medium" style={{ fontSize: 'clamp(2.125rem,7vw,5rem)', lineHeight: 1 }}>
@@ -761,7 +761,7 @@ export default function LandingPage() {
              </p>
            </div>
            <div className="beat flex flex-col items-center absolute text-center px-6" data-beat="4" style={{ opacity: 0 }}>
-             <p className="text-xs uppercase tracking-[0.3rem] text-[#f5b8d0] mb-3">
+             <p className="text-xs uppercase tracking-[0.3rem] text-[#cfc9f7] mb-3">
                Intelligent Editor
              </p>
              <h2 className="tracking-tight font-medium" style={{ fontSize: 'clamp(2.125rem,7vw,5rem)', lineHeight: 1 }}>
@@ -774,7 +774,7 @@ export default function LandingPage() {
              </h2>
            </div>
            <div className="beat flex flex-col items-center absolute text-center px-6" data-beat="6" style={{ opacity: 0 }}>
-             <p className="text-xs uppercase tracking-[0.3rem] text-[#f5b8d0] mb-3">
+             <p className="text-xs uppercase tracking-[0.3rem] text-[#cfc9f7] mb-3">
                CreatorAI
              </p>
              <h2 className="tracking-tight uppercase font-medium" style={{ fontSize: 'clamp(2.375rem,8vw,5.625rem)', lineHeight: 1 }}>
@@ -799,7 +799,7 @@ export default function LandingPage() {
                className="h-full"
                style={{
                  width: '0%',
-                 background: 'linear-gradient(90deg, rgb(245, 184, 208), rgb(194, 106, 151))'
+                 background: 'linear-gradient(90deg, rgb(207, 201, 247), rgb(132, 122, 214))'
                }}
              />
            </div>
@@ -822,7 +822,7 @@ export default function LandingPage() {
 
 
        <div className="mb-12 section-heading">
-         <p className="text-xs uppercase text-[#f5b8d0] tracking-[0.3rem] mb-3">
+         <p className="text-xs uppercase text-[#cfc9f7] tracking-[0.3rem] mb-3">
            Features
          </p>
          <h2 className="tracking-tight text-[clamp(1.875rem,5vw,3.5rem)] font-medium leading-[1.05]">
@@ -900,7 +900,7 @@ export default function LandingPage() {
      {/* Workflow Section */}
      <section id="how-it-works" className="mx-auto px-6 py-24 max-w-[77.5rem] relative">
        <div className="mb-12 section-heading">
-         <p className="text-xs uppercase text-[#f5b8d0] tracking-[0.3rem] mb-3">
+         <p className="text-xs uppercase text-[#cfc9f7] tracking-[0.3rem] mb-3">
            Workflow
          </p>
          <h2 className="tracking-tight text-[clamp(1.875rem,5vw,3.5rem)] font-medium leading-[1.05]">
@@ -919,8 +919,8 @@ export default function LandingPage() {
            { icon: Send, title: 'Deliver', desc: 'Prepare content for different social platforms.' }
          ].map((step, i) => (
            <div key={i} className="flex flex-col border-white/[0.06] hover:bg-white/[0.04] transition-colors duration-500 bg-neutral-900/50 border rounded-2xl p-6 workflow-card tilt-card">
-             <div className="w-12 h-12 rounded-full bg-[#f5b8d0]/20 flex items-center justify-center mb-4">
-               <step.icon className="w-6 h-6 text-[#f5b8d0]" />
+             <div className="w-12 h-12 rounded-full bg-[#cfc9f7]/20 flex items-center justify-center mb-4">
+               <step.icon className="w-6 h-6 text-[#cfc9f7]" />
              </div>
              <h3 className="text-lg font-medium tracking-tight text-[#e8e6e3] mb-2">
                {step.title}
@@ -936,7 +936,7 @@ export default function LandingPage() {
 
      {/* CTA Section */}
      <section className="mx-auto px-6 py-24 max-w-[77.5rem] relative text-center">
-       <div className="absolute inset-0 bg-gradient-to-b from-[#f5b8d0]/5 to-transparent pointer-events-none" />
+       <div className="absolute inset-0 bg-gradient-to-b from-[#cfc9f7]/5 to-transparent pointer-events-none" />
        <h2 className="tracking-tight text-[clamp(2rem,6vw,4rem)] font-medium leading-[1.1] mb-6">
          Your next great story starts here.
        </h2>
@@ -944,7 +944,7 @@ export default function LandingPage() {
          Plan, film, cut and publish from one workspace that runs on your own machine. Free to start, no account in the cloud.
        </p>
        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-         <Link href="/signup" className="inline-flex items-center gap-2 text-sm font-medium px-6 py-3 rounded-full bg-[#f5b8d0] text-[#1a1a1a] hover:bg-[#f5b8d0]/90 transition-colors">
+         <Link href="/signup" className="inline-flex items-center gap-2 text-sm font-medium px-6 py-3 rounded-full bg-[#cfc9f7] text-[#1a1a1a] hover:bg-[#cfc9f7]/90 transition-colors">
            <Sparkles className="w-4 h-4" />
            Start Creating
          </Link>
@@ -961,7 +961,7 @@ export default function LandingPage() {
        <div className="flex flex-col md:flex-row justify-between gap-10">
          <div>
            <div className="flex items-center gap-2 mb-4">
-             <Sparkles className="w-5 h-5 text-[#f5b8d0]" />
+             <Sparkles className="w-5 h-5 text-[#cfc9f7]" />
              <span className="text-sm font-medium tracking-tighter uppercase text-white">
                CreatorAI
              </span>

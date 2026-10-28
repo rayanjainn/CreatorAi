@@ -50,7 +50,7 @@ function PromoVideo() {
       <div className="promo-fallback">
         {FALLBACK.map(({ Icon, t, d }) => (
           <div key={t}>
-            <Icon size={18} style={{ color: '#c4b5fd', marginBottom: 10 }} />
+            <Icon size={18} style={{ color: 'var(--accent)', marginBottom: 10 }} />
             <b>{t}</b>
             <p>{d}</p>
           </div>

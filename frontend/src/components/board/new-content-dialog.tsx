@@ -103,7 +103,7 @@ function NewContentForm({ onDone, prefill }: { onDone: () => void; prefill: { ti
         <Textarea id={ids.notes} value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={5000} rows={3} />
       </Field>
 
-      <div className="card" style={{ padding: 14, background: '#17171d', borderRadius: 12, boxShadow: 'none' }}>
+      <div className="card" style={{ padding: 14, background: 'var(--surface-2)', borderRadius: 12, boxShadow: 'none' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
           <Lightbulb size={15} style={{ color: 'var(--amber)' }} />
           <b style={{ fontSize: 12.5 }}>Need a spark?</b>

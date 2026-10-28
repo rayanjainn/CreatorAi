@@ -9,8 +9,8 @@ const SEGMENTS: { key: 'confirmed' | 'matched' | 'weak' | 'missing' | 'rejected'
   { key: 'matched', label: 'Matched', color: 'var(--green)' },
   { key: 'weak', label: 'Weak', color: 'var(--amber)' },
   { key: 'missing', label: 'Missing', color: 'var(--red)' },
-  { key: 'rejected', label: 'Rejected', color: '#71717a' },
-  { key: 'unmatched', label: 'Not matched yet', color: '#3f3f46' },
+  { key: 'rejected', label: 'Rejected', color: 'var(--dim)' },
+  { key: 'unmatched', label: 'Not matched yet', color: 'var(--border-strong)' },
 ]
 
 /** Coverage summary: percent, segmented bar by beat status, legend with counts. */

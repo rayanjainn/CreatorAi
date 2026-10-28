@@ -9,7 +9,7 @@ import { formatDuration } from '@/lib/format'
 import { relativeTime } from '@/lib/time'
 import type { Plan } from '@/lib/api/types'
 
-const COLORS = ['var(--primary)', 'var(--amber)', 'var(--cyan)', 'var(--pink)', 'var(--teal)', '#a3e635', '#fb923c']
+const COLORS = ['var(--accent)', 'color-mix(in srgb, var(--accent) 78%, var(--surface))', 'color-mix(in srgb, var(--accent) 60%, var(--surface))', 'color-mix(in srgb, var(--accent) 45%, var(--surface))', 'var(--muted)', 'var(--dim)', 'var(--border-strong)']
 
 /** Angle, timed structure, storytelling tips, hook ideas, CTA and risks of one plan version. */
 export function PlanView({ plan, projectId }: { plan: Plan; projectId: string }) {

@@ -5,6 +5,7 @@ import { useMemo, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, CalendarRange, FolderOpen, KanbanSquare, Lightbulb, Rocket, Send, Settings2, Sparkles } from 'lucide-react'
 import { ProjectCard } from '@/components/board/project-card'
+import { UpNext } from '@/components/dashboard/up-next'
 import { EmptyState } from '@/components/common/empty-state'
 import { ErrorState } from '@/components/common/error-state'
 import { Button } from '@/components/ui/button'
@@ -172,6 +173,7 @@ export default function DashboardPage() {
         </section>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <UpNext cards={cards} />
           <section className="card" aria-labelledby="jobs-h" data-testid="running-jobs">
             <div className="card-heading">
               <div>

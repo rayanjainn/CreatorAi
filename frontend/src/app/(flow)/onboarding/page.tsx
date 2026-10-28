@@ -207,7 +207,7 @@ export default function OnboardingPage() {
                   <NotAvailableInline title="YouTube connection is not available yet" icon={<Video size={16} />}>
                     Publishing and real channel analytics are not part of this build, so there is nothing to connect. You can skip this: it will not block anything.
                   </NotAvailableInline>
-                  <div className="card" style={{ marginTop: 16, boxShadow: 'none', background: '#17171d' }}>
+                  <div className="card" style={{ marginTop: 16, boxShadow: 'none', background: 'var(--surface-2)' }}>
                     <b style={{ fontSize: 13 }}>You are about to save</b>
                     <dl className="kv" style={{ marginTop: 10 }}>
                       <dt>Name</dt>
