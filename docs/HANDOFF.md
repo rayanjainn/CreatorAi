@@ -31,7 +31,7 @@ Status key: **done** = implemented and tested; **partial** = works with stated l
 | Timeline model, ops, edit API with optimistic concurrency and revisions | `schemas/timeline.py`, `services/{timeline_service,edit_service}.py`, `api/v1/edits.py` | done | `test_timeline` (49 incl. property tests), `test_timeline_golden`, `test_edits_flow` |
 | Render/export (presets, ASS captions, cards, ffmpeg graph) | `media/{render_graph,presets,captions_ass,cards,fonts}.py`, `services/render_service.py`, `api/v1/renders.py`, `workers/tasks/render_run.py` | done | `test_media_planning`, `test_render_media`, `test_renders_flow` |
 | Demo seed and synthetic footage | `backend/scripts/{seed_demo,demo_data,make_demo_media}.py` | done | `test_seed_demo` |
-| Twin approval events (registry only, no listeners) | `services/twin_events.py` | partial: emits `script_approved`, `clip_accepted`; nothing consumes them | `test_twin_events` |
+| Twin events and learning | `services/twin_events.py`, `services/twin.py` | done: `script_approved` and `clip_accepted` become memories, `layer_rejected` becomes preferences; chat actions apply as revisions | `test_twin_events`, `test_twin` |
 | Dev tooling: `make doctor`, `make reset-password`, dev/e2e runners | `scripts/`, `backend/scripts/reset_password.py` | done | `test_reset_password` |
 | Frontend shell, auth, onboarding, board, dashboard, settings, jobs | `frontend/src/app/{(public),(flow),(app)}`, `components/{shell,board,auth,onboarding,provenance}` | done | `e2e/app.spec.ts` |
 | Asset library, search, upload dialog, asset drawer | `components/{library,media}`, `lib/upload.ts` | done | `e2e/library.spec.ts` |
@@ -47,7 +47,6 @@ are built; the YouTube client was verified against a recorded fake of Google, no
 
 | Feature | Plan section | State |
 |---|---|---|
-| Twin actions `trim_clip`, `regenerate_hooks`; `layer_rejected` event | 8.11 | the chat suggests them but they open the editor instead of applying |
 | Editor Audio, Color, Structure modes | UI spec | not present (no backend) |
 | Password reset by email, Google sign-in | 0 | deferred by decision |
 | Plan 7.4 token budget | 7.4 | intentionally not built |

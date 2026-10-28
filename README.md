@@ -124,7 +124,7 @@ A result mixing sources shows the weakest one. The topbar chip and the `DataMode
 
 | YouTube publishing | connect your channel with your own Google OAuth client, upload a finished render (resumable, in the background), schedule it, sponsor disclosure pre-filled; views, likes and comments sync back into Insights nightly or on demand | needs `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (see [YouTube](#youtube-publishing)) |
 
-Not built yet (the pages say so honestly): the Twin's trim and hook actions apply only in the editor.
+The Creative Twin applies what it suggests (pause tightening, caption style, music, trims, new hooks, ideas) as normal, undoable changes, and learns a preference when you keep rejecting the same kind of AI layer.
 
 ## Architecture
 

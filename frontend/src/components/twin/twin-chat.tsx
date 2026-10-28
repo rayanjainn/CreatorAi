@@ -75,6 +75,14 @@ export function TwinChat({ contentItemId, clipId, compact, beforeApply, onApplie
                   {r ? (
                     <span>
                       <Check size={13} aria-hidden /> {r.message}
+                      {r.href && (
+                        <>
+                          {' '}
+                          <Link href={r.href} className="link">
+                            Open
+                          </Link>
+                        </>
+                      )}
                       {r.open_editor && r.clip_id && (
                         <>
                           {' '}
@@ -109,6 +117,8 @@ export function TwinChat({ contentItemId, clipId, compact, beforeApply, onApplie
         )}
         {chat.isError &&
           (isLlmError(chat.error) ? <LlmNotice error={chat.error} /> : <p className="twin-error" role="alert">{(chat.error as Error).message}</p>)}
+        {apply.isError &&
+          (isLlmError(apply.error) ? <LlmNotice error={apply.error} /> : <p className="twin-error" role="alert">{(apply.error as Error).message}</p>)}
         <div ref={end} />
       </div>
       <form onSubmit={submit} className="twin-input">
