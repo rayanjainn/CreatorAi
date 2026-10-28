@@ -12,7 +12,7 @@ import { enqueueUploads } from '@/lib/upload'
 import { toast } from '@/stores/toasts'
 import { useEditor } from '@/stores/editor'
 import { useUploads } from '@/stores/uploads'
-import type { AudioKind } from '@/lib/timeline'
+import { linkSponsorFootage, type AudioKind } from '@/lib/timeline'
 import { addAudioLayer, addVideoAsset } from './actions'
 import { assetToEditAsset } from './api'
 
@@ -151,4 +151,31 @@ export function useEditorUploadWatcher() {
     check()
     return useUploads.subscribe(check)
   }, [])
+}
+
+/** Replace a sponsor placeholder with the recorded segment (a ready video from the library). */
+export async function linkSponsorRecording(itemId: string, assetId: string): Promise<boolean> {
+  const s = useEditor.getState()
+  if (s.viewOnly || s.preview || s.busy) {
+    toast.info('Cannot change the timeline now', s.viewOnly ? 'Your role on this project is view only.' : 'Go back to the latest revision first.')
+    return false
+  }
+  try {
+    const detail = await queryClient.fetchQuery({
+      queryKey: qk.asset(assetId),
+      queryFn: () => unwrap(api.GET('/api/v1/assets/{asset_id}', { params: { path: { asset_id: assetId }, query: { include_energy: true } } })) as Promise<AssetDetail>,
+      staleTime: 0,
+    })
+    if (detail.kind !== 'video' || detail.status !== 'ready' || !detail.duration_sec) {
+      toast.info('Pick a processed video', 'The recording must be a video that finished processing.')
+      return false
+    }
+    useEditor.getState().mergeAssets({ [assetId]: assetToEditAsset(detail) })
+    const ok = useEditor.getState().apply((t) => linkSponsorFootage(t, itemId, assetId, detail.duration_sec as number), { note: 'Linked the sponsor recording' })
+    if (ok) toast.success('Sponsor recording linked', 'Use "Rebuild captions" to caption it from its transcript.')
+    return ok
+  } catch (e) {
+    toast.error('Could not link that recording', e instanceof Error ? e.message : undefined)
+    return false
+  }
 }

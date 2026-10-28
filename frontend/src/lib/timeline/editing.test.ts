@@ -129,3 +129,29 @@ describe('layers', () => {
     ok(t)
   })
 })
+
+describe('linkSponsorFootage', () => {
+  it('turns a placeholder into the recorded footage, ripples, re-covers the lower third and drops script captions', async () => {
+    const { linkSponsorFootage, rippleInsert, recomputeDuration } = await import('./index')
+    const { vid, ovl, cap } = await import('./testing')
+    const base = baseTimeline()
+    const sponsor = vid('v_sp', 0, 12, null, { kind: 'sponsor', placeholder: true, text: 'This video is brought to you by Acme.' })
+    let t = rippleInsert(base, 4, sponsor)
+    const at = t.tracks.video.find((v) => v.id === 'v_sp')!.tl_start
+    t.tracks.overlays.push(ovl('o_lt', at, at + 12, { kind: 'lower_third', text: 'Sponsored · Acme' }))
+    t.tracks.captions.push({ ...cap('c_sp', at, at + 2, 'This video is'), reason: 'sponsor script' })
+    t = recomputeDuration(t)
+    const durations = { ...DURATIONS, rec: 20 }
+    const out = linkSponsorFootage(t, 'v_sp', 'rec', 20)
+    const item = out.tracks.video.find((v) => v.id === 'v_sp')!
+    expect(item.asset_id).toBe('rec')
+    expect(item.placeholder).toBe(false)
+    expect(item.src_out).toBe(20)
+    expect(out.duration).toBeCloseTo(t.duration + 8)
+    const lt = out.tracks.overlays.find((o) => o.id === 'o_lt')!
+    expect([lt.tl_start, lt.tl_end]).toEqual([item.tl_start, item.tl_start + 20])
+    expect(out.tracks.captions.some((c) => c.id === 'c_sp')).toBe(false)
+    expect(validate(out, durations)).toEqual([])
+    expect(() => linkSponsorFootage(out, 'v_sp', 'rec', 20)).toThrow(OpError) // no longer a placeholder
+  })
+})
