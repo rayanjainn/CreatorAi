@@ -404,3 +404,20 @@ def test_schedule_a_day_and_clear_it(client: TestClient, auth: Hdr) -> None:
     assert bad.status_code == 422
     cleared = client.patch(f"{V1}/content/{item['id']}", json={"scheduled_for": None}, headers=auth)
     assert cleared.json()["scheduled_for"] is None
+
+
+def test_llm_usage_report_counts_calls_per_provider_and_task(client: TestClient, auth: Hdr) -> None:
+    item = client.post(f"{V1}/content", json={"title": "Usage"}, headers=auth).json()["id"]
+    assert (
+        client.post(f"{V1}/content/{item}/hooks", json={"count": 3}, headers=auth).status_code
+        == 200
+    )
+    assert (
+        client.post(f"{V1}/content/{item}/hooks", json={"count": 3}, headers=auth).status_code
+        == 200
+    )
+    rep = client.get(f"{V1}/llm/usage", params={"days": 7}, headers=auth).json()
+    assert rep["total"]["calls"] >= 2 and rep["total"]["ok"] >= 2
+    assert rep["by_task"][0]["task"] == "script.hooks"
+    assert rep["by_provider"][0]["name"].startswith("mock")
+    assert len(rep["by_day"]) == 7 and rep["by_day"][-1]["calls"] >= 2

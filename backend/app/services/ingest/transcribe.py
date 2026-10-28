@@ -39,6 +39,51 @@ ASR_HELP = (
 )
 
 
+class ChunkStore:
+    """Finished chunks on disk, so a retry after a failure only transcribes the missing ones.
+
+    A checkpoint is valid only for the same chunk plan (``signature``: the audio, its chunk
+    boundaries and the language); anything else is ignored and overwritten.
+    """
+
+    def __init__(self, directory: Path, signature: str) -> None:
+        self.directory, self.signature = directory, signature
+
+    def _file(self, chunk: Chunk) -> Path:
+        return self.directory / f"chunk_{chunk.index:03d}.json"
+
+    def get(self, chunk: Chunk) -> tuple[str, str, Transcript] | None:
+        try:
+            data = json.loads(self._file(chunk).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+        if data.get("signature") != self.signature:
+            return None
+        t = Transcript(
+            provider=data["provider"], model=data["model"], language=data.get("language"),
+            words=[Word(**w) for w in data["words"]],
+            segments=[Segment(**s) for s in data["segments"]],
+            words_estimated=bool(data.get("words_estimated")),
+        )  # fmt: skip
+        return data["provider"], data["model"], t
+
+    def put(self, chunk: Chunk, provider: str, model: str, t: Transcript) -> None:
+        self.directory.mkdir(parents=True, exist_ok=True)
+        data = {
+            "signature": self.signature, "provider": provider, "model": model,
+            "language": t.language, "words_estimated": t.words_estimated,
+            "words": [{"word": w.word, "start": w.start, "end": w.end} for w in t.words],
+            "segments": [{"text": s.text, "start": s.start, "end": s.end} for s in t.segments],
+        }  # fmt: skip
+        tmp = self._file(chunk).with_suffix(".tmp")
+        tmp.write_text(json.dumps(data), encoding="utf-8")
+        tmp.replace(self._file(chunk))
+
+    def clear(self) -> None:
+        for f in self.directory.glob("chunk_*.json"):
+            f.unlink(missing_ok=True)
+
+
 @dataclass
 class ChunkedResult:
     transcript: Transcript
@@ -63,6 +108,7 @@ def transcribe_chunks(
     language: str | None,
     max_tries: int,
     on_chunk: Callable[[int, int], None] | None = None,
+    store: ChunkStore | None = None,
 ) -> ChunkedResult:
     """Transcribe ``chunks`` sequentially (Groq allows ~20 requests/minute).
 
@@ -70,6 +116,7 @@ def transcribe_chunks(
     network error; waits follow ``retry_after`` or 1 s, 2 s, 4 s...). A provider that fails
     permanently, or exhausts its retries, is skipped for the rest of the asset and the chunk falls
     through to the next provider. Word and segment times are re-based by each chunk's start.
+    With a ``store``, finished chunks are saved as they complete and reused on the next run.
     """
     dead: set[str] = set()
     errors: list[str] = []
@@ -82,7 +129,13 @@ def transcribe_chunks(
     models: dict[str, str] = {}
     for position, chunk in enumerate(chunks):
         result: Transcript | None = None
-        for provider in chain:
+        saved = store.get(chunk) if store else None
+        if saved is not None:
+            name, model, result = saved
+            if name not in used:
+                used.append(name)
+                models[name] = model
+        for provider in [] if result is not None else chain:
             if provider.name in dead:
                 continue
             for attempt in range(max_tries):
@@ -104,6 +157,8 @@ def transcribe_chunks(
                 if provider.name not in used:
                     used.append(provider.name)
                     models[provider.name] = provider.model
+                if store:
+                    store.put(chunk, provider.name, provider.model, result)
                 break
         if result is None:
             raise asr_unavailable(
@@ -182,18 +237,26 @@ def _from_asr(run: Run, asset: Asset) -> None:
     def on_chunk(done: int, total: int) -> None:
         run.fraction(done / total)
 
+    language = _profile_language(run.workspace_id)
+    plan = ",".join(f"{c.start:.2f}-{c.end:.2f}" for c in chunks)
+    store = ChunkStore(
+        run.path(run.key("asr_chunks")),
+        f"{asset.audio_key}|{duration:.2f}|{language or 'auto'}|{plan}",
+    )
     result = transcribe_chunks(
         chain,
         chunks,
         chunk_file,
-        language=_profile_language(run.workspace_id),
+        language=language,
         max_tries=max(1, settings.asr_max_tries),
         on_chunk=on_chunk,
+        store=store if len(chunks) > 1 else None,
     )
     provenance = Provenance(
         source="ai", provider=result.transcript.provider, model=result.transcript.model
     )
     _store(run, result.transcript, "asr", provenance, result.providers, result.chunks)
+    store.clear()
 
 
 def _store(

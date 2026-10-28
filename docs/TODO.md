@@ -109,7 +109,9 @@ the work is the services, endpoints, jobs and pages.
 - **Backend:** migration, PATCH fields, filters; **Frontend:** month/week view, drag to reschedule, due date on cards.
 - **Acceptance:** an item can be given a date, appears on the calendar, and moving it persists. **Size:** M.
 
-### 9. Per-chunk ASR checkpointing (i)
+### 9. Per-chunk ASR checkpointing (i) — done
+**Built:** `ChunkStore` in `services/ingest/transcribe.py` saves each finished chunk under the asset's `asr_chunks/`, keyed by audio, boundaries and language; a retry transcribes only the missing chunks; the files are removed once the transcript is stored.
+
 - **What:** persist each finished transcription chunk so a retry does not redo them.
 - **Why:** a failure on chunk 8 of 10 currently restarts the whole `transcribe` stage (stage checkpoints exist, chunk ones do not), wasting Groq quota.
 - **Where:** `services/ingest/transcribe.py` (`transcribe_chunks`), `ml/asr/*`, `assets.analysis`. Plan 3.3, 8.2.
@@ -171,7 +173,7 @@ Only worth building when backed: Audio (per-clip gain curves, ducking, voice-ove
 - **Acceptance:** the same test suite passes on the alternative backends behind a flag. **Size:** L each.
 
 ### 17. Plan 7.4 token budget (q)
-Intentionally not built: it is a planning estimate. If wanted, a usage page can aggregate `llm_usage` rows (the table is already written by the gateway). **Size:** S.
+The budget itself is not enforced. A usage report is built: `GET /llm/usage?days=` and the Settings "Usage" card (calls, failures, cache hits, tokens and latency per provider and task, calls per day).
 
 ### 18. Other known small items
 - Hero seed numbers should be regenerated with the real embedder once available (`make seed ARGS="--reset"`), and the e2e assertions that depend on hashing (`75%` coverage) revisited.

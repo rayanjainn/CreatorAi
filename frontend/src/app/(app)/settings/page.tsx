@@ -5,6 +5,7 @@ import { CheckCircle2, KeyRound, Play, Save, XCircle } from 'lucide-react'
 import { PageHeader } from '@/components/common/page-header'
 import { YoutubeCard } from '@/components/settings/youtube-card'
 import { AccountCard } from '@/components/settings/account-card'
+import { UsageCard } from '@/components/settings/usage-card'
 import { ErrorState } from '@/components/common/error-state'
 import { Button } from '@/components/ui/button'
 import { Field, Input, Select, Textarea } from '@/components/ui/field'
@@ -355,6 +356,7 @@ export default function SettingsPage() {
         )}
         <TeamCard />
         <LlmCard />
+        <UsageCard />
         <PipelineCard />
 
         <Suspense fallback={null}>

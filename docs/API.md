@@ -548,3 +548,8 @@ with `details.env`. The refresh token is stored Fernet-encrypted; access tokens 
 | `POST` | `/workspace/wipe` | owner; `{confirm: "DELETE"}` (else `409 CONFIRMATION_REQUIRED`); refuses while jobs run; deletes projects, files and generated rows, keeps account, team, profile settings and the YouTube connection; returns counts per table and `files` |
 
 Tokens carry `tv` (the user's `token_version` when issued); tokens issued before this change have none and count as version 0.
+
+## AI usage (`GET /llm/usage?days=30`)
+
+Counted from `llm_usage` (written by the gateway for every call): `total`, `by_provider` (`provider · model`), `by_task`, each with
+`calls, ok, errors, invalid, cache_hits, tokens_in, tokens_out, avg_latency_ms` (live successful calls only), and `by_day` (calls per day, up to 30 days).
