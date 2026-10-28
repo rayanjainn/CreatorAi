@@ -1,45 +1,81 @@
-/* Design tokens. The look is the teammate's cinematic dark theme; only extend, never rename. */
+/*
+ * Design tokens. One calm system: warm graphite neutrals, a single soft lavender accent, and three muted status
+ * tones (sage, sand, rose) used only to mean something. Every colour in the app comes from here; the four tone
+ * families each have a base, a light text tone, a tinted background and a tinted line.
+ */
 :root {
-  --background: #0b0b0e;
-  --foreground: #f4f4f5;
-  --surface: #1e1e24;
-  --surface-2: #25252d;
-  --surface-3: #2b2b33;
-  --sidebar: #141418;
-  --border: #34343a;
-  --line: #25252b;
-  --primary: #8b5cf6;
-  --primary-hover: #a78bfa;
-  --primary-foreground: #ffffff;
-  --muted-foreground: #a1a1aa;
-  --amber: #f5b84b;
-  --cyan: #7bd0ff;
-  --green: #22c55e;
-  --red: #ef4444;
-  --pink: #f5a3c7;
-  --teal: #4fd1c5;
-  --muted: #a1a1aa;
-  --dim: #8a8a94; /* lifted from #71717a for WCAG AA on #1e1e24 */
+  /* neutrals (warm graphite) */
+  --background: #0e0e0f;
+  --surface: #141415;
+  --surface-2: #1a1a1c;
+  --surface-3: #212123;
+  --border: #2a2a2d;
+  --border-strong: #38383c;
+  --line: #1e1e20;
+  --foreground: #ecebe7;
+  --muted: #a6a49d;
+  --dim: #85837c; /* AA on --surface */
+  --muted-foreground: var(--muted);
+  --sidebar: #111112;
+
+  /* the one accent: soft lavender */
+  --accent: #a59cf0;
+  --accent-text: #cfc9f7;
+  --accent-bg: #1d1b29;
+  --accent-line: #39345a;
+
+  /* status tones, muted */
+  --success: #8fc0a0;
+  --success-text: #b9dbc4;
+  --success-bg: #151d18;
+  --success-line: #2a3d30;
+  --warning: #d6b47e;
+  --warning-text: #e8d2ad;
+  --warning-bg: #1f1a13;
+  --warning-line: #43382a;
+  --danger: #e09494;
+  --danger-text: #f0c0c0;
+  --danger-bg: #211516;
+  --danger-line: #4a2a2c;
+
+  /* legacy names, kept so older rules follow the system */
+  --primary: var(--accent);
+  --primary-hover: var(--accent-text);
+  --primary-foreground: #121214;
+  --amber: var(--warning);
+  --green: var(--success);
+  --red: var(--danger);
+  --cyan: var(--accent-text);
+  --pink: var(--accent-text);
+  --teal: var(--success);
+
   --radius: 14px;
+  --radius-sm: 9px;
+  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: "Instrument Serif", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --shadow-sm: 0 1px 2px #0006;
+  --shadow-md: 0 8px 28px -12px #000c;
+  --shadow-lg: 0 24px 60px -20px #000e;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
-  /* stage colours (board columns, badges) */
-  --stage-idea: var(--cyan);
-  --stage-script: var(--primary);
-  --stage-shoot: var(--amber);
-  --stage-edit: var(--pink);
-  --stage-review: var(--teal);
-  --stage-published: var(--green);
+  /* stages: quiet neutrals, the accent for work in progress, sage once published */
+  --stage-idea: #8d8b85;
+  --stage-script: var(--accent);
+  --stage-shoot: #b0aaa0;
+  --stage-edit: var(--accent-text);
+  --stage-review: var(--warning);
+  --stage-published: var(--success);
 
-  /* provenance colours */
-  --prov-ai: #a78bfa;
-  --prov-mock: #f97316;
-  --prov-heuristic: #fbbf24;
-  --prov-demo: #7bd0ff;
-  --prov-user: #86efac;
+  /* provenance: mock stays loud on purpose (it must never pass for real output) */
+  --prov-ai: var(--accent);
+  --prov-mock: #ef8a5a;
+  --prov-heuristic: var(--warning);
+  --prov-demo: #9a988f;
+  --prov-user: var(--success);
 
   --sidebar-w: 248px;
   --sidebar-w-collapsed: 72px;
-  --topbar-h: 64px;
-  --ring: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);
+  --topbar-h: 60px;
+  --ring: 0 0 0 2px var(--background), 0 0 0 4px var(--accent);
 }

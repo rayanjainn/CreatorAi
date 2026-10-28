@@ -36,7 +36,7 @@ export function WorkspaceSwitcher({ collapsed }: { collapsed: boolean }) {
     <Menu.Root>
       <Menu.Trigger className="workspace-switcher workspace-switcher-btn" title={name} aria-label={`Workspace: ${name}. Switch workspace`} data-testid="workspace-switcher">
         {body}
-        {!collapsed && <ChevronsUpDown size={14} aria-hidden style={{ color: '#9c988f', flex: 'none' }} />}
+        {!collapsed && <ChevronsUpDown size={14} aria-hidden style={{ color: 'var(--muted)', flex: 'none' }} />}
       </Menu.Trigger>
       <MenuPopup align="start" side="bottom">
         <div className="menu-head">Your workspaces</div>
@@ -44,7 +44,7 @@ export function WorkspaceSwitcher({ collapsed }: { collapsed: boolean }) {
           <MenuItem key={w.id} onClick={() => w.id !== me?.workspace_id && switchWorkspace(w.is_home ? null : w.id)}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}>
               <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{w.name}</span>
-              <small style={{ color: '#9c988f' }}>{ROLE_LABEL[w.role]}</small>
+              <small style={{ color: 'var(--muted)' }}>{ROLE_LABEL[w.role]}</small>
               {w.id === me?.workspace_id && <Check size={14} aria-hidden />}
             </span>
           </MenuItem>

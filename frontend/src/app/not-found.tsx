@@ -6,7 +6,7 @@ export default function NotFound() {
   return (
     <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24, background: 'radial-gradient(800px 360px at 50% 0%, #2a1d5233, transparent), var(--background)' }}>
       <div style={{ textAlign: 'center', maxWidth: 460 }}>
-        <div className="empty-icon" style={{ margin: '0 auto 18px', width: 56, height: 56, borderRadius: 16, display: 'grid', placeItems: 'center', background: '#2b2242', color: '#cdbdff' }}>
+        <div className="empty-icon" style={{ margin: '0 auto 18px', width: 56, height: 56, borderRadius: 16, display: 'grid', placeItems: 'center', background: 'var(--accent-bg)', color: 'var(--accent-text)' }}>
           <Compass size={26} />
         </div>
         <div className="eyebrow violet-text" style={{ justifyContent: 'center' }}>

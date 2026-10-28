@@ -40,7 +40,7 @@ export default function CreativeTwinPage() {
                 <div className="eyebrow violet-text">Style profile</div>
                 <h2 id="style-h">How you write</h2>
               </div>
-              <BrainCircuit size={18} aria-hidden style={{ color: '#b9a5ff' }} />
+              <BrainCircuit size={18} aria-hidden style={{ color: 'var(--accent-text)' }} />
             </div>
             {twin.isPending ? (
               <Skeleton style={{ height: 120 }} />

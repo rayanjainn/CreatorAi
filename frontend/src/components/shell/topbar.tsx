@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, type FormEvent } from 'react'
-import { Activity, ChevronRight, LogOut, Menu as MenuIcon, Plus, Search, Settings, Sparkles, UserRound } from 'lucide-react'
+import { Activity, ChevronRight, Command, LogOut, Menu as MenuIcon, Plus, Search, Settings, Sparkles, UserRound } from 'lucide-react'
 import { Menu, MenuItem, MenuPopup } from '@/components/ui/menu'
 import { DataModeChip } from '@/components/provenance/data-mode'
 import { useAuth } from '@/components/auth-provider'
@@ -74,6 +74,10 @@ function GlobalSearch() {
         />
         <kbd aria-hidden>/</kbd>
       </form>
+      <button type="button" className="cmdk-trigger hide-sm" onClick={() => useUi.getState().setCommandOpen(true)} aria-label="Open the command palette" data-testid="command-trigger">
+        <Command size={13} aria-hidden />
+        <span>K</span>
+      </button>
       <Link href="/search" className="icon-button search-mobile" aria-label="Search">
         <Search size={17} />
       </Link>

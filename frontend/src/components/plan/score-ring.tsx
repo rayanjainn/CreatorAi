@@ -15,7 +15,7 @@ export function ScoreRing({ value, size = 64, label, stroke = 6 }: { value: numb
       data-score={known ? Math.round(v) : 'unknown'}
     >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#2f2f37" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border-strong)" strokeWidth={stroke} />
         {known && (
           <circle
             cx={size / 2}

@@ -10,10 +10,13 @@ import { JobsProvider } from './jobs-provider'
 import { DataModeBanner } from '@/components/provenance/data-mode'
 import { NewContentDialog } from '@/components/board/new-content-dialog'
 import { hydrateUi, useUi } from '@/stores/ui'
+import { CommandPalette } from './command-palette'
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const setMobile = useUi((s) => s.setMobileNav)
+  const commandOpen = useUi((s) => s.commandOpen)
+  const setCommandOpen = useUi((s) => s.setCommandOpen)
 
   useEffect(() => {
     hydrateUi()
@@ -26,6 +29,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        useUi.getState().setCommandOpen(!useUi.getState().commandOpen)
+        return
+      }
       if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return
       if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return
       e.preventDefault()
@@ -36,7 +44,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [])
 
   // the clip editor is a full-bleed workspace with its own header: no sidebar, topbar or banner
-  const focus = pathname.startsWith('/editor/')
+  const focus = pathname.startsWith('/editor/') || pathname.startsWith('/teleprompter/')
 
   return (
     <div className="app-shell" data-focus={focus || undefined}>
@@ -55,6 +63,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <JobToasts />
       <JobsProvider />
       <NewContentDialog />
+      <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
     </div>
   )
 }

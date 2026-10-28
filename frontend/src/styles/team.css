@@ -4,7 +4,7 @@
   display: inline-grid;
   place-items: center;
   border-radius: 50%;
-  color: #fff;
+  color: var(--foreground);
   font-weight: 700;
   background: var(--av, var(--primary));
   box-shadow: 0 0 0 2px var(--surface);
@@ -31,7 +31,7 @@
   margin-left: -7px;
 }
 .avatar-more {
-  background: #3a3a44;
+  background: var(--border-strong);
   color: var(--muted-foreground);
 }
 
@@ -114,7 +114,7 @@
   border-radius: 99px;
   font-size: 10.5px;
   font-weight: 700;
-  color: #86efac;
+  color: var(--success-text);
   background: color-mix(in srgb, var(--green) 16%, transparent);
 }
 .team-role {
@@ -125,7 +125,7 @@
   border-radius: 99px;
   font-size: 12px;
   font-weight: 700;
-  background: #2f2f38;
+  background: var(--border-strong);
   color: var(--muted-foreground);
 }
 .team-badge.role-owner {
@@ -147,7 +147,7 @@
   height: 34px;
   border-radius: 50%;
   color: var(--muted-foreground);
-  background: #2f2f38;
+  background: var(--border-strong);
 }
 .team-invites h3 {
   font-size: 13px;
@@ -163,7 +163,7 @@
   gap: 16px;
 }
 .invite-project {
-  border: 1px solid #30303a;
+  border: 1px solid var(--border-strong);
   border-radius: 12px;
   padding: 10px 12px;
 }
@@ -208,7 +208,7 @@
   padding: 8px 10px;
   border-radius: 12px;
   background: var(--surface-2);
-  border: 1px solid #34343e;
+  border: 1px solid var(--border-strong);
 }
 .invite-link input {
   flex: 1;
@@ -235,14 +235,14 @@
   font-size: 11.5px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #9c988f;
+  color: var(--muted);
 }
 .invite-card b {
   font-size: 15px;
   overflow-wrap: anywhere;
 }
 .invite-card small {
-  color: #bdb9b0;
+  color: var(--muted);
   font-size: 12.5px;
   line-height: 1.45;
 }
@@ -255,7 +255,7 @@
   cursor: pointer;
 }
 .workspace-switcher-btn:hover {
-  background: #23232b;
+  background: var(--border);
 }
 
 /* ---------- share + comments ---------- */
@@ -297,7 +297,7 @@
   white-space: nowrap;
 }
 .share-who small {
-  color: #9c988f;
+  color: var(--muted);
   font-size: 11.5px;
 }
 .comments {
@@ -316,7 +316,7 @@
 }
 .cm-pin {
   font-size: 12px;
-  color: #bdb9b0;
+  color: var(--muted);
   display: flex;
   gap: 6px;
   align-items: center;
@@ -344,15 +344,15 @@
   font-size: 12.5px;
 }
 .cm-meta small {
-  color: #9c988f;
+  color: var(--muted);
 }
 .cm-time {
   font-family: var(--font-mono, monospace);
   font-size: 11px;
   padding: 1px 7px;
   border-radius: 999px;
-  background: #8b5cf633;
-  color: #d8ccff;
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent-text);
   border: 0;
 }
 .cm-body p {
@@ -371,7 +371,7 @@
 .cm-toggle {
   background: none;
   border: 0;
-  color: #9c988f;
+  color: var(--muted);
   font-size: 11.5px;
   display: inline-flex;
   gap: 4px;
@@ -380,14 +380,14 @@
 }
 .cm-actions button:hover,
 .cm-toggle:hover {
-  color: #fff;
+  color: var(--foreground);
 }
 .cm-empty {
-  color: #9c988f;
+  color: var(--muted);
   font-size: 12.5px;
   display: flex;
   gap: 8px;
   align-items: center;
   margin: 0;
 }
-.act-by{font-weight:400;color:#9c988f}
+.act-by{font-weight:400;color:var(--muted)}

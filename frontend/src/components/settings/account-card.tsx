@@ -60,7 +60,7 @@ export function AccountCard({ email, workspaceName, isOwner, onSignOut }: { emai
     <section className="card danger-zone span-2" aria-labelledby="dz-h" data-testid="account-card">
       <div className="card-heading">
         <div>
-          <div className="eyebrow" style={{ color: '#fca5a5' }}>
+          <div className="eyebrow" style={{ color: 'var(--danger)' }}>
             Account
           </div>
           <h2 id="dz-h">Security & data</h2>

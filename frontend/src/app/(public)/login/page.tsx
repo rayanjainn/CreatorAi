@@ -82,7 +82,7 @@ function LoginForm() {
 
 
       <div style={{ textAlign: 'center', marginTop: 14 }}>
-        <button type="button" onClick={() => setForgot((f) => !f)} style={{ background: 'none', color: '#9c988f', fontSize: 12.5 }} aria-expanded={forgot}>
+        <button type="button" onClick={() => setForgot((f) => !f)} style={{ background: 'none', color: 'var(--muted)', fontSize: 12.5 }} aria-expanded={forgot}>
           Forgot your password?
         </button>
         {forgot && (

@@ -9,6 +9,8 @@ type UiState = {
   setupDismissed: boolean
   dismissSetup: () => void
   newContentOpen: boolean
+  commandOpen: boolean
+  setCommandOpen: (open: boolean) => void
   newContentPrefill: NewContentPrefill | null
   setSidebarCollapsed: (v: boolean) => void
   toggleSidebar: () => void
@@ -42,6 +44,8 @@ export const useUi = create<UiState>((set, get) => ({
     set({ setupDismissed: true })
   },
   newContentOpen: false,
+  commandOpen: false,
+  setCommandOpen: (open) => set({ commandOpen: open }),
   newContentPrefill: null,
   setSidebarCollapsed: (v) => {
     try {

@@ -168,7 +168,7 @@ function LlmCard() {
             <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }} data-testid="test-results">
               {Object.entries(test.data.results).map(([name, r]) => (
                 <div key={name} className={`provider-result ${r.ok ? 'ok' : 'fail'}`} data-testid={`test-${name}`}>
-                  {r.ok ? <CheckCircle2 size={16} color="#4ade80" style={{ flex: 'none', marginTop: 1 }} /> : <XCircle size={16} color="#f87171" style={{ flex: 'none', marginTop: 1 }} />}
+                  {r.ok ? <CheckCircle2 size={16} color="var(--success)" style={{ flex: 'none', marginTop: 1 }} /> : <XCircle size={16} color="var(--danger)" style={{ flex: 'none', marginTop: 1 }} />}
                   <div style={{ minWidth: 0 }}>
                     <b style={{ textTransform: 'capitalize' }}>{name}</b>{' '}
                     {r.ok ? (

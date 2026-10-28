@@ -46,22 +46,18 @@ export function DataModeBanner() {
   if (mode === 'unconfigured' && !dismissed) {
     return (
       <div className="setup-card" data-testid="setup-card" role="status">
-        <div className="stat-icon amber">
-          <KeyRound size={17} />
-        </div>
-        <div>
-          <h3>Add a free AI key to switch the AI features on</h3>
+        <KeyRound size={15} className="setup-icon" aria-hidden />
+        <div className="setup-text">
+          <h3>AI features are off until you add a free key.</h3>
           <p>
-            CreatorAi never fakes AI output. Until one provider is configured, the AI tools stay off and the rest of the app (board,
-            library, matching) keeps working. Put one of these in <code className="env">.env</code>, then restart the API:
-          </p>
-          <ul>
-            {ENV_VARS.map((v) => (
-              <li key={v}>
+            Put one of {ENV_VARS.map((v, i) => (
+              <span key={v}>
                 <code>{v}</code>
-              </li>
-            ))}
-          </ul>
+                {i < ENV_VARS.length - 2 ? ', ' : i === ENV_VARS.length - 2 ? ' or ' : ''}
+              </span>
+            ))}{' '}
+            in <code className="env">.env</code> and restart. Everything else works without one, and nothing AI-made is ever faked.
+          </p>
         </div>
         <div className="setup-actions">
           <LinkButton href="/settings#llm" variant="secondary" size="sm">
