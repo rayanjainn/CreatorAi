@@ -20,7 +20,7 @@ Backend gaps and oddities hit while wiring the frontend. Each is worked around i
    puts the app in mock mode and shows the loud mock banner. Check `.env` if you expect "unconfigured".
 10. **Embedder download blocked offline** shows as `hashing` heuristic (`embedder.real=false`); Settings labels it as such.
 11. Fixed: the third-party promo videos were removed; the login page shows the product render and the feature list.
-12. Next.js `next dev` writes `AGENTS.md`/`CLAUDE.md` into `frontend/`; disabled with `agentRules: false` and git-ignored.
+12. Next.js `next dev` can write agent instruction files (`AGENTS.md` and similar) into `frontend/`; disabled with `agentRules: false` and git-ignored.
 13. **Fixed: an empty `OLLAMA_BASE_URL=` now means the cloud default.** Formerly it counted as a configured Ollama provider (data_mode becomes `real` with no key). Leave the variable
     unset (default `https://ollama.com`, which needs `OLLAMA_API_KEY`) to be "unconfigured".
 14. **Seeded hero plan was not editable**: `HERO_PLAN` had 5 structure sections but 7 shot rows, so `PATCH .../director/plan`
