@@ -3,7 +3,7 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 const api = new URL(apiUrl)
 
 const nextConfig = {
-  // Generated AGENTS.md / CLAUDE.md files are not part of this repo.
+  // next dev must not generate agent instruction files (AGENTS.md and the like) in this repo.
   agentRules: false,
   images: {
     // Thumbnails are signed, short-lived URLs served by the local API (/media/...).
