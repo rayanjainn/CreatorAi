@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import literal_column, select
 from sqlalchemy.orm import Session
 
 from app.db import session_scope
@@ -63,7 +63,8 @@ def history(db: Session, ws: str, limit: int = 50) -> list[dict[str, Any]]:
         db.scalars(
             select(TwinMessage)
             .where(TwinMessage.workspace_id == ws)
-            .order_by(TwinMessage.created_at.desc(), TwinMessage.id.desc())
+            # rowid breaks same-second ties in insertion order (ids are random uuids)
+            .order_by(TwinMessage.created_at.desc(), literal_column("twin_messages.rowid").desc())
             .limit(limit)
         )
     )[::-1]

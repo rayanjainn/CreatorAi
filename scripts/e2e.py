@@ -43,6 +43,8 @@ def main() -> int:
         "GEMINI_API_KEY": "",
         "GROQ_API_KEY": "",
         "OLLAMA_API_KEY": "",
+        "GOOGLE_CLIENT_ID": "",
+        "GOOGLE_CLIENT_SECRET": "",
         # deterministic whatever this machine has cached: the suite asserts the labelled fallbacks
         "EMBED_BACKEND": "hashing",
         "ASR_PROVIDER": "none",
